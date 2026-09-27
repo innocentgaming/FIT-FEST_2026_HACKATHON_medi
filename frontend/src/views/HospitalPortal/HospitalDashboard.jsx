@@ -22,7 +22,11 @@ import {
   Search,
   User,
   RotateCcw,
-  AlertCircle
+  AlertCircle,
+  Lock,
+  Unlock,
+  Key,
+  ShieldCheck
 } from 'lucide-react';
 
 export const HospitalDashboard = () => {
@@ -43,6 +47,13 @@ export const HospitalDashboard = () => {
   const [specialists, setSpecialists] = useState([]);
   const [ambulances, setAmbulances] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Staff Inventory Security PIN state (prevents accidental or unauthorized modifications)
+  const [isInventoryUnlocked, setIsInventoryUnlocked] = useState(false);
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [staffPin, setStaffPin] = useState('');
+  const [pinError, setPinError] = useState('');
+  const [pendingAction, setPendingAction] = useState(null);
 
   // Patient Search State
   const [patientSearchQuery, setPatientSearchQuery] = useState('');
@@ -120,55 +131,91 @@ export const HospitalDashboard = () => {
     }
   };
 
-  const handleResourceCountChange = async (key, delta) => {
-    const currentVal = resources[key] || 0;
-    const newVal = Math.max(0, currentVal + delta);
-    const updated = { ...resources, [key]: newVal };
-    setResources(updated);
-
-    try {
-      await api.updateHospitalResources(hospitalId, updated);
-    } catch (err) {
-      console.error('Error updating live resources:', err);
-      setResources(resources);
+  const requireStaffAuth = (actionCallback) => {
+    if (isInventoryUnlocked) {
+      actionCallback();
+    } else {
+      setPendingAction(() => actionCallback);
+      setShowPinModal(true);
+      setPinError('');
+      setStaffPin('');
     }
+  };
+
+  const handleVerifyPin = (e) => {
+    if (e) e.preventDefault();
+    const cleanPin = staffPin.trim();
+    // Default PIN: 1234 or admin or user password
+    if (cleanPin === '1234' || cleanPin === 'admin' || (user?.password && cleanPin === user.password)) {
+      setIsInventoryUnlocked(true);
+      setShowPinModal(false);
+      setPinError('');
+      if (pendingAction) {
+        pendingAction();
+        setPendingAction(null);
+      }
+    } else {
+      setPinError('Invalid Staff PIN. Enter 1234 (Default Staff PIN) to unlock controls.');
+    }
+  };
+
+  const handleResourceCountChange = (key, delta) => {
+    requireStaffAuth(async () => {
+      const currentVal = resources[key] || 0;
+      const newVal = Math.max(0, currentVal + delta);
+      const updated = { ...resources, [key]: newVal };
+      setResources(updated);
+
+      try {
+        await api.updateHospitalResources(hospitalId, updated);
+      } catch (err) {
+        console.error('Error updating live resources:', err);
+        setResources(resources);
+      }
+    });
   };
 
   const handleAddEquipment = async (e) => {
     if (e) e.preventDefault();
     if (!newEquipmentInput.trim()) return;
-    const updatedEquipment = [...equipment, newEquipmentInput.trim()];
-    setEquipment(updatedEquipment);
-    setNewEquipmentInput('');
-    try {
-      await api.updateHospitalResources(hospitalId, { ...resources, equipment: updatedEquipment });
-    } catch (err) {
-      console.error('Error adding equipment:', err);
-    }
+    requireStaffAuth(async () => {
+      const updatedEquipment = [...equipment, newEquipmentInput.trim()];
+      setEquipment(updatedEquipment);
+      setNewEquipmentInput('');
+      try {
+        await api.updateHospitalResources(hospitalId, { ...resources, equipment: updatedEquipment });
+      } catch (err) {
+        console.error('Error adding equipment:', err);
+      }
+    });
   };
 
   const handleRemoveEquipment = async (itemToRemove) => {
-    const updatedEquipment = equipment.filter((item) => item !== itemToRemove);
-    setEquipment(updatedEquipment);
-    try {
-      await api.updateHospitalResources(hospitalId, { ...resources, equipment: updatedEquipment });
-    } catch (err) {
-      console.error('Error removing equipment:', err);
-    }
+    requireStaffAuth(async () => {
+      const updatedEquipment = equipment.filter((item) => item !== itemToRemove);
+      setEquipment(updatedEquipment);
+      try {
+        await api.updateHospitalResources(hospitalId, { ...resources, equipment: updatedEquipment });
+      } catch (err) {
+        console.error('Error removing equipment:', err);
+      }
+    });
   };
 
-  const handleBloodStockChange = async (group, delta) => {
-    const currentUnits = bloodBank[group] || 0;
-    const newUnits = Math.max(0, currentUnits + delta);
-    const updated = { ...bloodBank, [group]: newUnits };
-    setBloodBank(updated);
+  const handleBloodStockChange = (group, delta) => {
+    requireStaffAuth(async () => {
+      const currentUnits = bloodBank[group] || 0;
+      const newUnits = Math.max(0, currentUnits + delta);
+      const updated = { ...bloodBank, [group]: newUnits };
+      setBloodBank(updated);
 
-    try {
-      await api.updateHospitalBloodBank(hospitalId, updated);
-    } catch (err) {
-      console.error('Error updating blood bank stock:', err);
-      setBloodBank(bloodBank);
-    }
+      try {
+        await api.updateHospitalBloodBank(hospitalId, updated);
+      } catch (err) {
+        console.error('Error updating blood bank stock:', err);
+        setBloodBank(bloodBank);
+      }
+    });
   };
 
   const handleAcceptRequest = async (requestId) => {
@@ -553,7 +600,7 @@ export const HospitalDashboard = () => {
       {/* TAB 2: LIVE RESOURCES & BLOOD BANK */}
       {activeTab === 'RESOURCES' && (
         <div>
-          <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
             <div>
               <h3 style={{ fontSize: '1.2rem', marginBottom: '0.25rem' }}>
                 Hospital Bed & Equipment Telemetry (Socket.io Synced)
@@ -565,6 +612,71 @@ export const HospitalDashboard = () => {
             <span style={{ fontSize: '0.8rem', color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '0.35rem 0.75rem', borderRadius: '20px', border: '1px solid rgba(16,185,129,0.3)' }}>
               ⚡ Live Socket.io Telemetry Active
             </span>
+          </div>
+
+          {/* Staff Inventory Security Safeguard Banner */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '0.85rem 1.25rem',
+              borderRadius: 'var(--radius-md)',
+              marginBottom: '1.25rem',
+              background: isInventoryUnlocked ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.08)',
+              border: isInventoryUnlocked ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
+              gap: '1rem',
+              flexWrap: 'wrap'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              {isInventoryUnlocked ? (
+                <div style={{ background: '#10b981', color: '#fff', borderRadius: '50%', padding: '0.4rem', display: 'flex' }}>
+                  <Unlock size={18} />
+                </div>
+              ) : (
+                <div style={{ background: '#ef4444', color: '#fff', borderRadius: '50%', padding: '0.4rem', display: 'flex' }}>
+                  <Lock size={18} />
+                </div>
+              )}
+              <div>
+                <div style={{ fontWeight: 600, fontSize: '0.9rem', color: isInventoryUnlocked ? '#10b981' : '#f87171', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <span>{isInventoryUnlocked ? 'Duty Manager Authenticated' : 'Inventory Safeguard: Locked (Read-Only Safeguard)'}</span>
+                  {isInventoryUnlocked && <span className="badge badge-success" style={{ fontSize: '0.68rem' }}>Active</span>}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                  {isInventoryUnlocked
+                    ? `Staff verified (${user?.name || 'Hospital Staff'}). Bed & Blood Bank live adjustments are active.`
+                    : 'Changes to beds or blood units require Staff Passcode verification.'}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {isInventoryUnlocked ? (
+                <button
+                  onClick={() => setIsInventoryUnlocked(false)}
+                  className="btn btn-secondary btn-sm"
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem' }}
+                >
+                  <Lock size={14} />
+                  <span>Lock Safeguard</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    setStaffPin('');
+                    setPinError('');
+                    setShowPinModal(true);
+                  }}
+                  className="btn btn-primary btn-sm"
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem' }}
+                >
+                  <Key size={14} />
+                  <span>Enter Staff PIN to Unlock</span>
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="grid-4" style={{ marginBottom: '1.5rem' }}>
@@ -1164,6 +1276,110 @@ export const HospitalDashboard = () => {
                 </button>
                 <button type="submit" className="btn btn-primary" style={{ flex: 1 }}>
                   Save Specialist
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* STAFF SECURITY PIN MODAL */}
+      {showPinModal && (
+        <div className="modal-overlay" onClick={() => setShowPinModal(false)}>
+          <div
+            className="modal-content"
+            onClick={(e) => e.stopPropagation()}
+            style={{ maxWidth: '420px', textAlign: 'center' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '0.5rem' }}>
+              <button onClick={() => setShowPinModal(false)} className="btn btn-secondary btn-icon">
+                <XCircle size={18} />
+              </button>
+            </div>
+
+            <div
+              style={{
+                width: '56px',
+                height: '56px',
+                borderRadius: '50%',
+                background: 'rgba(56, 189, 248, 0.1)',
+                border: '1px solid rgba(56, 189, 248, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 1rem',
+                color: 'var(--primary-light)'
+              }}
+            >
+              <Key size={28} />
+            </div>
+
+            <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>
+              Staff Authorization Required
+            </h3>
+            <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '1.25rem' }}>
+              Modifying live bed capacity and blood bank units requires verified Hospital Staff Passcode.
+            </p>
+
+            <form onSubmit={handleVerifyPin}>
+              <div className="form-group" style={{ textAlign: 'left', marginBottom: '1rem' }}>
+                <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>Enter 4-Digit Staff PIN / Passcode</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--primary-light)' }}>Demo PIN: 1234</span>
+                </label>
+                <input
+                  type="password"
+                  maxLength={10}
+                  className="form-control"
+                  placeholder="Enter PIN (e.g. 1234)"
+                  value={staffPin}
+                  onChange={(e) => {
+                    setStaffPin(e.target.value);
+                    setPinError('');
+                  }}
+                  autoFocus
+                  required
+                  style={{
+                    textAlign: 'center',
+                    fontSize: '1.25rem',
+                    letterSpacing: '0.3em',
+                    fontWeight: 700
+                  }}
+                />
+              </div>
+
+              {pinError && (
+                <div
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    color: '#f87171',
+                    fontSize: '0.8rem',
+                    padding: '0.5rem',
+                    borderRadius: 'var(--radius-sm)',
+                    marginBottom: '1rem'
+                  }}
+                >
+                  {pinError}
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <button
+                  type="button"
+                  onClick={() => setShowPinModal(false)}
+                  className="btn btn-secondary"
+                  style={{ flex: 1 }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-primary"
+                  style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem' }}
+                >
+                  <ShieldCheck size={16} />
+                  <span>Verify & Unlock</span>
                 </button>
               </div>
             </form>

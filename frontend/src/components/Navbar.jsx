@@ -62,33 +62,6 @@ export const Navbar = ({ activeView, setActiveView }) => {
           <span>EMERGENCY MODE</span>
         </button>
 
-        {/* 1-Click Role Switcher for Hackathon Testing */}
-        {user && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Role Switcher:</span>
-            <div style={{ display: 'flex', gap: '0.25rem' }}>
-              {demoAccounts.map((acc) => {
-                const isActive = user.role === acc.role;
-                return (
-                  <button
-                    key={acc.role}
-                    onClick={() => quickSwitchRole(acc.role)}
-                    className={`btn btn-sm ${isActive ? 'btn-primary' : 'btn-secondary'}`}
-                    style={{
-                      fontSize: '0.72rem',
-                      padding: '0.25rem 0.5rem',
-                      border: isActive ? '1px solid var(--primary-light)' : '1px solid var(--border-card)'
-                    }}
-                    title={`Switch to ${acc.label}`}
-                  >
-                    {acc.role.replace('_', ' ')}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        )}
-
         {/* Theme Switcher Button (Dark / Night / Light) */}
         <button
           onClick={toggleTheme}
