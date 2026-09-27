@@ -69,12 +69,21 @@ router.get('/', authenticateToken, (req, res) => {
 router.post('/search-blood', (req, res) => {
   const { bloodGroup, unitsRequired, location, urgency } = req.body;
 
-  if (!bloodGroup) {
-    return res.status(400).json({ error: 'Blood group is required.' });
+  if (!bloodGroup || typeof bloodGroup !== 'string') {
+    return res.status(400).json({ error: 'Valid blood group string is required.' });
   }
 
-  const requestedUnits = Number(unitsRequired) || 1;
+  const requestedUnits = Number(unitsRequired);
+  if (isNaN(requestedUnits) || !isFinite(requestedUnits) || requestedUnits <= 0) {
+    return res.status(400).json({ error: 'Units required must be a positive finite integer.' });
+  }
+
   const formattedGroup = bloodGroup.trim().toUpperCase();
+  const validGroups = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
+  if (!validGroups.includes(formattedGroup)) {
+    return res.status(400).json({ error: `Invalid blood group '${bloodGroup}'. Must be one of: ${validGroups.join(', ')}` });
+  }
+
   const hospitals = store.get('hospitals');
   const locQuery = (location || '').trim().toLowerCase();
 
@@ -154,8 +163,10 @@ function calculateDistanceKm(lat1, lon1, lat2, lon2) {
   return Math.round(R * c * 10) / 10;
 }
 
+const { emergencyLimiter } = require('../middleware/rateLimiter');
+
 // Create new Request
-router.post('/', authenticateToken, (req, res) => {
+router.post('/', authenticateToken, emergencyLimiter, (req, res) => {
   const {
     type,
     targetHospitalId,
@@ -193,8 +204,14 @@ router.post('/', authenticateToken, (req, res) => {
     }
   } else if (reqType === REQUEST_TYPES.AMBULANCE_REQUEST) {
     // Nearest available unit selection
-    const pLat = Number(details.latitude || details.lat || req.body.latitude || req.body.lat || 18.5204);
-    const pLng = Number(details.longitude || details.lng || req.body.longitude || req.body.lng || 73.8567);
+    let rawLat = details.latitude || details.lat || req.body.latitude || req.body.lat;
+    let rawLng = details.longitude || details.lng || req.body.longitude || req.body.lng;
+
+    let pLat = rawLat !== undefined ? Number(rawLat) : 18.5204;
+    let pLng = rawLng !== undefined ? Number(rawLng) : 73.8567;
+
+    if (isNaN(pLat) || !isFinite(pLat) || pLat < -90 || pLat > 90) pLat = 18.5204;
+    if (isNaN(pLng) || !isFinite(pLng) || pLng < -180 || pLng > 180) pLng = 73.8567;
 
     const availableAmbulances = store.get('ambulances').filter((a) => {
       const st = (a.status || '').toUpperCase().replace(' ', '_');

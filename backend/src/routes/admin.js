@@ -168,6 +168,8 @@ router.post('/requests/:requestId/assign', (req, res) => {
   });
 });
 
+const { adminResetLimiter } = require('../middleware/rateLimiter');
+
 // View Audit Logs
 router.get('/audit-logs', (req, res) => {
   const { limit } = req.query;
@@ -178,8 +180,17 @@ router.get('/audit-logs', (req, res) => {
   res.json({ logs: sorted, total: logs.length });
 });
 
-// Reset system to demo seed
-router.post('/reset-demo', (req, res) => {
+// Reset system to demo seed (Guarded by ENABLE_DEMO_RESET flag & adminResetLimiter)
+router.post('/reset-demo', adminResetLimiter, (req, res) => {
+  const isProduction = process.env.NODE_ENV === 'production';
+  const isResetExplicitlyEnabled = process.env.ENABLE_DEMO_RESET === 'true';
+
+  if (isProduction && !isResetExplicitlyEnabled) {
+    return res.status(403).json({
+      error: 'Demo database reset is disabled in production mode. Set ENABLE_DEMO_RESET=true to enable.'
+    });
+  }
+
   store.resetToSeed();
   store.logAudit({
     actorId: req.user.id,

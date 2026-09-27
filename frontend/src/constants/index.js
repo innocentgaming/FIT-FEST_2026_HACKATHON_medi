@@ -1,0 +1,54 @@
+/**
+ * MediLink CARE - Frontend Canonical System Constants & Enums
+ */
+
+export const ROLES = Object.freeze({
+  PATIENT: 'PATIENT',
+  HOSPITAL: 'HOSPITAL',
+  AMBULANCE: 'AMBULANCE',
+  ADMIN: 'ADMIN',
+  SYSTEM_DOCTOR: 'SYSTEM_DOCTOR'
+});
+
+export const REQUEST_TYPES = Object.freeze({
+  PATIENT_ADMISSION: 'PATIENT_ADMISSION',
+  HOSPITAL_TRANSFER: 'HOSPITAL_TRANSFER',
+  BLOOD_REQUEST: 'BLOOD_REQUEST',
+  EQUIPMENT_REQUEST: 'EQUIPMENT_REQUEST',
+  AMBULANCE_REQUEST: 'AMBULANCE_REQUEST'
+});
+
+export const REQUEST_STATUSES = Object.freeze({
+  PENDING: 'PENDING',
+  ASSIGNED: 'ASSIGNED',
+  ACCEPTED: 'ACCEPTED',
+  REJECTED: 'REJECTED',
+  COMPLETED: 'COMPLETED',
+  RESOLVED: 'RESOLVED',
+  CANCELLED: 'CANCELLED'
+});
+
+export const APPOINTMENT_STATUSES = Object.freeze({
+  SCHEDULED: 'SCHEDULED',
+  CONFIRMED: 'CONFIRMED',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+  NO_SHOW: 'NO_SHOW',
+  FOLLOW_UP: 'FOLLOW_UP'
+});
+
+export const AMBULANCE_STATUSES = Object.freeze({
+  AVAILABLE: 'AVAILABLE',
+  ON_DUTY: 'ON_DUTY',
+  OFFLINE: 'OFFLINE'
+});
+
+export const BLOOD_GROUPS = Object.freeze(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']);
+
+export const PRIORITIES = Object.freeze({
+  LOW: 'LOW',
+  NORMAL: 'NORMAL',
+  HIGH: 'HIGH',
+  CRITICAL: 'CRITICAL',
+  EMERGENCY: 'EMERGENCY'
+});

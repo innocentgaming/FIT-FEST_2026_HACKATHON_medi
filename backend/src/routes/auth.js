@@ -5,9 +5,10 @@ const jwt = require('jsonwebtoken');
 const { v4: uuidv4 } = require('uuid');
 const { store } = require('../db/store');
 const { authenticateToken, JWT_SECRET } = require('../middleware/auth');
+const { authLimiter } = require('../middleware/rateLimiter');
 
 // Unified login for all 5 roles
-router.post('/login', (req, res) => {
+router.post('/login', authLimiter, (req, res) => {
   const { identifier, email, phone, password } = req.body;
   const loginKey = (identifier || email || phone || '').trim().toLowerCase();
 
@@ -62,7 +63,7 @@ router.post('/login', (req, res) => {
 });
 
 // Patient Registration
-router.post('/patient/register', (req, res) => {
+router.post('/patient/register', authLimiter, (req, res) => {
   const { name, phone, email, password, bloodGroup, emergencyContact, address } = req.body;
 
   if (!name || !phone || !password) {
@@ -115,7 +116,7 @@ router.post('/patient/register', (req, res) => {
 });
 
 // Ambulance Driver Registration
-router.post('/ambulance/register', (req, res) => {
+router.post('/ambulance/register', authLimiter, (req, res) => {
   const { driverName, phone, password, vehicleNo, hospitalId, ambulanceType } = req.body;
 
   if (!driverName || !phone || !password || !vehicleNo) {
@@ -195,7 +196,7 @@ router.post('/ambulance/register', (req, res) => {
 });
 
 // Hospital Admin Registration
-router.post('/hospital/register', (req, res) => {
+router.post('/hospital/register', authLimiter, (req, res) => {
   const { hospitalName, email, phone, password, address, city, area, lat, lng } = req.body;
 
   if (!hospitalName || !email || !password || !phone) {
@@ -299,15 +300,16 @@ router.get('/me', authenticateToken, (req, res) => {
 // Seeded quick demo accounts helper for testing individual patient and doctor logins
 router.get('/demo-accounts', (req, res) => {
   res.json({
+    notice: 'PUBLIC HACKATHON DEMO CREDENTIALS — NOT FOR PRODUCTION',
     accounts: [
-      { role: 'PATIENT', label: 'Patient: Aarav Sharma (B+)', identifier: '9876543210', password: 'patient123', sub: 'Blood Group B+ • Pune' },
-      { role: 'PATIENT', label: 'Patient: Sneha Patil (O-)', identifier: '9876543222', password: 'patient123', sub: 'Blood Group O- • Pune' },
-      { role: 'SYSTEM_DOCTOR', label: 'Doctor: Dr. Anand Joshi', identifier: 'dr.joshi@medilink.gov.in', password: 'doctor123', sub: 'Emergency Triage Specialist' },
-      { role: 'SYSTEM_DOCTOR', label: 'Doctor: Dr. Meera Kulkarni', identifier: 'dr.kulkarni@medilink.gov.in', password: 'doctor123', sub: 'Critical Care & Coordinator' },
-      { role: 'HOSPITAL', label: 'Hospital: Ruby Hall Clinic', identifier: 'rubyhall@medilink.org', password: 'hospital123', sub: 'Multi-Speciality Facility' },
-      { role: 'HOSPITAL', label: 'Hospital: KEM Hospital', identifier: 'kem@medilink.org', password: 'hospital123', sub: 'Tertiary Care Facility' },
-      { role: 'AMBULANCE', label: 'Ambulance: Santosh Shinde', identifier: '9822012345', password: 'ambulance123', sub: 'ALS Unit MH-12-CR-1011' },
-      { role: 'ADMIN', label: 'Command: Central Admin', identifier: 'admin@medilink.gov.in', password: 'admin123', sub: 'State Health Authority' }
+      { role: 'PATIENT', label: 'Patient: Aarav Sharma (B+)', identifier: '9876543210', password: 'patient123', sub: 'Blood Group B+ • Pune (Demo)' },
+      { role: 'PATIENT', label: 'Patient: Sneha Patil (O-)', identifier: '9876543222', password: 'patient123', sub: 'Blood Group O- • Pune (Demo)' },
+      { role: 'SYSTEM_DOCTOR', label: 'Doctor: Dr. Anand Joshi', identifier: 'dr.joshi@medilink.gov.in', password: 'doctor123', sub: 'Emergency Triage Specialist (Demo)' },
+      { role: 'SYSTEM_DOCTOR', label: 'Doctor: Dr. Meera Kulkarni', identifier: 'dr.kulkarni@medilink.gov.in', password: 'doctor123', sub: 'Critical Care & Coordinator (Demo)' },
+      { role: 'HOSPITAL', label: 'Hospital: Ruby Hall Clinic', identifier: 'rubyhall@medilink.org', password: 'hospital123', sub: 'Multi-Speciality Facility (Demo)' },
+      { role: 'HOSPITAL', label: 'Hospital: KEM Hospital', identifier: 'kem@medilink.org', password: 'hospital123', sub: 'Tertiary Care Facility (Demo)' },
+      { role: 'AMBULANCE', label: 'Ambulance: Santosh Shinde', identifier: '9822012345', password: 'ambulance123', sub: 'ALS Unit MH-12-CR-1011 (Demo)' },
+      { role: 'ADMIN', label: 'Command: Central Admin', identifier: 'admin@medilink.gov.in', password: 'admin123', sub: 'State Health Authority (Demo)' }
     ]
   });
 });

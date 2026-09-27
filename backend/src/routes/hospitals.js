@@ -209,6 +209,26 @@ router.get('/:id/resources', (req, res) => {
   });
 });
 
+const crypto = require('crypto');
+
+function verifyStaffPin(providedPin) {
+  const configuredPin = process.env.DEMO_INVENTORY_PIN || '1234';
+  if (!providedPin || typeof providedPin !== 'string') return false;
+  
+  const cleanProvided = providedPin.trim();
+  const cleanExpected = configuredPin.trim();
+  
+  if (cleanProvided.length !== cleanExpected.length) {
+    return false;
+  }
+  
+  try {
+    return crypto.timingSafeEqual(Buffer.from(cleanProvided), Buffer.from(cleanExpected));
+  } catch (e) {
+    return false;
+  }
+}
+
 // Update Live Resources (HOSPITAL, ADMIN, or SYSTEM_DOCTOR) + Broadcast
 router.put('/:id/resources', authenticateToken, requireRole('HOSPITAL', 'ADMIN', 'SYSTEM_DOCTOR'), (req, res) => {
   const { id } = req.params;
@@ -216,18 +236,38 @@ router.put('/:id/resources', authenticateToken, requireRole('HOSPITAL', 'ADMIN',
     return res.status(403).json({ error: 'Unauthorized to update another hospital resources.' });
   }
 
+  // Server-side Staff PIN Verification Guard
+  const incomingPin = req.headers['x-staff-pin'] || req.body.staffPin;
+  const isPinRequired = process.env.REQUIRE_STAFF_PIN === 'true';
+
+  if (incomingPin) {
+    if (!verifyStaffPin(String(incomingPin))) {
+      return res.status(403).json({ error: 'Staff authorization failed: Invalid Staff PIN.' });
+    }
+  } else if (isPinRequired && req.user.role !== 'ADMIN') {
+    return res.status(403).json({ error: 'Staff verification PIN required to modify hospital inventory.' });
+  }
+
   const hospital = store.findById('hospitals', id);
   if (!hospital) return res.status(404).json({ error: 'Hospital not found' });
 
+  // Clone payload and delete any non-resource metadata or PIN
+  const bodyPayload = { ...req.body };
+  delete bodyPayload.staffPin;
+
   const updatedResources = {
     ...hospital.resources,
-    ...req.body
+    ...bodyPayload
   };
 
-  // Clamp numbers to non-negative (Never allow available beds / ICU / ventilators / oxygen < 0)
+  // Clamp numbers to non-negative (Never allow available beds / ICU / ventilators / oxygen < 0 or NaN)
   for (const k in updatedResources) {
     if (typeof updatedResources[k] === 'number') {
-      updatedResources[k] = Math.max(0, updatedResources[k]);
+      if (isNaN(updatedResources[k])) {
+        updatedResources[k] = 0;
+      } else {
+        updatedResources[k] = Math.max(0, updatedResources[k]);
+      }
     }
   }
 
@@ -266,18 +306,34 @@ router.put('/:id/bloodbank', authenticateToken, requireRole('HOSPITAL', 'ADMIN')
     return res.status(403).json({ error: 'Unauthorized to update another blood bank.' });
   }
 
+  // Server-side Staff PIN Verification Guard
+  const incomingPin = req.headers['x-staff-pin'] || req.body.staffPin;
+  const isPinRequired = process.env.REQUIRE_STAFF_PIN === 'true';
+
+  if (incomingPin) {
+    if (!verifyStaffPin(String(incomingPin))) {
+      return res.status(403).json({ error: 'Staff authorization failed: Invalid Staff PIN.' });
+    }
+  } else if (isPinRequired && req.user.role !== 'ADMIN') {
+    return res.status(403).json({ error: 'Staff verification PIN required to modify blood stock.' });
+  }
+
   const hospital = store.findById('hospitals', id);
   if (!hospital) return res.status(404).json({ error: 'Hospital not found' });
 
+  const bodyPayload = { ...req.body };
+  delete bodyPayload.staffPin;
+
   const updatedBloodBank = {
     ...hospital.bloodBank,
-    ...req.body
+    ...bodyPayload
   };
 
-  // Clamp numbers for all blood groups (Never allow blood units < 0)
+  // Clamp numbers for all blood groups (Never allow blood units < 0 or NaN)
   for (const g of ALL_BLOOD_GROUPS) {
     if (updatedBloodBank[g] !== undefined) {
-      updatedBloodBank[g] = Math.max(0, Number(updatedBloodBank[g]) || 0);
+      const parsed = Number(updatedBloodBank[g]);
+      updatedBloodBank[g] = isNaN(parsed) ? 0 : Math.max(0, parsed);
     }
   }
 

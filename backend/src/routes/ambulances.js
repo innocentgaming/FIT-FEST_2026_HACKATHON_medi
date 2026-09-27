@@ -118,8 +118,10 @@ router.put('/:id/status', authenticateToken, requireRole('AMBULANCE', 'HOSPITAL'
   res.json({ message: 'Ambulance status updated', ambulance: updated });
 });
 
+const { telemetryLimiter } = require('../middleware/rateLimiter');
+
 // Update simulated GPS location & stream via Socket
-router.put('/:id/location', authenticateToken, requireRole('AMBULANCE', 'ADMIN'), (req, res) => {
+router.put('/:id/location', authenticateToken, requireRole('AMBULANCE', 'ADMIN'), telemetryLimiter, (req, res) => {
   const { id } = req.params;
   const lat = req.body.lat !== undefined ? req.body.lat : req.body.latitude;
   const lng = req.body.lng !== undefined ? req.body.lng : req.body.longitude;
@@ -129,6 +131,17 @@ router.put('/:id/location', authenticateToken, requireRole('AMBULANCE', 'ADMIN')
     return res.status(400).json({ error: 'Latitude and Longitude are required.' });
   }
 
+  const latNum = Number(lat);
+  const lngNum = Number(lng);
+
+  if (isNaN(latNum) || isNaN(lngNum) || !isFinite(latNum) || !isFinite(lngNum)) {
+    return res.status(400).json({ error: 'Latitude and Longitude must be valid finite numbers.' });
+  }
+
+  if (latNum < -90 || latNum > 90 || lngNum < -180 || lngNum > 180) {
+    return res.status(400).json({ error: 'Latitude must be between -90 and 90, and longitude between -180 and 180.' });
+  }
+
   const ambulance = store.findById('ambulances', id);
   if (!ambulance) return res.status(404).json({ error: 'Ambulance not found' });
 
@@ -136,15 +149,12 @@ router.put('/:id/location', authenticateToken, requireRole('AMBULANCE', 'ADMIN')
     return res.status(403).json({ error: 'Unauthorized to update GPS for another ambulance.' });
   }
 
-  const latNum = Number(lat);
-  const lngNum = Number(lng);
-
   const currentLocation = {
     lat: latNum,
     lng: lngNum,
     address: address || ambulance.currentLocation?.address || 'Simulated Location',
-    heading: heading !== undefined ? Number(heading) : (ambulance.currentLocation?.heading || 0),
-    speedKmph: speedKmph !== undefined ? Number(speedKmph) : 35
+    heading: heading !== undefined && !isNaN(Number(heading)) ? Number(heading) : (ambulance.currentLocation?.heading || 0),
+    speedKmph: speedKmph !== undefined && !isNaN(Number(speedKmph)) ? Number(speedKmph) : 35
   };
 
   const updatedRaw = store.update('ambulances', id, {

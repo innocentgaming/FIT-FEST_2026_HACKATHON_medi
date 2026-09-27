@@ -2,9 +2,9 @@
 > *"CARE brings appointments, patients, ambulances, blood requirements, and healthcare facilities into one simple, unified coordination platform for clinics, hospitals, and patients."*
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/innocentgaming/FIT-FEST_2026_HACKATHON_medi)
-[![Test Suite](https://img.shields.io/badge/tests-258%20passed-success.svg)](https://github.com/innocentgaming/FIT-FEST_2026_HACKATHON_medi)
+[![Test Suite](https://img.shields.io/badge/tests-279%20passed%20(10%20suites)-success.svg)](https://github.com/innocentgaming/FIT-FEST_2026_HACKATHON_medi)
 [![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](file:///d:/medi/Dockerfile)
-[![WCAG 2.1 AA](https://img.shields.io/badge/accessibility-WCAG%202.1%20AA-emerald.svg)](file:///d:/medi/frontend)
+[![WCAG 2.2 AA](https://img.shields.io/badge/accessibility-WCAG%202.2%20AA-emerald.svg)](file:///d:/medi/frontend)
 [![FIT-FEST 2026](https://img.shields.io/badge/Hackathon-FIT--FEST%202026-orange.svg)](https://github.com/innocentgaming/FIT-FEST_2026_HACKATHON_medi)
 [![Live Frontend](https://img.shields.io/badge/Vercel-Live%20App-black.svg)](https://fit-fest-2026-hackathon-medi.vercel.app/)
 [![Live Backend](https://img.shields.io/badge/Render-Live%20API-46E3B7.svg)](https://medilink-backend-q2rh.onrender.com/health)
@@ -78,10 +78,10 @@ MediLink is built around the **C.A.R.E.** paradigm:
 2. **🩸 Smart Blood Requirement Matcher**: Queries by `Blood Group + Units Required + Location + Urgency` against an 8-group cold storage stock matrix, returning verified facility matches and direct helpline links.
 3. **🚑 Live Ambulance Tracking & Simulated GPS**: Real-time fleet lifecycle (`AVAILABLE`, `ON_DUTY`, `OFFLINE`) with step progression (`On the Way` → `Arrived` → `Completed`) and GPS telemetry.
 4. **🏥 Live Hospital Resource Telemetry**: Real-time synchronization of general beds, ICU beds, ventilators, oxygen cylinders, and specialist rosters with mathematical non-negative clamping ($\ge 0$).
-5. **🔒 Staff Inventory Security PIN Safeguard**: Prevents accidental or unauthorized modifications to hospital beds and blood stock; requires staff verification code (`1234`).
+5. **🔒 Server-Side Staff Inventory Security PIN Safeguard**: Environment-configurable demo verification (`DEMO_INVENTORY_PIN`) with constant-time comparison protecting live hospital bed and blood stock adjustments.
 6. **⚖️ Central Admin Triage & System Doctor Conflict Resolution**: Rejection triage queue allowing Admins to assign unfulfilled requests to System Doctors for re-routing to alternative facilities with immutable audit logs.
 7. **📅 OPD Appointment Intelligence**: Administrative clinic booking with duplicate slot prevention and past-date validation.
-8. **🎨 3 High-Fidelity UI Themes**: Quick toggle between **Deep Slate**, **OLED Midnight**, and **Clinical Light Mode** with WCAG 2.1 AA compliant contrast.
+8. **🎨 3 High-Fidelity UI Themes**: Quick toggle between **Deep Slate**, **OLED Midnight**, and **Clinical Light Mode** with WCAG 2.2 AA compliant contrast.
 9. **⚡ React.lazy Code-Splitting**: Optimized initial production bundle down to ~203 kB with Rollup manual vendor chunking.
 10. **🛡️ Non-Diagnostic Safety Compliance**: Embedded safety guard middleware filtering clinical diagnosis/prescription generation attempts.
 
@@ -101,7 +101,8 @@ graph TD
 
     subgraph Security_Gateway ["Security & API Gateway"]
         AUTH["🔒 JWT Auth & RBAC Middleware"]
-        PIN["🔑 Staff Inventory PIN Safeguard"]
+        PIN["🔑 Server-Side Staff PIN Guard"]
+        RL["⏱️ Sliding Window Rate Limiter"]
         SG["🛡️ Non-Diagnostic Safety Guard"]
     end
 
@@ -112,7 +113,7 @@ graph TD
     end
 
     subgraph Persistence_Layer ["Persistence Layer"]
-        DB[("💾 In-Memory Transactional Store")]
+        DB[("💾 In-Memory Thread-Safe Datastore + Atomic JSON Disk Persistence")]
     end
 
     P --> AUTH
@@ -121,7 +122,8 @@ graph TD
     AD --> AUTH
     D --> AUTH
 
-    AUTH --> PIN
+    AUTH --> RL
+    RL --> PIN
     PIN --> SG
     SG --> RE
 
@@ -143,20 +145,22 @@ graph TD
 | :--- | :--- | :--- | :--- |
 | **Frontend Framework** | **React** | `v18.3.1` | Component-based interactive UI across all 5 stakeholder portals. |
 | **Build Tool & Bundler** | **Vite** | `v6.4.3` | Ultra-fast HMR and Rollup-optimized production bundling with `manualChunks`. |
-| **Styling & Design System**| **Vanilla CSS Tokens** | `Custom Glassmorphic` | 3 High-contrast themes (*Deep Slate*, *OLED Midnight*, *Clinical Light*), WCAG 2.1 AA. |
+| **Styling & Design System**| **Vanilla CSS Tokens** | `Custom Glassmorphic` | 3 High-contrast themes (*Deep Slate*, *OLED Midnight*, *Clinical Light*), WCAG 2.2 AA. |
 | **Icons & Visual Language**| **Lucide React** | `v0.469.0` | Accessible semantic SVG icons embedded with status indicators. |
 | **Backend Runtime** | **Node.js** | `v20 LTS` | High-throughput asynchronous event-driven runtime. |
-| **API Framework** | **Express.js** | `v4.19.2` | RESTful routing, middleware pipelines, and security headers. |
-| **Realtime Engine** | **Socket.io** | `v4.7.5` | Sub-millisecond bidirectional WebSocket event bus for live telemetry & radar. |
+| **API Framework** | **Express.js** | `v4.21.2` | RESTful routing, middleware pipelines, and security headers. |
+| **Realtime Engine** | **Socket.io** | `v4.8.1` | Sub-millisecond bidirectional WebSocket event bus for live telemetry & radar. |
 | **Authentication & RBAC** | **JSON Web Tokens (JWT)** | `v9.0.2` | Stateless, cryptographically signed bearer tokens for multi-tenant sessions. |
 | **Password Hashing** | **Bcrypt.js** | `v2.4.3` | Salted credential hashing (10 rounds) protecting all user accounts. |
-| **Persistence Engine** | **Transactional File Store**| `JSON Engine` | Thread-safe, atomic disk persistence with auto-seeding and zero external bloat. |
+| **Persistence Engine** | **In-Memory Thread-Safe Datastore**| `Atomic JSON Disk Persistence` | Thread-safe in-memory caching with synchronized atomic write-through to `backend/src/db/data.json`. |
 | **Containerization** | **Docker** | `Multi-Stage Alpine` | Cloud Run-compatible production container packaging frontend + backend. |
-| **Testing Harness** | **Node.js Native Assert** | `node:assert/strict` | Repeatable CI/CD automated test runner (258 tests across 9 test suites). |
+| **Testing Harness** | **Node.js Native Assert** | `node:assert/strict` | Automated test runner (**279 tests across 10 test suites**). |
 
 ---
 
 ## 7. Stakeholder Roles & Access Control (RBAC)
+
+> **NOTICE**: *The credentials listed below are PUBLIC HACKATHON DEMO CREDENTIALS FOR VERIFICATION ONLY. Never use demo credentials in production environments.*
 
 | Role | Default Demo Identifier | Password | Key Permissions & Portal Features |
 | :--- | :--- | :--- | :--- |

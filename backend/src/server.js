@@ -55,7 +55,10 @@ const io = new Server(server, {
 
 initSocket(io);
 
+const { securityHeaders } = require('./middleware/securityHeaders');
+
 // Middleware
+app.use(securityHeaders);
 app.use(cors(corsOptions));
 app.use(express.json({ limit: '1mb' }));
 app.use(administrativeSafetyGuard);
