@@ -17,21 +17,31 @@ import {
   Clock,
   UserCheck,
   Send,
-  AlertTriangle
+  AlertTriangle,
+  Search,
+  User,
+  RotateCcw
 } from 'lucide-react';
 
 export const HospitalDashboard = () => {
   const { user } = useAuth();
   const { liveResourceUpdate, liveRequestUpdate } = useSocket();
 
-  const [activeTab, setActiveTab] = useState('RESOURCES'); // RESOURCES, REQUESTS, APPOINTMENTS, SPECIALISTS
+  const [activeTab, setActiveTab] = useState('RESOURCES'); // RESOURCES, APPOINTMENTS, REQUESTS, PATIENTS_SEARCH, SPECIALISTS
   const [summary, setSummary] = useState(null);
   const [resources, setResources] = useState({});
   const [bloodBank, setBloodBank] = useState({});
   const [requests, setRequests] = useState([]);
   const [appointments, setAppointments] = useState([]);
+  const [appointmentSummary, setAppointmentSummary] = useState({});
+  const [appointmentFilter, setAppointmentFilter] = useState('ALL'); // ALL, TODAY, UPCOMING, COMPLETED, CANCELLED, NO_SHOW, FOLLOW_UP
   const [specialists, setSpecialists] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Patient Search State
+  const [patientSearchQuery, setPatientSearchQuery] = useState('');
+  const [patientSearchResults, setPatientSearchResults] = useState([]);
+  const [patientSearchLoading, setPatientSearchLoading] = useState(false);
 
   // Reject Modal State
   const [rejectModalOpen, setRejectModalOpen] = useState(false);
@@ -51,7 +61,6 @@ export const HospitalDashboard = () => {
     loadHospitalData();
   }, [hospitalId]);
 
-  // Sync real-time updates
   useEffect(() => {
     if (liveResourceUpdate && liveResourceUpdate.hospitalId === hospitalId) {
       setResources(liveResourceUpdate.resources);
@@ -78,6 +87,7 @@ export const HospitalDashboard = () => {
       setBloodBank(sum.bloodBank || {});
       setSpecialists(sum.specialists || []);
       setAppointments(apts.appointments || []);
+      setAppointmentSummary(apts.summary || {});
       setRequests(reqs.requests || []);
     } catch (err) {
       console.error('Error loading hospital portal data:', err);
@@ -96,7 +106,6 @@ export const HospitalDashboard = () => {
       await api.updateHospitalResources(hospitalId, updated);
     } catch (err) {
       console.error('Error updating live resources:', err);
-      // Revert on failure
       setResources(resources);
     }
   };
@@ -115,11 +124,11 @@ export const HospitalDashboard = () => {
     }
   };
 
-  const handleAcceptRequest = async (requestId, reqType) => {
+  const handleAcceptRequest = async (requestId) => {
     try {
       await api.updateRequestStatus(requestId, {
         status: 'ACCEPTED',
-        responseNotes: `Accepted by ${user.name}. Bed and staff allocated.`
+        responseNotes: `Accepted by ${user.name}. Bed allocated.`
       });
       loadHospitalData();
     } catch (err) {
@@ -154,12 +163,27 @@ export const HospitalDashboard = () => {
     }
   };
 
-  const handleUpdateAppointmentStatus = async (id, status) => {
+  const handleUpdateAppointmentStatus = async (id, status, note = '') => {
     try {
-      await api.updateAppointmentStatus(id, status);
+      await api.updateAppointmentStatus(id, status, note);
       loadHospitalData();
     } catch (err) {
-      alert('Error updating appointment: ' + err.message);
+      alert('Error updating appointment status: ' + err.message);
+    }
+  };
+
+  const handlePatientSearch = async (e) => {
+    if (e) e.preventDefault();
+    setPatientSearchLoading(true);
+    try {
+      const res = await fetch(`/api/patients/search?query=${encodeURIComponent(patientSearchQuery)}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('medilink_token')}` }
+      }).then((r) => r.json());
+      setPatientSearchResults(res.results || []);
+    } catch (err) {
+      console.error('Error searching patients:', err);
+    } finally {
+      setPatientSearchLoading(false);
     }
   };
 
@@ -179,6 +203,19 @@ export const HospitalDashboard = () => {
       alert('Error adding specialist: ' + err.message);
     }
   };
+
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  const filteredAppointments = appointments.filter((a) => {
+    const aDate = a.appointmentDate || a.date;
+    if (appointmentFilter === 'TODAY') return aDate === todayStr;
+    if (appointmentFilter === 'UPCOMING') return aDate >= todayStr && ['SCHEDULED', 'CONFIRMED'].includes(a.status);
+    if (appointmentFilter === 'COMPLETED') return a.status === 'COMPLETED';
+    if (appointmentFilter === 'CANCELLED') return a.status === 'CANCELLED';
+    if (appointmentFilter === 'NO_SHOW') return a.status === 'NO_SHOW';
+    if (appointmentFilter === 'FOLLOW_UP') return a.status === 'FOLLOW_UP';
+    return true;
+  });
 
   const pendingInboundRequests = requests.filter(
     (r) => r.targetHospitalId === hospitalId && r.status === 'PENDING'
@@ -202,50 +239,57 @@ export const HospitalDashboard = () => {
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span className="role-pill role-hospital">HOSPITAL COORDINATION DESK</span>
+            <span className="role-pill role-hospital">CLINIC & HOSPITAL DESK</span>
             <span style={{ color: '#a7f3d0', fontSize: '0.8rem' }}>Facility ID: {hospitalId}</span>
           </div>
           <h2 style={{ fontSize: '1.5rem', marginTop: '0.35rem' }}>
             {summary?.hospital?.name || user?.name}
           </h2>
           <p style={{ color: '#cbd5e1', fontSize: '0.88rem' }}>
-            {summary?.hospital?.address || 'Pune Central Healthcare Hub'} • Helpline: {summary?.hospital?.emergencyHelpline || '1066'}
+            {summary?.hospital?.address || 'Pune Healthcare Network'} • Helpline: {summary?.hospital?.emergencyHelpline || '1066'}
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.6rem 1rem', borderRadius: '8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '0.75rem', color: '#a7f3d0' }}>Inbound Pending</div>
-            <strong style={{ fontSize: '1.4rem', color: '#f8fafc' }}>{pendingInboundRequests.length}</strong>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.5rem 0.85rem', borderRadius: '8px', textAlign: 'center' }}>
+            <div style={{ fontSize: '0.72rem', color: '#a7f3d0' }}>Today's Appts</div>
+            <strong style={{ fontSize: '1.3rem', color: '#f8fafc' }}>{appointmentSummary.today ?? 0}</strong>
           </div>
-          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.6rem 1rem', borderRadius: '8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '0.75rem', color: '#a7f3d0' }}>Appointments</div>
-            <strong style={{ fontSize: '1.4rem', color: '#f8fafc' }}>{appointments.length}</strong>
+          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.5rem 0.85rem', borderRadius: '8px', textAlign: 'center' }}>
+            <div style={{ fontSize: '0.72rem', color: '#a7f3d0' }}>Inbound Pending</div>
+            <strong style={{ fontSize: '1.3rem', color: '#fca5a5' }}>{pendingInboundRequests.length}</strong>
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Tabs Navigation */}
       <div className="tabs-nav">
+        <button
+          className={`tab-btn ${activeTab === 'APPOINTMENTS' ? 'active' : ''}`}
+          onClick={() => setActiveTab('APPOINTMENTS')}
+        >
+          <Calendar size={16} /> Clinic Appointments ({appointments.length})
+        </button>
+
         <button
           className={`tab-btn ${activeTab === 'RESOURCES' ? 'active' : ''}`}
           onClick={() => setActiveTab('RESOURCES')}
         >
-          <Activity size={16} /> Live Resources & Blood Stock (Real-time Broadcast)
+          <Activity size={16} /> Live Resources & Blood Stock
         </button>
 
         <button
           className={`tab-btn ${activeTab === 'REQUESTS' ? 'active' : ''}`}
           onClick={() => setActiveTab('REQUESTS')}
         >
-          <Send size={16} /> Inbound Emergency & Admission Queue ({pendingInboundRequests.length})
+          <Send size={16} /> Inbound Emergency Queue ({pendingInboundRequests.length})
         </button>
 
         <button
-          className={`tab-btn ${activeTab === 'APPOINTMENTS' ? 'active' : ''}`}
-          onClick={() => setActiveTab('APPOINTMENTS')}
+          className={`tab-btn ${activeTab === 'PATIENTS_SEARCH' ? 'active' : ''}`}
+          onClick={() => { setActiveTab('PATIENTS_SEARCH'); handlePatientSearch(); }}
         >
-          <Calendar size={16} /> OPD Appointments ({appointments.length})
+          <Search size={16} /> Patient Directory Search
         </button>
 
         <button
@@ -256,15 +300,187 @@ export const HospitalDashboard = () => {
         </button>
       </div>
 
-      {/* TAB 1: LIVE RESOURCES & BLOOD BANK */}
+      {/* TAB 1: CLINIC APPOINTMENTS & SMART BREAKDOWN */}
+      {activeTab === 'APPOINTMENTS' && (
+        <div>
+          {/* Appointment Breakdown Cards */}
+          <div className="grid-4" style={{ marginBottom: '1.25rem' }}>
+            <div
+              className="card"
+              style={{
+                padding: '0.85rem',
+                cursor: 'pointer',
+                border: appointmentFilter === 'TODAY' ? '1px solid #38bdf8' : '1px solid var(--border-card)',
+                background: appointmentFilter === 'TODAY' ? 'var(--bg-card-hover)' : 'var(--bg-subtle)'
+              }}
+              onClick={() => setAppointmentFilter(appointmentFilter === 'TODAY' ? 'ALL' : 'TODAY')}
+            >
+              <span style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 600 }}>📅 Today's Appointments</span>
+              <div style={{ fontSize: '1.6rem', fontWeight: 800, marginTop: '2px', color: '#f8fafc' }}>
+                {appointmentSummary.today ?? 0}
+              </div>
+            </div>
+
+            <div
+              className="card"
+              style={{
+                padding: '0.85rem',
+                cursor: 'pointer',
+                border: appointmentFilter === 'UPCOMING' ? '1px solid #a78bfa' : '1px solid var(--border-card)',
+                background: appointmentFilter === 'UPCOMING' ? 'var(--bg-card-hover)' : 'var(--bg-subtle)'
+              }}
+              onClick={() => setAppointmentFilter(appointmentFilter === 'UPCOMING' ? 'ALL' : 'UPCOMING')}
+            >
+              <span style={{ fontSize: '0.75rem', color: '#a78bfa', fontWeight: 600 }}>⏳ Upcoming</span>
+              <div style={{ fontSize: '1.6rem', fontWeight: 800, marginTop: '2px', color: '#f8fafc' }}>
+                {appointmentSummary.upcoming ?? 0}
+              </div>
+            </div>
+
+            <div
+              className="card"
+              style={{
+                padding: '0.85rem',
+                cursor: 'pointer',
+                border: appointmentFilter === 'COMPLETED' ? '1px solid #34d399' : '1px solid var(--border-card)',
+                background: appointmentFilter === 'COMPLETED' ? 'var(--bg-card-hover)' : 'var(--bg-subtle)'
+              }}
+              onClick={() => setAppointmentFilter(appointmentFilter === 'COMPLETED' ? 'ALL' : 'COMPLETED')}
+            >
+              <span style={{ fontSize: '0.75rem', color: '#34d399', fontWeight: 600 }}>✅ Completed</span>
+              <div style={{ fontSize: '1.6rem', fontWeight: 800, marginTop: '2px', color: '#f8fafc' }}>
+                {appointmentSummary.completed ?? 0}
+              </div>
+            </div>
+
+            <div
+              className="card"
+              style={{
+                padding: '0.85rem',
+                cursor: 'pointer',
+                border: appointmentFilter === 'FOLLOW_UP' ? '1px solid #fbbf24' : '1px solid var(--border-card)',
+                background: appointmentFilter === 'FOLLOW_UP' ? 'var(--bg-card-hover)' : 'var(--bg-subtle)'
+              }}
+              onClick={() => setAppointmentFilter(appointmentFilter === 'FOLLOW_UP' ? 'ALL' : 'FOLLOW_UP')}
+            >
+              <span style={{ fontSize: '0.75rem', color: '#fbbf24', fontWeight: 600 }}>🔄 Follow-Ups</span>
+              <div style={{ fontSize: '1.6rem', fontWeight: 800, marginTop: '2px', color: '#f8fafc' }}>
+                {appointmentSummary.followUp ?? 0}
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+            <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
+              Showing {filteredAppointments.length} appointment records (Filter: <b>{appointmentFilter}</b>)
+            </div>
+            {appointmentFilter !== 'ALL' && (
+              <button onClick={() => setAppointmentFilter('ALL')} className="btn btn-secondary btn-sm">
+                Clear Filter
+              </button>
+            )}
+          </div>
+
+          <div className="table-responsive card" style={{ padding: 0 }}>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Appt ID</th>
+                  <th>Patient Name & Phone</th>
+                  <th>Date & Time</th>
+                  <th>Department / Desk</th>
+                  <th>Administrative Purpose</th>
+                  <th>Status</th>
+                  <th>1-Click Status Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAppointments.map((apt) => (
+                  <tr key={apt.id}>
+                    <td>
+                      <strong>#{apt.id}</strong>
+                    </td>
+                    <td>
+                      <div><strong>{apt.patientName}</strong></div>
+                      <small style={{ color: '#94a3b8' }}>{apt.patientPhone}</small>
+                    </td>
+                    <td>
+                      <div>📅 {apt.appointmentDate || apt.date}</div>
+                      <small style={{ color: '#94a3b8' }}>⏰ {apt.appointmentTime || apt.time}</small>
+                    </td>
+                    <td>
+                      <div>{apt.specialty}</div>
+                      <small style={{ color: '#a78bfa' }}>{apt.specialistName}</small>
+                    </td>
+                    <td style={{ fontSize: '0.85rem' }}>{apt.purpose}</td>
+                    <td>
+                      <StatusBadge status={apt.status} />
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                        {apt.status === 'SCHEDULED' && (
+                          <>
+                            <button
+                              onClick={() => handleUpdateAppointmentStatus(apt.id, 'CONFIRMED')}
+                              className="btn btn-primary btn-sm"
+                            >
+                              Confirm
+                            </button>
+                            <button
+                              onClick={() => handleUpdateAppointmentStatus(apt.id, 'NO_SHOW')}
+                              className="btn btn-secondary btn-sm"
+                            >
+                              No-Show
+                            </button>
+                          </>
+                        )}
+                        {apt.status === 'CONFIRMED' && (
+                          <>
+                            <button
+                              onClick={() => handleUpdateAppointmentStatus(apt.id, 'COMPLETED')}
+                              className="btn btn-success btn-sm"
+                            >
+                              Mark Done
+                            </button>
+                            <button
+                              onClick={() => handleUpdateAppointmentStatus(apt.id, 'FOLLOW_UP')}
+                              className="btn btn-secondary btn-sm"
+                              style={{ color: '#fbbf24' }}
+                            >
+                              Follow-Up
+                            </button>
+                          </>
+                        )}
+                        {apt.status === 'FOLLOW_UP' && (
+                          <button
+                            onClick={() => handleUpdateAppointmentStatus(apt.id, 'COMPLETED')}
+                            className="btn btn-success btn-sm"
+                          >
+                            Close Follow-Up
+                          </button>
+                        )}
+                        {['COMPLETED', 'CANCELLED', 'NO_SHOW'].includes(apt.status) && (
+                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>Archived</span>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 2: LIVE RESOURCES & BLOOD BANK */}
       {activeTab === 'RESOURCES' && (
         <div>
-          <div style={{ marginBottom: '1.5rem' }}>
+          <div style={{ marginBottom: '1.25rem' }}>
             <h3 style={{ fontSize: '1.2rem', marginBottom: '0.25rem' }}>
               Hospital Bed & Equipment Telemetry (Socket.io Synced)
             </h3>
             <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
-              Adjust live counts below. Changes instantly broadcast across the network for patients, ambulances, and emergency triage:
+              Adjust live counts below. Changes instantly broadcast across the network for emergency triage:
             </p>
           </div>
 
@@ -374,7 +590,7 @@ export const HospitalDashboard = () => {
             </div>
           </div>
 
-          {/* Blood Bank Live Stock Matrix */}
+          {/* Blood Bank Matrix */}
           <div className="card">
             <div className="card-header">
               <div className="card-title">
@@ -414,14 +630,11 @@ export const HospitalDashboard = () => {
         </div>
       )}
 
-      {/* TAB 2: INBOUND EMERGENCY & ADMISSION QUEUE */}
+      {/* TAB 3: INBOUND EMERGENCY QUEUE */}
       {activeTab === 'REQUESTS' && (
         <div>
           <div style={{ marginBottom: '1rem' }}>
             <h3 style={{ fontSize: '1.2rem' }}>Inbound Admission, Transfer & Emergency Queue</h3>
-            <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
-              Review patient admission requests and Hospital-to-Hospital (H2H) transfer requests:
-            </p>
           </div>
 
           <div className="table-responsive card" style={{ padding: 0 }}>
@@ -464,16 +677,14 @@ export const HospitalDashboard = () => {
                       {req.status === 'PENDING' ? (
                         <div style={{ display: 'flex', gap: '0.4rem' }}>
                           <button
-                            onClick={() => handleAcceptRequest(req.id, req.type)}
+                            onClick={() => handleAcceptRequest(req.id)}
                             className="btn btn-success btn-sm"
-                            title="Accept admission & allocate bed"
                           >
                             <CheckCircle size={14} /> Accept
                           </button>
                           <button
                             onClick={() => handleOpenRejectModal(req.id)}
                             className="btn btn-danger btn-sm"
-                            title="Reject request with mandatory explanation"
                           >
                             <XCircle size={14} /> Reject
                           </button>
@@ -492,69 +703,54 @@ export const HospitalDashboard = () => {
         </div>
       )}
 
-      {/* TAB 3: OPD APPOINTMENTS */}
-      {activeTab === 'APPOINTMENTS' && (
+      {/* TAB 4: PATIENT DIRECTORY SEARCH */}
+      {activeTab === 'PATIENTS_SEARCH' && (
         <div>
-          <div style={{ marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1.2rem' }}>OPD Consultation Desk & Appointments</h3>
+          <div className="card" style={{ marginBottom: '1.25rem' }}>
+            <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem' }}>
+              🔍 Administrative Patient Directory Search
+            </h3>
+            <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '1rem' }}>
+              Search registered patients by Name, Patient ID, or Phone for OPD intake & administrative appointments:
+            </p>
+
+            <form onSubmit={handlePatientSearch} style={{ display: 'flex', gap: '0.75rem' }}>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Enter patient name, ID (e.g. usr_patient_1), or 10-digit phone..."
+                value={patientSearchQuery}
+                onChange={(e) => setPatientSearchQuery(e.target.value)}
+              />
+              <button type="submit" disabled={patientSearchLoading} className="btn btn-primary" style={{ minWidth: '120px' }}>
+                <Search size={16} /> Search
+              </button>
+            </form>
           </div>
 
           <div className="table-responsive card" style={{ padding: 0 }}>
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Appt ID</th>
-                  <th>Patient Name & Phone</th>
-                  <th>Date & Time</th>
-                  <th>Department / Desk</th>
-                  <th>Administrative Purpose</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <th>Patient ID</th>
+                  <th>Full Name</th>
+                  <th>Age</th>
+                  <th>Phone Number</th>
+                  <th>Blood Group</th>
+                  <th>Emergency Contact</th>
+                  <th>Address</th>
                 </tr>
               </thead>
               <tbody>
-                {appointments.map((apt) => (
-                  <tr key={apt.id}>
-                    <td>#{apt.id}</td>
-                    <td>
-                      <strong>{apt.patientName}</strong>
-                      <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{apt.patientPhone}</div>
-                    </td>
-                    <td>
-                      <div>{apt.date}</div>
-                      <small style={{ color: '#94a3b8' }}>{apt.time}</small>
-                    </td>
-                    <td>{apt.specialty} ({apt.specialistName})</td>
-                    <td style={{ fontSize: '0.85rem' }}>{apt.purpose}</td>
-                    <td>
-                      <StatusBadge status={apt.status} />
-                    </td>
-                    <td>
-                      {apt.status === 'SCHEDULED' && (
-                        <div style={{ display: 'flex', gap: '0.3rem' }}>
-                          <button
-                            onClick={() => handleUpdateAppointmentStatus(apt.id, 'CONFIRMED')}
-                            className="btn btn-primary btn-sm"
-                          >
-                            Confirm
-                          </button>
-                          <button
-                            onClick={() => handleUpdateAppointmentStatus(apt.id, 'NO_SHOW')}
-                            className="btn btn-secondary btn-sm"
-                          >
-                            No-Show
-                          </button>
-                        </div>
-                      )}
-                      {apt.status === 'CONFIRMED' && (
-                        <button
-                          onClick={() => handleUpdateAppointmentStatus(apt.id, 'COMPLETED')}
-                          className="btn btn-success btn-sm"
-                        >
-                          Mark Done
-                        </button>
-                      )}
-                    </td>
+                {patientSearchResults.map((p) => (
+                  <tr key={p.id}>
+                    <td><code style={{ color: '#38bdf8' }}>{p.id}</code></td>
+                    <td><strong>{p.name}</strong></td>
+                    <td>{p.age || 28} yrs</td>
+                    <td>{p.phone}</td>
+                    <td><span style={{ color: '#ef4444', fontWeight: 700 }}>{p.bloodGroup || 'B+'}</span></td>
+                    <td>{p.emergencyContact || 'Not recorded'}</td>
+                    <td style={{ fontSize: '0.82rem', color: '#cbd5e1' }}>{p.address}</td>
                   </tr>
                 ))}
               </tbody>
@@ -563,7 +759,7 @@ export const HospitalDashboard = () => {
         </div>
       )}
 
-      {/* TAB 4: SPECIALISTS ROSTER */}
+      {/* TAB 5: SPECIALISTS ROSTER */}
       {activeTab === 'SPECIALISTS' && (
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
@@ -592,7 +788,7 @@ export const HospitalDashboard = () => {
         </div>
       )}
 
-      {/* REJECT MODAL (Mandatory responseNotes validation) */}
+      {/* REJECT MODAL */}
       {rejectModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content" style={{ maxWidth: '500px' }}>
@@ -601,17 +797,13 @@ export const HospitalDashboard = () => {
               <h3 style={{ fontSize: '1.2rem', color: '#ef4444' }}>Reject Inbound Request #{rejectTargetReqId}</h3>
             </div>
 
-            <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '1rem' }}>
-              <strong>Rule 1 Enforcement:</strong> Rejecting an emergency or admission request strictly requires a detailed explanation in response notes. This enables Admin & System Doctor escalation.
-            </p>
-
             <form onSubmit={handleConfirmReject}>
               <div className="form-group">
                 <label className="form-label">Mandatory Rejection Reason (responseNotes):</label>
                 <textarea
                   className="form-control"
                   rows="3"
-                  placeholder="e.g. ICU bed capacity at 100% capacity; Ventilator equipment under maintenance."
+                  placeholder="e.g. ICU bed capacity at 100%; Ventilator equipment under maintenance."
                   value={rejectReason}
                   onChange={(e) => setRejectReason(e.target.value)}
                   required
