@@ -930,15 +930,15 @@ export const PatientDashboard = () => {
             </div>
           )}
 
-          {/* TAB 5: REQUESTS (Patient Requests History) */}
+          {/* TAB 5: REQUESTS (Patient Outgoing Requests & Tracking) */}
           {activeTab === 'REQUESTS' && (
             <div className="tab-pane">
               <div style={{ marginBottom: '1.25rem' }}>
                 <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#f8fafc' }}>
-                  Patient Coordination Requests
+                  📋 My Raised Service Requests & Live Tracking (मेरी भेजी गई रिक्वेस्ट्स)
                 </h3>
                 <p style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
-                  History and live status of admission, transfer, blood, and ambulance requests.
+                  Live status tracking for ambulances, blood units, and hospital bed admissions requested by you:
                 </p>
               </div>
 
