@@ -320,28 +320,16 @@ export const HospitalDashboard = () => {
   return (
     <div>
       {/* Header Profile */}
-      <div
-        className="card"
-        style={{
-          background: 'linear-gradient(135deg, #111927 0%, #064e3b 100%)',
-          border: '1px solid rgba(16, 185, 129, 0.3)',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem'
-        }}
-      >
+      <div className="portal-hero-card portal-hero-hospital">
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span className="role-pill role-hospital">CLINIC & HOSPITAL DESK</span>
-            <span style={{ color: '#a7f3d0', fontSize: '0.8rem' }}>Facility ID: {hospitalId}</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Facility ID: {hospitalId}</span>
           </div>
-          <h2 style={{ fontSize: '1.5rem', marginTop: '0.35rem' }}>
+          <h2 style={{ fontSize: '1.5rem', marginTop: '0.35rem', color: 'var(--text-primary)' }}>
             {summary?.hospital?.name || user?.name}
           </h2>
-          <p style={{ color: '#cbd5e1', fontSize: '0.88rem' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
             {summary?.hospital?.address || 'Pune Healthcare Network'} • Helpline: {summary?.hospital?.emergencyHelpline || '1066'}
           </p>
         </div>
@@ -356,13 +344,13 @@ export const HospitalDashboard = () => {
             <span>EMERGENCY COORDINATION</span>
           </button>
 
-          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.5rem 0.85rem', borderRadius: '8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '0.72rem', color: '#a7f3d0' }}>Today's Appts</div>
-            <strong style={{ fontSize: '1.3rem', color: '#f8fafc' }}>{appointmentSummary.today ?? 0}</strong>
+          <div className="hero-stat-badge">
+            <div className="hero-stat-badge-label">Today's Appts</div>
+            <strong className="hero-stat-badge-value" style={{ color: '#10b981' }}>{appointmentSummary.today ?? 0}</strong>
           </div>
-          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.5rem 0.85rem', borderRadius: '8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '0.72rem', color: '#a7f3d0' }}>Inbound Pending</div>
-            <strong style={{ fontSize: '1.3rem', color: '#fca5a5' }}>{pendingInboundRequests.length}</strong>
+          <div className="hero-stat-badge">
+            <div className="hero-stat-badge-label">Inbound Pending</div>
+            <strong className="hero-stat-badge-value" style={{ color: '#ef4444' }}>{pendingInboundRequests.length}</strong>
           </div>
         </div>
       </div>

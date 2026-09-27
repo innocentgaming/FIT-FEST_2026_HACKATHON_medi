@@ -427,6 +427,276 @@ a:hover {
   box-shadow: var(--shadow-md);
   position: relative;
   overflow: hidden;
+  color: var(--text-primary);
+}
+
+/* Portal Hero Banners */
+.portal-hero-card {
+  background: linear-gradient(135deg, #111927 0%, #1e293b 100%);
+  border: 1px solid rgba(56, 189, 248, 0.25);
+  border-radius: var(--radius-lg);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+  box-shadow: var(--shadow-md);
+}
+
+.portal-hero-hospital {
+  background: linear-gradient(135deg, #111927 0%, #064e3b 100%);
+  border-color: rgba(16, 185, 129, 0.35);
+}
+
+.portal-hero-doctor {
+  background: linear-gradient(135deg, #111927 0%, #4a044e 100%);
+  border-color: rgba(236, 72, 153, 0.35);
+}
+
+.portal-hero-ambulance {
+  background: linear-gradient(135deg, #111927 0%, #78350f 100%);
+  border-color: rgba(245, 158, 11, 0.35);
+}
+
+.portal-hero-admin {
+  background: linear-gradient(135deg, #111927 0%, #3b0764 100%);
+  border-color: rgba(139, 92, 246, 0.35);
+}
+
+.portal-hero-card h2 {
+  font-size: 1.45rem;
+  font-weight: 800;
+  margin-top: 0.35rem;
+  color: var(--text-primary);
+}
+
+.portal-hero-card p {
+  color: var(--text-secondary);
+  font-size: 0.88rem;
+}
+
+.hero-stat-badge {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 0.5rem 0.85rem;
+  border-radius: var(--radius-md);
+  text-align: center;
+  border: 1px solid var(--border-subtle);
+}
+
+.hero-stat-badge-label {
+  font-size: 0.72rem;
+  color: var(--text-secondary);
+}
+
+.hero-stat-badge-value {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+/* Light Theme Hero Overrides */
+[data-theme='light'] .portal-hero-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f0f9ff 100%) !important;
+  border: 1px solid #bae6fd !important;
+  box-shadow: 0 4px 20px -2px rgba(2, 132, 199, 0.12) !important;
+}
+
+[data-theme='light'] .portal-hero-hospital {
+  background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%) !important;
+  border: 1px solid #86efac !important;
+}
+
+[data-theme='light'] .portal-hero-doctor {
+  background: linear-gradient(135deg, #ffffff 0%, #fdf2f8 100%) !important;
+  border: 1px solid #fbcfe8 !important;
+}
+
+[data-theme='light'] .portal-hero-ambulance {
+  background: linear-gradient(135deg, #ffffff 0%, #fffbeb 100%) !important;
+  border: 1px solid #fde68a !important;
+}
+
+[data-theme='light'] .portal-hero-admin {
+  background: linear-gradient(135deg, #ffffff 0%, #faf5ff 100%) !important;
+  border: 1px solid #d8b4fe !important;
+}
+
+[data-theme='light'] .portal-hero-card h2 {
+  color: #0f172a !important;
+}
+
+[data-theme='light'] .portal-hero-card p {
+  color: #475569 !important;
+}
+
+[data-theme='light'] .hero-stat-badge {
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme='light'] .hero-stat-badge-label {
+  color: #64748b !important;
+}
+
+[data-theme='light'] .hero-stat-badge-value {
+  color: #0f172a !important;
+}
+
+
+/* Stat & Metric Cards */
+.stat-card-item {
+  background: rgba(18, 26, 45, 0.7);
+  border: 1px solid var(--border-card);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--border-card-hover);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-card-item h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.stat-card-item p {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.stat-card-number {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text-primary);
+}
+
+[data-theme='light'] .stat-card-item {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+
+[data-theme='light'] .stat-card-item:hover {
+  background: #f8fafc !important;
+  border-color: #38bdf8 !important;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.1) !important;
+}
+
+[data-theme='light'] .stat-card-item h4 {
+  color: #0f172a !important;
+}
+
+[data-theme='light'] .stat-card-item p {
+  color: #64748b !important;
+}
+
+[data-theme='light'] .stat-card-number {
+  color: #0f172a !important;
+}
+
+/* Emergency Stat Card */
+.stat-card-emergency {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.stat-card-emergency:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.stat-card-emergency h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #f87171;
+  margin-bottom: 0.2rem;
+}
+
+.stat-card-emergency p {
+  font-size: 0.78rem;
+  color: #fca5a5;
+}
+
+[data-theme='light'] .stat-card-emergency {
+  background: #fef2f2 !important;
+  border: 1px solid #fecaca !important;
+}
+
+[data-theme='light'] .stat-card-emergency h4 {
+  color: #dc2626 !important;
+}
+
+[data-theme='light'] .stat-card-emergency p {
+  color: #ef4444 !important;
+}
+
+/* Emergency Dispatch Strip */
+.emergency-strip-card {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: var(--radius-lg);
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+[data-theme='light'] .emergency-strip-card {
+  background: #fef2f2 !important;
+  border: 1px solid #fecaca !important;
+}
+
+[data-theme='light'] .emergency-strip-card h4 {
+  color: #b91c1c !important;
+}
+
+[data-theme='light'] .emergency-strip-card p {
+  color: #475569 !important;
+}
+
+/* List Item Card */
+.list-item-card {
+  padding: 0.75rem;
+  border-radius: var(--radius-sm);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  margin-bottom: 0.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+[data-theme='light'] .list-item-card {
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03) !important;
+}
+
+[data-theme='light'] .list-item-card h4 {
+  color: #0f172a !important;
+}
+
+[data-theme='light'] .list-item-card p,
+[data-theme='light'] .list-item-card span {
+  color: #64748b !important;
 }
 
 .card-glass {

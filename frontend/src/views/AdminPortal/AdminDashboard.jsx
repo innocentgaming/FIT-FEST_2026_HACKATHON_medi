@@ -117,26 +117,14 @@ export const AdminDashboard = () => {
   return (
     <div>
       {/* Admin Command Header */}
-      <div
-        className="card"
-        style={{
-          background: 'linear-gradient(135deg, #111927 0%, #311042 100%)',
-          border: '1px solid rgba(139, 92, 246, 0.3)',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem'
-        }}
-      >
+      <div className="portal-hero-card portal-hero-admin">
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span className="role-pill role-admin">COMMAND ADMIN DASHBOARD</span>
-            <span style={{ color: '#d8b4fe', fontSize: '0.8rem' }}>State Health Coordination Centre</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>State Health Coordination Centre</span>
           </div>
-          <h2 style={{ fontSize: '1.5rem', marginTop: '0.35rem' }}>Macro Network Coordination Overview</h2>
-          <p style={{ color: '#cbd5e1', fontSize: '0.88rem' }}>
+          <h2 style={{ fontSize: '1.5rem', marginTop: '0.35rem', color: 'var(--text-primary)' }}>Macro Network Coordination Overview</h2>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
             Live triage & macro surveillance for {hospitals.length} hospitals & {ambulances.length} active emergency units
           </p>
         </div>
@@ -144,7 +132,7 @@ export const AdminDashboard = () => {
         <button
           onClick={handleResetDemoState}
           className="btn btn-secondary btn-sm"
-          style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', borderColor: 'rgba(255,255,255,0.2)' }}
+          style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
           title="Reset database back to initial clean state"
         >
           <RotateCcw size={15} /> Reset Hackathon Demo Seed

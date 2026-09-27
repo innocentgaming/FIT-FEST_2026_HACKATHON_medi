@@ -201,35 +201,25 @@ export const AmbulanceDashboard = () => {
     <div className="ambulance-portal-view">
       {/* Driver Header */}
       <section
-        className="card"
-        style={{
-          background: 'linear-gradient(135deg, #111927 0%, #78350f 100%)',
-          border: '1px solid rgba(245, 158, 11, 0.3)',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem'
-        }}
+        className="portal-hero-card portal-hero-ambulance"
         aria-label="Ambulance Fleet Status Header"
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span className="role-pill role-ambulance">AMBULANCE DRIVER PORTAL</span>
-            <span style={{ color: '#fde68a', fontSize: '0.8rem' }}>Vehicle: {ambulance?.vehicleNumber || ambulance?.vehicleNo}</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Vehicle: {ambulance?.vehicleNumber || ambulance?.vehicleNo}</span>
           </div>
-          <h2 style={{ fontSize: '1.5rem', marginTop: '0.35rem', color: '#f8fafc' }}>
+          <h2 style={{ fontSize: '1.5rem', marginTop: '0.35rem', color: 'var(--text-primary)' }}>
             {user?.name} (Driver ID: {user?.id})
           </h2>
-          <p style={{ color: '#cbd5e1', fontSize: '0.88rem' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
             Type: <strong>{ambulance?.type || 'ACLS Advanced Cardiac Unit'}</strong> • Base: {ambulance?.hospitalName}
           </p>
         </div>
 
         {/* Availability Switcher */}
-        <div style={{ background: 'rgba(0,0,0,0.4)', padding: '0.75rem', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-          <span style={{ fontSize: '0.8rem', color: '#fde68a', fontWeight: 600 }}>Duty Status:</span>
+        <div className="hero-stat-badge" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', padding: '0.6rem 0.85rem' }}>
+          <span className="hero-stat-badge-label" style={{ fontWeight: 700 }}>Duty Status:</span>
           {['AVAILABLE', 'ON_DUTY', 'OFFLINE'].map((st) => {
             const isActive = ambulance?.status?.toUpperCase() === st;
             return (
@@ -240,7 +230,7 @@ export const AmbulanceDashboard = () => {
                 style={{
                   fontSize: '0.75rem',
                   padding: '0.3rem 0.6rem',
-                  border: isActive ? '1px solid #fbbf24' : '1px solid rgba(255,255,255,0.1)'
+                  border: isActive ? '1px solid #fbbf24' : '1px solid var(--border-subtle)'
                 }}
               >
                 {st.replace('_', ' ')}

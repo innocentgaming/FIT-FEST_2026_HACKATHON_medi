@@ -109,40 +109,30 @@ export const DoctorDashboard = () => {
     <div className="doctor-portal-view">
       {/* Doctor Header */}
       <section
-        className="card"
-        style={{
-          background: 'linear-gradient(135deg, #111927 0%, #4a044e 100%)',
-          border: '1px solid rgba(236, 72, 153, 0.3)',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem'
-        }}
+        className="portal-hero-card portal-hero-doctor"
         aria-label="Doctor Conflict Resolution Header"
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span className="role-pill role-system_doctor">SYSTEM DOCTOR CONFLICT RESOLUTION</span>
-            <span style={{ color: '#fbcfe8', fontSize: '0.8rem' }}>Emergency Triage Specialist</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>Emergency Triage Specialist</span>
           </div>
-          <h2 style={{ fontSize: '1.5rem', marginTop: '0.35rem', color: '#f8fafc' }}>
+          <h2 style={{ fontSize: '1.5rem', marginTop: '0.35rem', color: 'var(--text-primary)' }}>
             {user?.name}
           </h2>
-          <p style={{ color: '#cbd5e1', fontSize: '0.88rem' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
             Authority to override rejections, reallocate hospital resources, and guarantee terminal resolution.
           </p>
         </div>
 
         <div style={{ display: 'flex', gap: '1rem' }}>
-          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.6rem 1rem', borderRadius: '8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '0.75rem', color: '#fbcfe8' }}>Pending Escalations</div>
-            <strong style={{ fontSize: '1.4rem', color: '#f8fafc' }}>{pendingEscalations.length}</strong>
+          <div className="hero-stat-badge">
+            <div className="hero-stat-badge-label">Pending Escalations</div>
+            <strong className="hero-stat-badge-value" style={{ color: '#ef4444' }}>{pendingEscalations.length}</strong>
           </div>
-          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.6rem 1rem', borderRadius: '8px', textAlign: 'center' }}>
-            <div style={{ fontSize: '0.75rem', color: '#fbcfe8' }}>Resolved Cases</div>
-            <strong style={{ fontSize: '1.4rem', color: '#f8fafc' }}>{resolvedEscalations.length}</strong>
+          <div className="hero-stat-badge">
+            <div className="hero-stat-badge-label">Resolved Cases</div>
+            <strong className="hero-stat-badge-value" style={{ color: '#10b981' }}>{resolvedEscalations.length}</strong>
           </div>
         </div>
       </section>

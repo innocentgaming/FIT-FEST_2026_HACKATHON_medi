@@ -211,28 +211,18 @@ export const PatientDashboard = () => {
     <div className="patient-portal-view">
       {/* Patient Welcome & Hero 10-Second Communicator */}
       <section
-        className="card"
-        style={{
-          background: 'linear-gradient(135deg, #111927 0%, #1e293b 100%)',
-          border: '1px solid rgba(56, 189, 248, 0.25)',
-          marginBottom: '1.5rem',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem'
-        }}
+        className="portal-hero-card"
         aria-label="Patient Overview Header"
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span className="role-pill role-patient">PATIENT PORTAL</span>
-            <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>ID: {user?.id}</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>ID: {user?.id}</span>
           </div>
-          <h2 style={{ fontSize: '1.45rem', fontWeight: 800, marginTop: '0.35rem', color: '#f8fafc' }}>
+          <h2 style={{ fontSize: '1.45rem', fontWeight: 800, marginTop: '0.35rem', color: 'var(--text-primary)' }}>
             Welcome, {user?.name}
           </h2>
-          <p style={{ color: '#94a3b8', fontSize: '0.88rem' }}>
+          <p style={{ color: 'var(--text-secondary)', fontSize: '0.88rem' }}>
             Blood Group: <strong style={{ color: '#ef4444' }}>{user?.bloodGroup || 'B+'}</strong> • Region: Pune Medical Command Grid
           </p>
         </div>
@@ -324,38 +314,28 @@ export const PatientDashboard = () => {
               >
                 {/* Pillar 1: Appointments */}
                 <div
-                  className="card"
-                  style={{
-                    background: 'rgba(18, 26, 45, 0.7)',
-                    border: '1px solid var(--border-card)',
-                    cursor: 'pointer'
-                  }}
+                  className="stat-card-item"
                   onClick={() => setActiveTab('APPOINTMENTS')}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                    <div style={{ padding: '0.5rem', background: 'rgba(56, 189, 248, 0.12)', borderRadius: '8px', color: '#38bdf8' }}>
+                    <div style={{ padding: '0.5rem', background: 'rgba(56, 189, 248, 0.12)', borderRadius: '8px', color: '#0284c7' }}>
                       <Calendar size={20} />
                     </div>
-                    <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc' }}>
+                    <span className="stat-card-number">
                       {appointments.length}
                     </span>
                   </div>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.2rem' }}>
+                  <h4>
                     Appointments
                   </h4>
-                  <p style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                  <p>
                     OPD desk bookings & follow-ups
                   </p>
                 </div>
 
                 {/* Pillar 2: Emergency */}
                 <div
-                  className="card"
-                  style={{
-                    background: 'rgba(239, 68, 68, 0.1)',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                    cursor: 'pointer'
-                  }}
+                  className="stat-card-emergency"
                   onClick={() => openEmergencyMode('AMBULANCE')}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
@@ -366,22 +346,17 @@ export const PatientDashboard = () => {
                       24x7 Live
                     </span>
                   </div>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f87171', marginBottom: '0.2rem' }}>
+                  <h4>
                     Emergency Mode
                   </h4>
-                  <p style={{ fontSize: '0.78rem', color: '#fca5a5' }}>
+                  <p>
                     Ambulance, blood & critical dispatch
                   </p>
                 </div>
 
                 {/* Pillar 3: Ambulances */}
                 <div
-                  className="card"
-                  style={{
-                    background: 'rgba(18, 26, 45, 0.7)',
-                    border: '1px solid var(--border-card)',
-                    cursor: 'pointer'
-                  }}
+                  className="stat-card-item"
                   onClick={() => openEmergencyMode('AMBULANCE')}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
@@ -392,22 +367,17 @@ export const PatientDashboard = () => {
                       {ambulances.filter((a) => (a.status || '').toUpperCase() === 'AVAILABLE').length} Available
                     </span>
                   </div>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.2rem' }}>
+                  <h4>
                     Ambulances
                   </h4>
-                  <p style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                  <p>
                     GPS tracked emergency transit fleet
                   </p>
                 </div>
 
                 {/* Pillar 4: Blood Bank */}
                 <div
-                  className="card"
-                  style={{
-                    background: 'rgba(18, 26, 45, 0.7)',
-                    border: '1px solid var(--border-card)',
-                    cursor: 'pointer'
-                  }}
+                  className="stat-card-item"
                   onClick={() => {
                     setActiveTab('BLOOD');
                     if (bloodMatches.length === 0) handleRunBloodSearch();
@@ -421,36 +391,31 @@ export const PatientDashboard = () => {
                       8 Groups
                     </span>
                   </div>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.2rem' }}>
+                  <h4>
                     Blood Bank
                   </h4>
-                  <p style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                  <p>
                     Smart cold storage inventory search
                   </p>
                 </div>
 
                 {/* Pillar 5: Facilities */}
                 <div
-                  className="card"
-                  style={{
-                    background: 'rgba(18, 26, 45, 0.7)',
-                    border: '1px solid var(--border-card)',
-                    cursor: 'pointer'
-                  }}
+                  className="stat-card-item"
                   onClick={() => setActiveTab('HOSPITALS')}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                    <div style={{ padding: '0.5rem', background: 'rgba(99, 102, 241, 0.12)', borderRadius: '8px', color: '#818cf8' }}>
+                    <div style={{ padding: '0.5rem', background: 'rgba(99, 102, 241, 0.12)', borderRadius: '8px', color: '#6366f1' }}>
                       <Building2 size={20} />
                     </div>
-                    <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc' }}>
+                    <span className="stat-card-number">
                       {hospitals.length}
                     </span>
                   </div>
-                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.2rem' }}>
+                  <h4>
                     Healthcare Facilities
                   </h4>
-                  <p style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                  <p>
                     Live ICU, bed & oxygen inventory
                   </p>
                 </div>
@@ -458,28 +423,16 @@ export const PatientDashboard = () => {
 
               {/* Active Emergency Tracker Strip if any */}
               {activeAmbulanceRequests.length > 0 && (
-                <div
-                  className="card"
-                  style={{
-                    background: 'rgba(239, 68, 68, 0.08)',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                    marginBottom: '1.5rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    flexWrap: 'wrap',
-                    gap: '1rem'
-                  }}
-                >
+                <div className="emergency-strip-card">
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                     <div style={{ padding: '0.5rem', background: '#ef4444', color: '#fff', borderRadius: '8px' }}>
                       <Truck size={22} />
                     </div>
                     <div>
-                      <h4 style={{ color: '#f87171', fontSize: '0.95rem', fontWeight: 700 }}>
+                      <h4 style={{ fontSize: '0.95rem', fontWeight: 700 }}>
                         Active Emergency Dispatch: #{activeAmbulanceRequests[0].id}
                       </h4>
-                      <p style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>
+                      <p style={{ fontSize: '0.8rem' }}>
                         Vehicle: {activeAmbulanceRequests[0].assignedAmbulanceVehicle || 'Assigned Nearest Unit'} • Priority: {activeAmbulanceRequests[0].priority}
                       </p>
                     </div>
