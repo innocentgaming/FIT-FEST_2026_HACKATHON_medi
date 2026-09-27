@@ -27,18 +27,36 @@ const app = express();
 app.disable('x-powered-by');
 const server = http.createServer(app);
 
-// Initialize Socket.io with CORS
+// Production-grade CORS configuration
+const rawOrigins = process.env.ALLOWED_ORIGINS || process.env.CLIENT_ORIGIN || '*';
+const allowedOrigins = rawOrigins === '*' ? '*' : rawOrigins.split(',').map((s) => s.trim());
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins === '*' || (Array.isArray(allowedOrigins) && (allowedOrigins.includes(origin) || allowedOrigins.includes('*')))) {
+      callback(null, true);
+    } else {
+      callback(new Error('Blocked by CORS policy'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+
+// Initialize Socket.io with configured CORS
 const io = new Server(server, {
   cors: {
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE']
+    origin: allowedOrigins,
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
   }
 });
 
 initSocket(io);
 
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '1mb' }));
 app.use(administrativeSafetyGuard);
 
