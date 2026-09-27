@@ -9,7 +9,9 @@
     "dev": "node --watch src/server.js",
     "test": "node test/api.test.js",
     "test:auth": "node test/auth-rbac.test.js",
-    "test:appointments": "node test/appointments.test.js"
+    "test:appointments": "node test/appointments.test.js",
+    "test:resources": "node test/hospital-resources-blood.test.js",
+    "test:all": "node test/api.test.js && node test/auth-rbac.test.js && node test/appointments.test.js && node test/hospital-resources-blood.test.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

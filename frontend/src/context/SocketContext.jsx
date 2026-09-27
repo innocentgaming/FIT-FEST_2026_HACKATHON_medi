@@ -10,6 +10,7 @@ export const SocketProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
   const [liveLocationUpdate, setLiveLocationUpdate] = useState(null);
   const [liveResourceUpdate, setLiveResourceUpdate] = useState(null);
+  const [liveBloodBankUpdate, setLiveBloodBankUpdate] = useState(null);
   const [liveRequestUpdate, setLiveRequestUpdate] = useState(null);
 
   useEffect(() => {
@@ -30,6 +31,10 @@ export const SocketProvider = ({ children }) => {
 
     newSocket.on('resource_updated', (data) => {
       setLiveResourceUpdate(data);
+    });
+
+    newSocket.on('bloodbank_updated', (data) => {
+      setLiveBloodBankUpdate(data);
     });
 
     newSocket.on('ambulance_location_updated', (data) => {
@@ -81,6 +86,7 @@ export const SocketProvider = ({ children }) => {
         removeToast,
         liveLocationUpdate,
         liveResourceUpdate,
+        liveBloodBankUpdate,
         liveRequestUpdate
       }}
     >

@@ -24,7 +24,7 @@ import {
 export const PatientDashboard = () => {
   const { user } = useAuth();
   const { openEmergencyMode } = useEmergency();
-  const { liveResourceUpdate, liveRequestUpdate, liveLocationUpdate } = useSocket();
+  const { liveResourceUpdate, liveBloodBankUpdate, liveRequestUpdate, liveLocationUpdate } = useSocket();
 
   const [activeTab, setActiveTab] = useState('APPOINTMENTS'); // APPOINTMENTS, HOSPITALS, BLOOD, AMBULANCE, PROFILE
   const [appointments, setAppointments] = useState([]);
@@ -45,12 +45,14 @@ export const PatientDashboard = () => {
   // Hospital Search State
   const [hospitalQuery, setHospitalQuery] = useState('');
   const [bedTypeFilter, setBedTypeFilter] = useState('');
+  const [bloodGroupFilter, setBloodGroupFilter] = useState('');
+  const [specialistFilter, setSpecialistFilter] = useState('');
 
   // Blood Search State
   const [bloodGroup, setBloodGroup] = useState(user?.bloodGroup || 'B+');
   const [bloodUnits, setBloodUnits] = useState(2);
   const [bloodLocation, setBloodLocation] = useState('Pune');
-  const [bloodUrgency, setBloodUrgency] = useState('Urgent');
+  const [bloodUrgency, setBloodUrgency] = useState('URGENT');
   const [bloodMatches, setBloodMatches] = useState([]);
   const [bloodSearchLoading, setBloodSearchLoading] = useState(false);
 
@@ -66,6 +68,14 @@ export const PatientDashboard = () => {
       );
     }
   }, [liveResourceUpdate]);
+
+  useEffect(() => {
+    if (liveBloodBankUpdate) {
+      setHospitals((prev) =>
+        prev.map((h) => (h.id === liveBloodBankUpdate.hospitalId ? { ...h, bloodBank: liveBloodBankUpdate.bloodBank } : h))
+      );
+    }
+  }, [liveBloodBankUpdate]);
 
   useEffect(() => {
     if (liveRequestUpdate) {
@@ -147,9 +157,17 @@ export const PatientDashboard = () => {
   };
 
   const filteredHospitals = hospitals.filter((h) => {
+    const q = hospitalQuery.toLowerCase();
     const matchesQ =
-      h.name.toLowerCase().includes(hospitalQuery.toLowerCase()) ||
-      h.area.toLowerCase().includes(hospitalQuery.toLowerCase());
+      !q ||
+      h.name.toLowerCase().includes(q) ||
+      (h.area && h.area.toLowerCase().includes(q)) ||
+      (h.address && h.address.toLowerCase().includes(q)) ||
+      (h.city && h.city.toLowerCase().includes(q)) ||
+      (h.specialists || []).some(
+        (s) => s.specialty?.toLowerCase().includes(q) || s.name?.toLowerCase().includes(q)
+      ) ||
+      (h.equipment || []).some((eq) => eq.toLowerCase().includes(q));
 
     if (!matchesQ) return false;
 
@@ -157,6 +175,18 @@ export const PatientDashboard = () => {
     if (bedTypeFilter === 'VENTILATOR') return (h.resources?.ventilatorsAvailable || 0) > 0;
     if (bedTypeFilter === 'OXYGEN') return (h.resources?.oxygenCylindersAvailable || 0) > 0;
     if (bedTypeFilter === 'GENERAL') return (h.resources?.generalBedsAvailable || 0) > 0;
+
+    if (bloodGroupFilter && (h.bloodBank?.[bloodGroupFilter] || 0) <= 0) {
+      return false;
+    }
+
+    if (specialistFilter) {
+      const specQ = specialistFilter.toLowerCase();
+      const hasSpec = (h.specialists || []).some(
+        (s) => s.specialty?.toLowerCase().includes(specQ) || s.name?.toLowerCase().includes(specQ)
+      );
+      if (!hasSpec) return false;
+    }
 
     return true;
   });
@@ -319,77 +349,219 @@ export const PatientDashboard = () => {
       {/* TAB 2: HOSPITALS & LIVE BED FINDER */}
       {activeTab === 'HOSPITALS' && (
         <div>
-          <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.25rem', flexWrap: 'wrap' }}>
-            <div style={{ flex: 1, minWidth: '240px' }}>
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Search hospital name, area (e.g. Sangamvadi, Deccan, KEM)..."
-                value={hospitalQuery}
-                onChange={(e) => setHospitalQuery(e.target.value)}
-              />
+          {/* Advanced Search & Filtering Bar */}
+          <div className="card" style={{ marginBottom: '1.25rem', padding: '1.25rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <h3 style={{ fontSize: '1.15rem', color: '#38bdf8' }}>
+                🏥 Hospital & Critical Care Facility Search
+              </h3>
+              <span style={{ fontSize: '0.78rem', color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '0.3rem 0.6rem', borderRadius: '12px' }}>
+                ⚡ Live Beds Telemetry Active
+              </span>
             </div>
 
-            <select
-              className="form-select"
-              value={bedTypeFilter}
-              onChange={(e) => setBedTypeFilter(e.target.value)}
-              style={{ width: 'auto', minWidth: '180px' }}
-            >
-              <option value="">All Bed Availabilities</option>
-              <option value="ICU">Has Available ICU Beds</option>
-              <option value="VENTILATOR">Has Available Ventilators</option>
-              <option value="OXYGEN">Has Available Oxygen</option>
-              <option value="GENERAL">Has Available General Beds</option>
-            </select>
+            <div className="grid-4" style={{ gap: '0.75rem' }}>
+              <div style={{ minWidth: '200px' }}>
+                <label className="form-label" style={{ fontSize: '0.75rem' }}>Search Name / Area / Equipment</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="e.g. Ruby Hall, KEM, Deccan, MRI, ICU..."
+                  value={hospitalQuery}
+                  onChange={(e) => setHospitalQuery(e.target.value)}
+                />
+              </div>
+
+              <div>
+                <label className="form-label" style={{ fontSize: '0.75rem' }}>Bed / Equipment Availability</label>
+                <select
+                  className="form-select"
+                  value={bedTypeFilter}
+                  onChange={(e) => setBedTypeFilter(e.target.value)}
+                >
+                  <option value="">All Bed Types</option>
+                  <option value="ICU">Available ICU Beds Only</option>
+                  <option value="VENTILATOR">Available Ventilators Only</option>
+                  <option value="OXYGEN">Available Oxygen Only</option>
+                  <option value="GENERAL">Available General Beds</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="form-label" style={{ fontSize: '0.75rem' }}>Blood Stock Availability</label>
+                <select
+                  className="form-select"
+                  value={bloodGroupFilter}
+                  onChange={(e) => setBloodGroupFilter(e.target.value)}
+                >
+                  <option value="">All Blood Groups</option>
+                  {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((bg) => (
+                    <option key={bg} value={bg}>Has {bg} Stock</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="form-label" style={{ fontSize: '0.75rem' }}>Specialist Department</label>
+                <select
+                  className="form-select"
+                  value={specialistFilter}
+                  onChange={(e) => setSpecialistFilter(e.target.value)}
+                >
+                  <option value="">All Specialties</option>
+                  <option value="Cardiology">Cardiology & Cardiac</option>
+                  <option value="Neurology">Neurology & Stroke</option>
+                  <option value="Orthopedics">Orthopedics & Trauma</option>
+                  <option value="Pediatrics">Pediatrics & Neonatal</option>
+                  <option value="Nephrology">Nephrology & Dialysis</option>
+                  <option value="Pulmonology">Pulmonology & Respiratory</option>
+                  <option value="General">General Medicine & OPD</option>
+                </select>
+              </div>
+            </div>
+
+            {(hospitalQuery || bedTypeFilter || bloodGroupFilter || specialistFilter) && (
+              <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Active Filters:</span>
+                <button
+                  onClick={() => {
+                    setHospitalQuery('');
+                    setBedTypeFilter('');
+                    setBloodGroupFilter('');
+                    setSpecialistFilter('');
+                  }}
+                  className="btn btn-secondary btn-sm"
+                  style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                >
+                  Reset All Filters
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="grid-2">
             {filteredHospitals.map((h) => (
-              <div key={h.id} className="card">
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <h3 style={{ fontSize: '1.15rem', color: '#38bdf8' }}>{h.name}</h3>
-                    <p style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{h.address}</p>
+              <div key={h.id} className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+                <div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <div>
+                      <span className="role-pill role-hospital" style={{ fontSize: '0.68rem', marginBottom: '0.35rem' }}>
+                        {h.type || 'Tertiary Care Hospital'}
+                      </span>
+                      <h3 style={{ fontSize: '1.2rem', color: '#38bdf8', marginTop: '0.2rem' }}>{h.name}</h3>
+                      <p style={{ fontSize: '0.82rem', color: '#94a3b8' }}>📍 {h.address}</p>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                      <a
+                        href={h.mapUrl || `https://www.google.com/maps/search/?api=1&query=${h.lat},${h.lng}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="btn btn-secondary btn-sm"
+                        style={{ color: '#38bdf8', borderColor: 'rgba(56,189,248,0.3)' }}
+                        title="Open in Google Maps"
+                      >
+                        🗺️ Map
+                      </a>
+                      <a href={`tel:${h.emergencyHelpline}`} className="btn btn-danger btn-sm">
+                        <Phone size={14} /> {h.emergencyHelpline || h.phone}
+                      </a>
+                    </div>
                   </div>
-                  <a href={`tel:${h.emergencyHelpline}`} className="btn btn-secondary btn-sm">
-                    <Phone size={14} /> {h.emergencyHelpline || h.phone}
-                  </a>
+
+                  {/* Live Resources Telemetry */}
+                  <div className="grid-4" style={{ marginTop: '1rem', gap: '0.4rem' }}>
+                    <div style={{ background: 'var(--bg-subtle)', padding: '0.5rem 0.4rem', borderRadius: '6px', textAlign: 'center' }}>
+                      <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>General Beds</span>
+                      <strong style={{ fontSize: '1.15rem', color: '#38bdf8' }}>
+                        {h.resources?.generalBedsAvailable ?? 0}/{h.resources?.generalBedsTotal ?? 100}
+                      </strong>
+                    </div>
+
+                    <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', padding: '0.5rem 0.4rem', borderRadius: '6px', textAlign: 'center' }}>
+                      <span style={{ fontSize: '0.7rem', color: '#fca5a5', display: 'block' }}>ICU Beds</span>
+                      <strong style={{ fontSize: '1.15rem', color: '#ef4444' }}>
+                        {h.resources?.icuBedsAvailable ?? 0}/{h.resources?.icuBedsTotal ?? 20}
+                      </strong>
+                    </div>
+
+                    <div style={{ background: 'var(--bg-subtle)', padding: '0.5rem 0.4rem', borderRadius: '6px', textAlign: 'center' }}>
+                      <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>Ventilators</span>
+                      <strong style={{ fontSize: '1.15rem', color: '#a78bfa' }}>
+                        {h.resources?.ventilatorsAvailable ?? 0}/{h.resources?.ventilatorsTotal ?? 10}
+                      </strong>
+                    </div>
+
+                    <div style={{ background: 'var(--bg-subtle)', padding: '0.5rem 0.4rem', borderRadius: '6px', textAlign: 'center' }}>
+                      <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>Oxygen Cyl.</span>
+                      <strong style={{ fontSize: '1.15rem', color: '#34d399' }}>
+                        {h.resources?.oxygenCylindersAvailable ?? 0}/{h.resources?.oxygenCylindersTotal ?? 50}
+                      </strong>
+                    </div>
+                  </div>
+
+                  {/* Equipment Badges */}
+                  {h.equipment && h.equipment.length > 0 && (
+                    <div style={{ marginTop: '0.85rem' }}>
+                      <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.35rem' }}>Specialized Equipment:</div>
+                      <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
+                        {h.equipment.map((eq) => (
+                          <span
+                            key={eq}
+                            style={{
+                              fontSize: '0.72rem',
+                              background: 'rgba(56, 189, 248, 0.08)',
+                              color: '#93c5fd',
+                              border: '1px solid rgba(56, 189, 248, 0.2)',
+                              padding: '0.2rem 0.5rem',
+                              borderRadius: '4px'
+                            }}
+                          >
+                            ⚙️ {eq}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Blood Bank Live Stock Preview */}
+                  {h.bloodBank && (
+                    <div style={{ marginTop: '0.85rem' }}>
+                      <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.35rem' }}>🩸 Blood Stock Available (Units):</div>
+                      <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
+                        {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((bg) => (
+                          <span
+                            key={bg}
+                            style={{
+                              fontSize: '0.7rem',
+                              background: (h.bloodBank[bg] || 0) > 0 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(100, 116, 139, 0.1)',
+                              color: (h.bloodBank[bg] || 0) > 0 ? '#fca5a5' : '#64748b',
+                              border: '1px solid rgba(239, 68, 68, 0.25)',
+                              padding: '0.15rem 0.4rem',
+                              borderRadius: '4px',
+                              fontWeight: 600
+                            }}
+                          >
+                            {bg}: <b>{h.bloodBank[bg] ?? 0}</b>
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Specialists Available */}
+                  {h.specialists && h.specialists.length > 0 && (
+                    <div style={{ marginTop: '0.85rem' }}>
+                      <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.35rem' }}>👨‍⚕️ Specialists Roster:</div>
+                      <div style={{ fontSize: '0.78rem', color: '#cbd5e1' }}>
+                        {h.specialists.map((s) => `${s.name} (${s.specialty})`).join(' • ')}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Live Resources synchronized */}
-                <div className="grid-4" style={{ marginTop: '1rem', gap: '0.5rem' }}>
-                  <div style={{ background: 'var(--bg-subtle)', padding: '0.6rem', borderRadius: '6px', textAlign: 'center' }}>
-                    <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block' }}>General Beds</span>
-                    <strong style={{ fontSize: '1.2rem', color: '#38bdf8' }}>
-                      {h.resources?.generalBedsAvailable}/{h.resources?.generalBedsTotal}
-                    </strong>
-                  </div>
-
-                  <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', padding: '0.6rem', borderRadius: '6px', textAlign: 'center' }}>
-                    <span style={{ fontSize: '0.72rem', color: '#fca5a5', display: 'block' }}>ICU Beds</span>
-                    <strong style={{ fontSize: '1.2rem', color: '#ef4444' }}>
-                      {h.resources?.icuBedsAvailable}/{h.resources?.icuBedsTotal}
-                    </strong>
-                  </div>
-
-                  <div style={{ background: 'var(--bg-subtle)', padding: '0.6rem', borderRadius: '6px', textAlign: 'center' }}>
-                    <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block' }}>Ventilators</span>
-                    <strong style={{ fontSize: '1.2rem', color: '#a78bfa' }}>
-                      {h.resources?.ventilatorsAvailable}/{h.resources?.ventilatorsTotal}
-                    </strong>
-                  </div>
-
-                  <div style={{ background: 'var(--bg-subtle)', padding: '0.6rem', borderRadius: '6px', textAlign: 'center' }}>
-                    <span style={{ fontSize: '0.72rem', color: '#94a3b8', display: 'block' }}>Oxygen Cyl.</span>
-                    <strong style={{ fontSize: '1.2rem', color: '#34d399' }}>
-                      {h.resources?.oxygenCylindersAvailable}/{h.resources?.oxygenCylindersTotal}
-                    </strong>
-                  </div>
-                </div>
-
-                <div style={{ marginTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                <div style={{ marginTop: '1.25rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
                     ⚡ Real-time Socket.io synchronized
                   </div>
                   <button
@@ -400,7 +572,7 @@ export const PatientDashboard = () => {
                     }}
                     className="btn btn-primary btn-sm"
                   >
-                    Book Appointment Here
+                    📅 Book Appointment
                   </button>
                 </div>
               </div>
@@ -409,15 +581,20 @@ export const PatientDashboard = () => {
         </div>
       )}
 
-      {/* TAB 3: SMART BLOOD SEARCH */}
+      {/* TAB 3: SMART BLOOD REQUIREMENT MATCHER */}
       {activeTab === 'BLOOD' && (
         <div>
-          <div className="card" style={{ marginBottom: '1.5rem' }}>
-            <h3 style={{ fontSize: '1.15rem', marginBottom: '0.5rem', color: '#f87171' }}>
-              🩸 Smart Blood Requirement Matcher
-            </h3>
-            <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '1rem' }}>
-              Query real-time stock across all registered hospital blood banks by group, units, location, and urgency:
+          <div className="card" style={{ marginBottom: '1.5rem', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <h3 style={{ fontSize: '1.2rem', color: '#f87171' }}>
+                🩸 Smart Blood Requirement Matcher
+              </h3>
+              <span style={{ fontSize: '0.75rem', color: '#cbd5e1', background: 'rgba(239, 68, 68, 0.15)', padding: '0.25rem 0.6rem', borderRadius: '12px' }}>
+                Verified Cold Storage Telemetry (MVP Seeded Data)
+              </span>
+            </div>
+            <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '1.25rem' }}>
+              Submit emergency or scheduled blood requirements. Matches are sorted by practical relevance, location proximity, and live available units:
             </p>
 
             <form onSubmit={handleRunBloodSearch}>
@@ -449,10 +626,11 @@ export const PatientDashboard = () => {
                 </div>
 
                 <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Location / City</label>
+                  <label className="form-label">Location / City / Area</label>
                   <input
                     type="text"
                     className="form-control"
+                    placeholder="e.g. Pune, Deccan, Sangamvadi, Camp..."
                     value={bloodLocation}
                     onChange={(e) => setBloodLocation(e.target.value)}
                   />
@@ -465,21 +643,26 @@ export const PatientDashboard = () => {
                     value={bloodUrgency}
                     onChange={(e) => setBloodUrgency(e.target.value)}
                   >
-                    <option value="Urgent">Urgent (Within 4 hrs)</option>
-                    <option value="Immediate">Immediate / Emergency</option>
-                    <option value="Elective">Elective / Scheduled</option>
+                    <option value="NORMAL">NORMAL (Scheduled / Elective)</option>
+                    <option value="URGENT">URGENT (Within 2-4 Hours)</option>
+                    <option value="CRITICAL">CRITICAL (Immediate Life Support)</option>
                   </select>
                 </div>
               </div>
 
-              <button
-                type="submit"
-                disabled={bloodSearchLoading}
-                className="btn btn-primary"
-                style={{ marginTop: '1rem' }}
-              >
-                {bloodSearchLoading ? 'Matching Stock...' : 'Find Matching Blood Banks'}
-              </button>
+              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem', alignItems: 'center' }}>
+                <button
+                  type="submit"
+                  disabled={bloodSearchLoading}
+                  className="btn btn-primary"
+                  style={{ minWidth: '180px' }}
+                >
+                  {bloodSearchLoading ? 'Searching Stock...' : '🔍 Find Matching Blood Banks'}
+                </button>
+                <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                  Example: <b>B+ | 2 Units | Pune | URGENT</b>
+                </span>
+              </div>
             </form>
           </div>
 
@@ -488,44 +671,78 @@ export const PatientDashboard = () => {
               <thead>
                 <tr>
                   <th>Hospital / Blood Bank</th>
-                  <th>Area / Location</th>
+                  <th>Location & Area</th>
                   <th>Blood Group</th>
                   <th>Available Units</th>
                   <th>Match Status</th>
-                  <th>Emergency Helpline</th>
+                  <th>ICU / Critical Telemetry</th>
+                  <th>Helpline & Direct Call</th>
                 </tr>
               </thead>
               <tbody>
-                {bloodMatches.map((m) => (
-                  <tr key={m.hospitalId}>
-                    <td style={{ fontWeight: 700 }}>{m.hospitalName}</td>
-                    <td>{m.area}, {m.city}</td>
-                    <td>
-                      <span style={{ fontWeight: 800, color: '#ef4444' }}>{m.bloodGroup}</span>
-                    </td>
-                    <td style={{ fontSize: '1.1rem', fontWeight: 800 }}>
-                      <span style={{ color: m.availableUnits >= bloodUnits ? '#10b981' : '#f59e0b' }}>
-                        {m.availableUnits} Units Available
-                      </span>
-                    </td>
-                    <td>
-                      {m.isSufficient ? (
-                        <span style={{ color: '#10b981', fontWeight: 700, fontSize: '0.8rem' }}>
-                          ✅ Full Requirement Matched
-                        </span>
-                      ) : (
-                        <span style={{ color: '#f59e0b', fontWeight: 700, fontSize: '0.8rem' }}>
-                          ⚠️ Partial ({m.availableUnits}/{bloodUnits})
-                        </span>
-                      )}
-                    </td>
-                    <td>
-                      <a href={`tel:${m.emergencyHelpline}`} style={{ fontWeight: 600 }}>
-                        📞 {m.emergencyHelpline}
-                      </a>
+                {bloodMatches.length === 0 ? (
+                  <tr>
+                    <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
+                      Click "Find Matching Blood Banks" to view real-time facility inventory.
                     </td>
                   </tr>
-                ))}
+                ) : (
+                  bloodMatches.map((m) => (
+                    <tr key={m.hospitalId}>
+                      <td>
+                        <div style={{ fontWeight: 700, color: '#38bdf8' }}>{m.hospitalName}</div>
+                        <a
+                          href={m.mapUrl || `https://www.google.com/maps/search/?api=1&query=${m.lat},${m.lng}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={{ fontSize: '0.75rem', color: '#93c5fd', textDecoration: 'underline' }}
+                        >
+                          🗺️ View on Map
+                        </a>
+                      </td>
+                      <td>
+                        <div><b>{m.area}</b></div>
+                        <small style={{ color: '#94a3b8' }}>{m.city}</small>
+                      </td>
+                      <td>
+                        <span style={{ fontWeight: 800, color: '#ef4444', fontSize: '1.1rem' }}>{m.bloodGroup}</span>
+                      </td>
+                      <td style={{ fontSize: '1.1rem', fontWeight: 800 }}>
+                        <span style={{ color: m.availableUnits >= bloodUnits ? '#10b981' : (m.availableUnits > 0 ? '#f59e0b' : '#ef4444') }}>
+                          {m.availableUnits} Units
+                        </span>
+                      </td>
+                      <td>
+                        {m.isSufficient ? (
+                          <span style={{ color: '#10b981', fontWeight: 700, fontSize: '0.8rem', background: 'rgba(16,185,129,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
+                            ✅ Full Match ({m.availableUnits} ≥ {bloodUnits})
+                          </span>
+                        ) : m.availableUnits > 0 ? (
+                          <span style={{ color: '#f59e0b', fontWeight: 700, fontSize: '0.8rem', background: 'rgba(245,158,11,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
+                            ⚠️ Partial ({m.availableUnits}/{bloodUnits})
+                          </span>
+                        ) : (
+                          <span style={{ color: '#ef4444', fontWeight: 700, fontSize: '0.8rem' }}>
+                            ❌ Out of Stock
+                          </span>
+                        )}
+                      </td>
+                      <td style={{ fontSize: '0.78rem', color: '#cbd5e1' }}>
+                        <div>ICU: <b>{m.resources?.icuBedsAvailable ?? 0}</b> avail</div>
+                        <div>O2: <b>{m.resources?.oxygenCylindersAvailable ?? 0}</b> cyl</div>
+                      </td>
+                      <td>
+                        <a
+                          href={`tel:${m.emergencyHelpline}`}
+                          className="btn btn-danger btn-sm"
+                          style={{ fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                        >
+                          <Phone size={13} /> {m.emergencyHelpline || m.phone}
+                        </a>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

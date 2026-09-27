@@ -133,6 +133,7 @@ const INITIAL_SEED_DATA = {
       area: 'Sangamvadi / Station',
       lat: 18.5314,
       lng: 73.8765,
+      mapUrl: 'https://www.google.com/maps/search/?api=1&query=18.5314,73.8765',
       phone: '020-66455100',
       emergencyHelpline: '1066 / 020-66455666',
       email: 'emergency@rubyhall.com',
@@ -146,6 +147,15 @@ const INITIAL_SEED_DATA = {
         oxygenCylindersTotal: 120,
         oxygenCylindersAvailable: 34
       },
+      equipment: [
+        'CT Scanner 128-Slice',
+        'MRI 3.0 Tesla',
+        'Advanced Cardiac Cath Lab',
+        'Hemodialysis Unit',
+        'Transport Defibrillator',
+        'Ultrasound Color Doppler',
+        'Digital X-Ray'
+      ],
       bloodBank: {
         'A+': 18,
         'A-': 5,
@@ -172,6 +182,7 @@ const INITIAL_SEED_DATA = {
       area: 'Rasta Peth / Camp',
       lat: 18.5204,
       lng: 73.8698,
+      mapUrl: 'https://www.google.com/maps/search/?api=1&query=18.5204,73.8698',
       phone: '020-66037300',
       emergencyHelpline: '020-66037333',
       email: 'info@kempune.org',
@@ -185,6 +196,14 @@ const INITIAL_SEED_DATA = {
         oxygenCylindersTotal: 90,
         oxygenCylindersAvailable: 19
       },
+      equipment: [
+        'CT Scanner 64-Slice',
+        'Neonatal Incubators',
+        'Hemodialysis Unit',
+        'BiPAP / CPAP Machines',
+        'Automated Blood Analyzer',
+        'Digital Radiography'
+      ],
       bloodBank: {
         'A+': 14,
         'A-': 3,
@@ -210,6 +229,7 @@ const INITIAL_SEED_DATA = {
       area: 'Deccan / Erandwane',
       lat: 18.5089,
       lng: 73.8346,
+      mapUrl: 'https://www.google.com/maps/search/?api=1&query=18.5089,73.8346',
       phone: '020-67213000',
       emergencyHelpline: '020-67213100',
       email: 'contact@sahyadrihospitals.com',
@@ -223,6 +243,13 @@ const INITIAL_SEED_DATA = {
         oxygenCylindersTotal: 80,
         oxygenCylindersAvailable: 22
       },
+      equipment: [
+        'MRI 1.5T Silent Scan',
+        'Cardiac Cath Lab',
+        'Advanced Dialysis Station',
+        'Neuro-Navigation System',
+        'Defibrillator Units'
+      ],
       bloodBank: {
         'A+': 10,
         'A-': 2,
@@ -248,6 +275,7 @@ const INITIAL_SEED_DATA = {
       area: 'Pune Station',
       lat: 18.5298,
       lng: 73.8741,
+      mapUrl: 'https://www.google.com/maps/search/?api=1&query=18.5298,73.8741',
       phone: '020-66819999',
       emergencyHelpline: '020-66819900',
       email: 'emergency@jehangirhospital.com',
@@ -261,6 +289,13 @@ const INITIAL_SEED_DATA = {
         oxygenCylindersTotal: 100,
         oxygenCylindersAvailable: 40
       },
+      equipment: [
+        'CT Scanner 256-Slice',
+        'Cardiothoracic OT Suite',
+        'ECMO Machine',
+        'Automated Blood Bank Cold Chain',
+        'Color Doppler 4D'
+      ],
       bloodBank: {
         'A+': 22,
         'A-': 6,
@@ -738,13 +773,28 @@ class Store {
     return this.data[collection][index];
   }
 
-  delete(collection, id) {
-    const list = this.get(collection);
-    const index = list.findIndex((item) => item.id === id);
-    if (index === -1) return false;
-    this.data[collection].splice(index, 1);
-    this.save();
-    return true;
+  decrementResource(hospitalId, resourceKey, amount = 1) {
+    const hospital = this.findById('hospitals', hospitalId);
+    if (!hospital) return null;
+    const currentVal = hospital.resources?.[resourceKey] ?? 0;
+    const newVal = Math.max(0, currentVal - amount);
+    const updatedResources = {
+      ...hospital.resources,
+      [resourceKey]: newVal
+    };
+    return this.update('hospitals', hospitalId, { resources: updatedResources });
+  }
+
+  decrementBloodStock(hospitalId, bloodGroup, units = 1) {
+    const hospital = this.findById('hospitals', hospitalId);
+    if (!hospital) return null;
+    const currentStock = hospital.bloodBank?.[bloodGroup] ?? 0;
+    const newStock = Math.max(0, currentStock - units);
+    const updatedBloodBank = {
+      ...hospital.bloodBank,
+      [bloodGroup]: newStock
+    };
+    return this.update('hospitals', hospitalId, { bloodBank: updatedBloodBank });
   }
 
   logAudit({ actorId, actorName, actorRole, action, resourceType, resourceId, details }) {

@@ -25,11 +25,13 @@ import {
 
 export const HospitalDashboard = () => {
   const { user } = useAuth();
-  const { liveResourceUpdate, liveRequestUpdate } = useSocket();
+  const { liveResourceUpdate, liveBloodBankUpdate, liveRequestUpdate } = useSocket();
 
   const [activeTab, setActiveTab] = useState('RESOURCES'); // RESOURCES, APPOINTMENTS, REQUESTS, PATIENTS_SEARCH, SPECIALISTS
   const [summary, setSummary] = useState(null);
   const [resources, setResources] = useState({});
+  const [equipment, setEquipment] = useState([]);
+  const [newEquipmentInput, setNewEquipmentInput] = useState('');
   const [bloodBank, setBloodBank] = useState({});
   const [requests, setRequests] = useState([]);
   const [appointments, setAppointments] = useState([]);
@@ -68,6 +70,12 @@ export const HospitalDashboard = () => {
   }, [liveResourceUpdate, hospitalId]);
 
   useEffect(() => {
+    if (liveBloodBankUpdate && liveBloodBankUpdate.hospitalId === hospitalId) {
+      setBloodBank(liveBloodBankUpdate.bloodBank);
+    }
+  }, [liveBloodBankUpdate, hospitalId]);
+
+  useEffect(() => {
     if (liveRequestUpdate) {
       loadHospitalData();
     }
@@ -84,6 +92,7 @@ export const HospitalDashboard = () => {
 
       setSummary(sum);
       setResources(sum.resources || {});
+      setEquipment(sum.equipment || sum.hospital?.equipment || []);
       setBloodBank(sum.bloodBank || {});
       setSpecialists(sum.specialists || []);
       setAppointments(apts.appointments || []);
@@ -107,6 +116,29 @@ export const HospitalDashboard = () => {
     } catch (err) {
       console.error('Error updating live resources:', err);
       setResources(resources);
+    }
+  };
+
+  const handleAddEquipment = async (e) => {
+    if (e) e.preventDefault();
+    if (!newEquipmentInput.trim()) return;
+    const updatedEquipment = [...equipment, newEquipmentInput.trim()];
+    setEquipment(updatedEquipment);
+    setNewEquipmentInput('');
+    try {
+      await api.updateHospitalResources(hospitalId, { ...resources, equipment: updatedEquipment });
+    } catch (err) {
+      console.error('Error adding equipment:', err);
+    }
+  };
+
+  const handleRemoveEquipment = async (itemToRemove) => {
+    const updatedEquipment = equipment.filter((item) => item !== itemToRemove);
+    setEquipment(updatedEquipment);
+    try {
+      await api.updateHospitalResources(hospitalId, { ...resources, equipment: updatedEquipment });
+    } catch (err) {
+      console.error('Error removing equipment:', err);
     }
   };
 
@@ -475,80 +507,113 @@ export const HospitalDashboard = () => {
       {/* TAB 2: LIVE RESOURCES & BLOOD BANK */}
       {activeTab === 'RESOURCES' && (
         <div>
-          <div style={{ marginBottom: '1.25rem' }}>
-            <h3 style={{ fontSize: '1.2rem', marginBottom: '0.25rem' }}>
-              Hospital Bed & Equipment Telemetry (Socket.io Synced)
-            </h3>
-            <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
-              Adjust live counts below. Changes instantly broadcast across the network for emergency triage:
-            </p>
+          <div style={{ marginBottom: '1.25rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div>
+              <h3 style={{ fontSize: '1.2rem', marginBottom: '0.25rem' }}>
+                Hospital Bed & Equipment Telemetry (Socket.io Synced)
+              </h3>
+              <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
+                Adjust live counts below. Changes instantly broadcast across the network for emergency triage:
+              </p>
+            </div>
+            <span style={{ fontSize: '0.8rem', color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '0.35rem 0.75rem', borderRadius: '20px', border: '1px solid rgba(16,185,129,0.3)' }}>
+              ⚡ Live Socket.io Telemetry Active
+            </span>
           </div>
 
-          <div className="grid-4" style={{ marginBottom: '2rem' }}>
+          <div className="grid-4" style={{ marginBottom: '1.5rem' }}>
             {/* General Beds */}
             <div className="resource-counter-card">
-              <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>🛏️ General Beds Available</span>
+              <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>🛏️ General Beds</span>
               <div className="resource-count-number" style={{ color: '#38bdf8' }}>
                 {resources.generalBedsAvailable ?? 0}
                 <span style={{ fontSize: '1rem', color: '#64748b' }}>/{resources.generalBedsTotal ?? 100}</span>
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
+                Available: <b>{resources.generalBedsAvailable ?? 0}</b> | Total: <b>{resources.generalBedsTotal ?? 100}</b>
               </div>
               <div className="resource-controls">
                 <button
                   onClick={() => handleResourceCountChange('generalBedsAvailable', -1)}
                   className="btn-counter"
-                  aria-label="Decrease general beds"
+                  aria-label="Decrease available general beds"
+                  title="Decrease available beds"
                 >
                   <Minus size={14} />
                 </button>
                 <button
                   onClick={() => handleResourceCountChange('generalBedsAvailable', 1)}
                   className="btn-counter"
-                  aria-label="Increase general beds"
+                  aria-label="Increase available general beds"
+                  title="Increase available beds"
                 >
                   <Plus size={14} />
                 </button>
-                <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: 'auto' }}>1-Click Sync</span>
+                <button
+                  onClick={() => handleResourceCountChange('generalBedsTotal', 1)}
+                  className="btn btn-secondary btn-sm"
+                  style={{ marginLeft: 'auto', fontSize: '0.7rem', padding: '0.2rem 0.5rem' }}
+                  title="Increase total general bed capacity"
+                >
+                  + Cap
+                </button>
               </div>
             </div>
 
             {/* ICU Beds */}
             <div className="resource-counter-card" style={{ borderColor: 'rgba(239, 68, 68, 0.4)' }}>
-              <span style={{ fontSize: '0.8rem', color: '#fca5a5', fontWeight: 600 }}>🚨 ICU Beds Available</span>
+              <span style={{ fontSize: '0.8rem', color: '#fca5a5', fontWeight: 600 }}>🚨 ICU Beds</span>
               <div className="resource-count-number" style={{ color: '#ef4444' }}>
                 {resources.icuBedsAvailable ?? 0}
                 <span style={{ fontSize: '1rem', color: '#64748b' }}>/{resources.icuBedsTotal ?? 20}</span>
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#fca5a5', marginBottom: '0.5rem' }}>
+                Available: <b>{resources.icuBedsAvailable ?? 0}</b> | Total: <b>{resources.icuBedsTotal ?? 20}</b>
               </div>
               <div className="resource-controls">
                 <button
                   onClick={() => handleResourceCountChange('icuBedsAvailable', -1)}
                   className="btn-counter"
-                  aria-label="Decrease ICU beds"
+                  aria-label="Decrease available ICU beds"
+                  title="Decrease available ICU beds"
                 >
                   <Minus size={14} />
                 </button>
                 <button
                   onClick={() => handleResourceCountChange('icuBedsAvailable', 1)}
                   className="btn-counter"
-                  aria-label="Increase ICU beds"
+                  aria-label="Increase available ICU beds"
+                  title="Increase available ICU beds"
                 >
                   <Plus size={14} />
                 </button>
-                <span style={{ fontSize: '0.75rem', color: '#fca5a5', marginLeft: 'auto' }}>Critical Resource</span>
+                <button
+                  onClick={() => handleResourceCountChange('icuBedsTotal', 1)}
+                  className="btn btn-secondary btn-sm"
+                  style={{ marginLeft: 'auto', fontSize: '0.7rem', padding: '0.2rem 0.5rem' }}
+                  title="Increase total ICU bed capacity"
+                >
+                  + Cap
+                </button>
               </div>
             </div>
 
             {/* Ventilators */}
             <div className="resource-counter-card">
-              <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>💨 Ventilators Available</span>
+              <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>💨 Ventilators</span>
               <div className="resource-count-number" style={{ color: '#a78bfa' }}>
                 {resources.ventilatorsAvailable ?? 0}
                 <span style={{ fontSize: '1rem', color: '#64748b' }}>/{resources.ventilatorsTotal ?? 10}</span>
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
+                Available: <b>{resources.ventilatorsAvailable ?? 0}</b> | Total: <b>{resources.ventilatorsTotal ?? 10}</b>
               </div>
               <div className="resource-controls">
                 <button
                   onClick={() => handleResourceCountChange('ventilatorsAvailable', -1)}
                   className="btn-counter"
                   aria-label="Decrease ventilators"
+                  title="Decrease available ventilators"
                 >
                   <Minus size={14} />
                 </button>
@@ -556,25 +621,37 @@ export const HospitalDashboard = () => {
                   onClick={() => handleResourceCountChange('ventilatorsAvailable', 1)}
                   className="btn-counter"
                   aria-label="Increase ventilators"
+                  title="Increase available ventilators"
                 >
                   <Plus size={14} />
                 </button>
-                <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: 'auto' }}>1-Click Sync</span>
+                <button
+                  onClick={() => handleResourceCountChange('ventilatorsTotal', 1)}
+                  className="btn btn-secondary btn-sm"
+                  style={{ marginLeft: 'auto', fontSize: '0.7rem', padding: '0.2rem 0.5rem' }}
+                  title="Increase total ventilators"
+                >
+                  + Cap
+                </button>
               </div>
             </div>
 
             {/* Oxygen Cylinders */}
             <div className="resource-counter-card">
-              <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>🫧 Oxygen Cylinders</span>
+              <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600 }}>🫧 Oxygen Supply / Cylinders</span>
               <div className="resource-count-number" style={{ color: '#34d399' }}>
                 {resources.oxygenCylindersAvailable ?? 0}
                 <span style={{ fontSize: '1rem', color: '#64748b' }}>/{resources.oxygenCylindersTotal ?? 50}</span>
+              </div>
+              <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
+                Available: <b>{resources.oxygenCylindersAvailable ?? 0}</b> | Total: <b>{resources.oxygenCylindersTotal ?? 50}</b>
               </div>
               <div className="resource-controls">
                 <button
                   onClick={() => handleResourceCountChange('oxygenCylindersAvailable', -1)}
                   className="btn-counter"
                   aria-label="Decrease oxygen cylinders"
+                  title="Decrease oxygen cylinders"
                 >
                   <Minus size={14} />
                 </button>
@@ -582,20 +659,28 @@ export const HospitalDashboard = () => {
                   onClick={() => handleResourceCountChange('oxygenCylindersAvailable', 1)}
                   className="btn-counter"
                   aria-label="Increase oxygen cylinders"
+                  title="Increase oxygen cylinders"
                 >
                   <Plus size={14} />
                 </button>
-                <span style={{ fontSize: '0.75rem', color: '#94a3b8', marginLeft: 'auto' }}>1-Click Sync</span>
+                <button
+                  onClick={() => handleResourceCountChange('oxygenCylindersTotal', 5)}
+                  className="btn btn-secondary btn-sm"
+                  style={{ marginLeft: 'auto', fontSize: '0.7rem', padding: '0.2rem 0.5rem' }}
+                  title="Increase total oxygen cylinders (+5)"
+                >
+                  +5 Cap
+                </button>
               </div>
             </div>
           </div>
 
           {/* Blood Bank Matrix */}
-          <div className="card">
+          <div className="card" style={{ marginBottom: '1.5rem' }}>
             <div className="card-header">
               <div className="card-title">
                 <Droplet size={20} color="#ef4444" />
-                <span>Hospital Blood Bank Inventory Matrix</span>
+                <span>Hospital Blood Bank Inventory Matrix (8 Groups Supported)</span>
               </div>
               <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Units in cold storage</span>
             </div>
@@ -612,6 +697,7 @@ export const HospitalDashboard = () => {
                       onClick={() => handleBloodStockChange(group, -1)}
                       className="btn-counter"
                       style={{ width: '26px', height: '26px' }}
+                      title="Decrease 1 unit"
                     >
                       <Minus size={12} />
                     </button>
@@ -619,6 +705,7 @@ export const HospitalDashboard = () => {
                       onClick={() => handleBloodStockChange(group, 1)}
                       className="btn-counter"
                       style={{ width: '26px', height: '26px' }}
+                      title="Add 1 unit"
                     >
                       <Plus size={12} />
                     </button>
@@ -626,6 +713,62 @@ export const HospitalDashboard = () => {
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Specialized Equipment Management */}
+          <div className="card">
+            <div className="card-header">
+              <div className="card-title">
+                <Activity size={20} color="#38bdf8" />
+                <span>Specialized Diagnostic & ICU Equipment</span>
+              </div>
+              <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Visible to emergency referral network</span>
+            </div>
+
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1rem' }}>
+              {equipment && equipment.length > 0 ? (
+                equipment.map((item) => (
+                  <span
+                    key={item}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      background: 'rgba(56, 189, 248, 0.12)',
+                      border: '1px solid rgba(56, 189, 248, 0.3)',
+                      color: '#38bdf8',
+                      padding: '0.35rem 0.75rem',
+                      borderRadius: '6px',
+                      fontSize: '0.85rem'
+                    }}
+                  >
+                    ⚙️ {item}
+                    <button
+                      onClick={() => handleRemoveEquipment(item)}
+                      style={{ background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: 0 }}
+                      title="Remove equipment"
+                    >
+                      <XCircle size={14} />
+                    </button>
+                  </span>
+                ))
+              ) : (
+                <span style={{ color: '#94a3b8', fontSize: '0.85rem' }}>No equipment configured yet.</span>
+              )}
+            </div>
+
+            <form onSubmit={handleAddEquipment} style={{ display: 'flex', gap: '0.75rem', maxWidth: '480px' }}>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Add specialized equipment (e.g. MRI 3T, CT Scanner, ECMO)..."
+                value={newEquipmentInput}
+                onChange={(e) => setNewEquipmentInput(e.target.value)}
+              />
+              <button type="submit" className="btn btn-primary" style={{ minWidth: '130px' }}>
+                <Plus size={16} /> Add Unit
+              </button>
+            </form>
           </div>
         </div>
       )}

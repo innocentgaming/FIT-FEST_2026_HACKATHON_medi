@@ -3,7 +3,7 @@ const router = express.Router();
 const { store } = require('../db/store');
 const { authenticateToken } = require('../middleware/auth');
 const { requireRole } = require('../middleware/rbac');
-const { broadcastRequestStatusChange, broadcastResourceUpdate } = require('../socket');
+const { broadcastRequestStatusChange, broadcastResourceUpdate, broadcastBloodBankUpdate } = require('../socket');
 
 const VALID_REQUEST_STATUSES = ['PENDING', 'ASSIGNED', 'ACCEPTED', 'COMPLETED', 'REJECTED', 'RESOLVED'];
 const VALID_REQUEST_TYPES = ['ADMISSION', 'H2H_TRANSFER', 'BLOOD', 'EQUIPMENT', 'AMBULANCE'];
@@ -49,7 +49,7 @@ router.get('/', authenticateToken, (req, res) => {
   res.json({ requests, count: requests.length });
 });
 
-// Smart Blood Search endpoint
+// Smart Blood Search endpoint (Group + Units Required + Location + Urgency)
 router.post('/search-blood', (req, res) => {
   const { bloodGroup, unitsRequired, location, urgency } = req.body;
 
@@ -58,15 +58,31 @@ router.post('/search-blood', (req, res) => {
   }
 
   const requestedUnits = Number(unitsRequired) || 1;
+  const formattedGroup = bloodGroup.trim().toUpperCase();
   const hospitals = store.get('hospitals');
 
-  const formattedGroup = bloodGroup.trim().toUpperCase();
+  const locQuery = (location || '').trim().toLowerCase();
 
   // Find matching hospitals with available stock
   const matches = hospitals
     .map((h) => {
       const stock = (h.bloodBank && h.bloodBank[formattedGroup]) || 0;
       const isSufficient = stock >= requestedUnits;
+
+      // Location match score for practical relevance
+      let locationScore = 0;
+      if (locQuery) {
+        const cityMatch = h.city && h.city.toLowerCase().includes(locQuery);
+        const areaMatch = h.area && h.area.toLowerCase().includes(locQuery);
+        const addressMatch = h.address && h.address.toLowerCase().includes(locQuery);
+        if (cityMatch && areaMatch) locationScore = 100;
+        else if (areaMatch) locationScore = 90;
+        else if (cityMatch) locationScore = 80;
+        else if (addressMatch) locationScore = 70;
+      } else {
+        locationScore = 50;
+      }
+
       return {
         hospitalId: h.id,
         hospitalName: h.name,
@@ -75,21 +91,46 @@ router.post('/search-blood', (req, res) => {
         city: h.city,
         phone: h.phone,
         emergencyHelpline: h.emergencyHelpline,
+        mapUrl: h.mapUrl || `https://www.google.com/maps/search/?api=1&query=${h.lat},${h.lng}`,
         lat: h.lat,
         lng: h.lng,
         bloodGroup: formattedGroup,
         availableUnits: stock,
         isSufficient,
-        urgencyLevel: urgency || 'Standard',
+        locationScore,
+        urgencyLevel: urgency ? urgency.toUpperCase() : 'NORMAL',
+        resources: {
+          icuBedsAvailable: h.resources?.icuBedsAvailable || 0,
+          generalBedsAvailable: h.resources?.generalBedsAvailable || 0,
+          ventilatorsAvailable: h.resources?.ventilatorsAvailable || 0,
+          oxygenCylindersAvailable: h.resources?.oxygenCylindersAvailable || 0
+        },
         verifiedLiveStock: true
       };
     })
-    .sort((a, b) => b.availableUnits - a.availableUnits);
+    .sort((a, b) => {
+      // 1. Location match score (practical proximity)
+      if (b.locationScore !== a.locationScore) {
+        return b.locationScore - a.locationScore;
+      }
+      // 2. Stock sufficiency (sufficient units prioritized)
+      if (b.isSufficient !== a.isSufficient) {
+        return (b.isSufficient ? 1 : 0) - (a.isSufficient ? 1 : 0);
+      }
+      // 3. Total available units (descending)
+      return b.availableUnits - a.availableUnits;
+    });
 
   res.json({
-    query: { bloodGroup: formattedGroup, unitsRequired: requestedUnits, location, urgency },
+    query: {
+      bloodGroup: formattedGroup,
+      unitsRequired: requestedUnits,
+      location: location || 'All Regions',
+      urgency: urgency ? urgency.toUpperCase() : 'NORMAL'
+    },
     matches,
-    totalFacilitiesWithStock: matches.filter((m) => m.availableUnits > 0).length
+    totalFacilitiesWithStock: matches.filter((m) => m.availableUnits > 0).length,
+    disclaimer: 'Blood availability reflects verified inventory from participating hospital cold storage. Contact facility helpline for emergency pickup.'
   });
 });
 
@@ -272,21 +313,34 @@ router.put('/:id/status', authenticateToken, (req, res) => {
     }
   }
 
-  // Transactional resource decrement if ADMISSION is ACCEPTED
-  if (request.type === 'ADMISSION' && targetStatus === 'ACCEPTED' && currentStatus !== 'ACCEPTED') {
+  // Transactional resource decrement if ADMISSION or H2H_TRANSFER is ACCEPTED
+  if ((request.type === 'ADMISSION' || request.type === 'H2H_TRANSFER') && targetStatus === 'ACCEPTED' && currentStatus !== 'ACCEPTED') {
     const hosp = store.findById('hospitals', request.targetHospitalId);
     if (hosp) {
-      const bedType = request.details?.bedType || 'GENERAL';
-      const updatedResources = { ...hosp.resources };
-      if (bedType === 'ICU' && updatedResources.icuBedsAvailable > 0) {
-        updatedResources.icuBedsAvailable -= 1;
-      } else if (bedType === 'VENTILATOR' && updatedResources.ventilatorsAvailable > 0) {
-        updatedResources.ventilatorsAvailable -= 1;
-      } else if (updatedResources.generalBedsAvailable > 0) {
-        updatedResources.generalBedsAvailable -= 1;
+      const bedType = (request.details?.bedType || 'GENERAL').toUpperCase();
+      let resourceKey = 'generalBedsAvailable';
+      if (bedType === 'ICU') {
+        resourceKey = 'icuBedsAvailable';
+      } else if (bedType === 'VENTILATOR') {
+        resourceKey = 'ventilatorsAvailable';
       }
-      store.update('hospitals', hosp.id, { resources: updatedResources });
-      broadcastResourceUpdate(hosp.id, updatedResources);
+      const updatedHosp = store.decrementResource(hosp.id, resourceKey, 1);
+      if (updatedHosp) {
+        broadcastResourceUpdate(hosp.id, updatedHosp.resources);
+      }
+    }
+  }
+
+  // Transactional blood stock decrement if BLOOD request is ACCEPTED
+  if (request.type === 'BLOOD' && targetStatus === 'ACCEPTED' && currentStatus !== 'ACCEPTED') {
+    const hosp = store.findById('hospitals', request.targetHospitalId);
+    if (hosp && request.details?.bloodGroup) {
+      const units = Number(request.details?.unitsRequired) || 1;
+      const formattedGroup = request.details.bloodGroup.trim().toUpperCase();
+      const updatedHosp = store.decrementBloodStock(hosp.id, formattedGroup, units);
+      if (updatedHosp) {
+        broadcastBloodBankUpdate(hosp.id, updatedHosp.bloodBank);
+      }
     }
   }
 
