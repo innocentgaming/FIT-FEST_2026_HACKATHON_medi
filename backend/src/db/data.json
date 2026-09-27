@@ -5,7 +5,7 @@
       "name": "Aarav Sharma",
       "email": "aarav@example.com",
       "phone": "9876543210",
-      "password": "$2a$10$O4sQ/gMggmvdqIakIq44Pen/B2qsp.oRg8tDep7FitcoPAVWim2Uy",
+      "password": "$2a$10$zHW6.kJSq6fW3P3/aPqV4.1.O9k1dMDogPCS0WU7.yMbJUGUlx1l.",
       "role": "PATIENT",
       "bloodGroup": "B+",
       "emergencyContact": "Pooja Sharma (9876543211)",
@@ -17,7 +17,7 @@
       "name": "Sneha Patil",
       "email": "sneha@example.com",
       "phone": "9876543222",
-      "password": "$2a$10$zidWFF1lhykQH4IQTkUkmO.T.0Y0/k5ZOxvfr5yTjvIfSCH7yjgPG",
+      "password": "$2a$10$5mGyvOAMpnnKGZoDy0SGVO9btW0cdGLKuluP9NvXcwW7fgLUzHst.",
       "role": "PATIENT",
       "bloodGroup": "O-",
       "emergencyContact": "Ramesh Patil (9876543223)",
@@ -29,7 +29,7 @@
       "name": "Ruby Hall Clinic Admin",
       "email": "rubyhall@medilink.org",
       "phone": "02066455100",
-      "password": "$2a$10$v1uBl.MIcXC7GpqYrHBz1eB6yONhx1HDz7GS2TaWlsGYUcDqdBo7W",
+      "password": "$2a$10$.2Y1CykIqmfoy.hVMxG6dOKD2.1FBf5RItMVasdPjiAHsNr9tmYdO",
       "role": "HOSPITAL",
       "hospitalId": "hosp_ruby_hall",
       "address": "40 Sassoon Road, Sangamvadi, Pune 411001",
@@ -40,7 +40,7 @@
       "name": "KEM Hospital Admin",
       "email": "kem@medilink.org",
       "phone": "02066037300",
-      "password": "$2a$10$lry6Rrmu9onPT3AmCJ8BzuEBZdW9v2kw1f8/uSDUCCN.Xsc2AjcgK",
+      "password": "$2a$10$Hvu4.dXTy/82EV4S1qM/NeEz4zUAcZkgRDJ/tkMQin.A54iOXMK0m",
       "role": "HOSPITAL",
       "hospitalId": "hosp_kem_pune",
       "address": "489 Rasta Peth, Sardar Moodliar Road, Pune 411011",
@@ -51,7 +51,7 @@
       "name": "Sahyadri Super Speciality Admin",
       "email": "sahyadri@medilink.org",
       "phone": "02067213000",
-      "password": "$2a$10$SFvRYka7avf20vdF4TK9Re3eXG9talXlsFEJJmBoS.99f0u2Jyabi",
+      "password": "$2a$10$UyI63g6WAWNoeXalACbrVOGrl9tWTz6cIyz.X2xXuqKCCIqNFIfIO",
       "role": "HOSPITAL",
       "hospitalId": "hosp_sahyadri",
       "address": "Deccan Gymkhana, Karve Road, Pune 411004",
@@ -62,7 +62,7 @@
       "name": "Santosh Shinde",
       "email": "driver1@medilink.org",
       "phone": "9822012345",
-      "password": "$2a$10$DNu8ze55jGph/3KLhgPjhus9FUYLoh2tCd143K4yfpcFCZWg51oqK",
+      "password": "$2a$10$08ojg6jnrx66Cv9LmjKsDefHHsowoL50UByn8usfomTlGsiTOqmra",
       "role": "AMBULANCE",
       "ambulanceId": "amb_pune_101",
       "hospitalId": "hosp_ruby_hall",
@@ -74,7 +74,7 @@
       "name": "Vijay Gaikwad",
       "email": "driver2@medilink.org",
       "phone": "9822056789",
-      "password": "$2a$10$3r9fjo8x604eMTZ3Dohp1.PnGRZdQkq5gwpVbbANZVgHXyncn.Zk6",
+      "password": "$2a$10$Ibfdqax88ehWH0v6cQHOFeX18GXrS3nEBITqxxg8/w87NI3jBT7cq",
       "role": "AMBULANCE",
       "ambulanceId": "amb_pune_102",
       "hospitalId": "hosp_kem_pune",
@@ -86,7 +86,7 @@
       "name": "State Health Command Admin",
       "email": "admin@medilink.gov.in",
       "phone": "02025550000",
-      "password": "$2a$10$6xqV5PJ2wkjc1CAyzmQhuOsbI6V/s8dCWrCo4yuoXsaTdlF6dEXDa",
+      "password": "$2a$10$eFOHt.qfYjk/7effkNgMdeOVEmfFvGFe1VLT0NGSpuePnaHZftaIq",
       "role": "ADMIN",
       "createdAt": "2026-01-01T00:00:00.000Z"
     },
@@ -95,7 +95,7 @@
       "name": "Dr. Anand Joshi",
       "email": "dr.joshi@medilink.gov.in",
       "phone": "9422011223",
-      "password": "$2a$10$nYHuQR7mOFdBBDKduc6m/uNGEquz42MtC8HH8P5R5vbHhBh.nYO3i",
+      "password": "$2a$10$clv13x2Ghi2BN.hRshuePuduJj2Q43wHU3LVSMh1x7BVtawJbbuA6",
       "role": "SYSTEM_DOCTOR",
       "specialty": "Emergency Medicine & Triage Specialist",
       "hospitalId": "hosp_ruby_hall",
@@ -106,7 +106,7 @@
       "name": "Dr. Meera Kulkarni",
       "email": "dr.kulkarni@medilink.gov.in",
       "phone": "9422044556",
-      "password": "$2a$10$SRubhVJuhV3KcKmKphVoHerDhF.azmmgNJSiyLdiqARjDQVAKVkSa",
+      "password": "$2a$10$mHUNT3E1PlC3AKIFQ.db6.9i.eSaPEHe3W5.LU9v064TjTuumTw0W",
       "role": "SYSTEM_DOCTOR",
       "specialty": "Critical Care & Resource Coordinator",
       "hospitalId": "hosp_sahyadri",
@@ -183,7 +183,7 @@
         "amb_pune_101",
         "amb_pune_103"
       ],
-      "updatedAt": "2026-09-27T09:45:19.097Z"
+      "updatedAt": "2026-09-27T09:54:06.470Z"
     },
     {
       "id": "hosp_kem_pune",
@@ -395,7 +395,7 @@
       },
       "isSimulatedGps": true,
       "currentRequestId": null,
-      "updatedAt": "2026-09-27T09:45:19.738Z"
+      "updatedAt": "2026-09-27T09:54:06.527Z"
     },
     {
       "id": "amb_pune_102",
@@ -720,7 +720,7 @@
       "updatedAt": "2026-09-27T13:10:00.000Z"
     },
     {
-      "id": "req_pat_1790502319028",
+      "id": "req_pat_1790502846459",
       "type": "PATIENT_ADMISSION",
       "patientId": "usr_patient_1",
       "patientName": "Aarav Sharma",
@@ -745,31 +745,31 @@
       "timeline": [
         {
           "status": "PENDING",
-          "timestamp": "2026-09-27T09:45:19.028Z",
+          "timestamp": "2026-09-27T09:54:06.459Z",
           "actorRole": "PATIENT",
           "actorName": "Aarav Sharma",
           "note": "Request initiated by Aarav Sharma (PATIENT)."
         },
         {
           "status": "ACCEPTED",
-          "timestamp": "2026-09-27T09:45:19.101Z",
+          "timestamp": "2026-09-27T09:54:06.471Z",
           "actorRole": "HOSPITAL",
           "actorName": "Ruby Hall Clinic Admin",
           "note": "Bed allocated in Ward 3"
         },
         {
           "status": "COMPLETED",
-          "timestamp": "2026-09-27T09:45:19.136Z",
+          "timestamp": "2026-09-27T09:54:06.476Z",
           "actorRole": "HOSPITAL",
           "actorName": "Ruby Hall Clinic Admin",
           "note": "Admission procedure finished"
         }
       ],
-      "createdAt": "2026-09-27T09:45:19.028Z",
-      "updatedAt": "2026-09-27T09:45:19.136Z"
+      "createdAt": "2026-09-27T09:54:06.459Z",
+      "updatedAt": "2026-09-27T09:54:06.476Z"
     },
     {
-      "id": "req_pat_1790502319176",
+      "id": "req_pat_1790502846481",
       "type": "PATIENT_ADMISSION",
       "patientId": "usr_patient_1",
       "patientName": "Aarav Sharma",
@@ -793,44 +793,44 @@
       "timeline": [
         {
           "status": "PENDING",
-          "timestamp": "2026-09-27T09:45:19.176Z",
+          "timestamp": "2026-09-27T09:54:06.481Z",
           "actorRole": "PATIENT",
           "actorName": "Aarav Sharma",
           "note": "Request initiated by Aarav Sharma (PATIENT)."
         },
         {
           "status": "REJECTED",
-          "timestamp": "2026-09-27T09:45:19.324Z",
+          "timestamp": "2026-09-27T09:54:06.492Z",
           "actorRole": "HOSPITAL",
           "actorName": "Ruby Hall Clinic Admin",
           "note": "All ICU beds full"
         },
         {
           "status": "ASSIGNED",
-          "timestamp": "2026-09-27T09:45:19.446Z",
+          "timestamp": "2026-09-27T09:54:06.497Z",
           "actorRole": "ADMIN",
           "actorName": "State Health Command Admin",
           "note": "Admin escalated rejected request to System Doctor Dr. Anand Joshi. Notes: Re-route ICU patient"
         },
         {
           "status": "RESOLVED",
-          "timestamp": "2026-09-27T09:45:19.506Z",
+          "timestamp": "2026-09-27T09:54:06.503Z",
           "actorRole": "SYSTEM_DOCTOR",
           "actorName": "Dr. Anand Joshi",
           "note": "Resolved by System Doctor Dr. Anand Joshi: Re-routed to KEM Hospital & Research Centre. Notes: Alternative ICU bed booked at KEM"
         }
       ],
-      "createdAt": "2026-09-27T09:45:19.176Z",
-      "updatedAt": "2026-09-27T09:45:19.506Z",
-      "assignedAt": "2026-09-27T09:45:19.446Z",
+      "createdAt": "2026-09-27T09:54:06.481Z",
+      "updatedAt": "2026-09-27T09:54:06.503Z",
+      "assignedAt": "2026-09-27T09:54:06.497Z",
       "triageNotes": "Re-route ICU patient",
       "resolvedByDoctorId": "usr_doc_1",
       "resolvedByDoctorName": "Dr. Anand Joshi",
-      "resolvedAt": "2026-09-27T09:45:19.505Z",
+      "resolvedAt": "2026-09-27T09:54:06.503Z",
       "reallocatedFacility": "KEM Hospital & Research Centre"
     },
     {
-      "id": "req_amb_1790502319570",
+      "id": "req_amb_1790502846509",
       "type": "AMBULANCE_REQUEST",
       "patientId": "usr_patient_1",
       "patientName": "Aarav Sharma",
@@ -854,31 +854,31 @@
       "timeline": [
         {
           "status": "ASSIGNED",
-          "timestamp": "2026-09-27T09:45:19.570Z",
+          "timestamp": "2026-09-27T09:54:06.509Z",
           "actorRole": "PATIENT",
           "actorName": "Aarav Sharma",
           "note": "Request initiated by Aarav Sharma (PATIENT)."
         },
         {
           "status": "ACCEPTED",
-          "timestamp": "2026-09-27T09:45:19.646Z",
+          "timestamp": "2026-09-27T09:54:06.519Z",
           "actorRole": "AMBULANCE",
           "actorName": "Santosh Shinde",
           "note": "On the Way"
         },
         {
           "status": "REJECTED",
-          "timestamp": "2026-09-27T09:45:19.753Z",
+          "timestamp": "2026-09-27T09:54:06.528Z",
           "actorRole": "AMBULANCE",
           "actorName": "Santosh Shinde",
           "note": "Vehicle breakdown en route"
         }
       ],
-      "createdAt": "2026-09-27T09:45:19.570Z",
-      "updatedAt": "2026-09-27T09:45:19.753Z"
+      "createdAt": "2026-09-27T09:54:06.509Z",
+      "updatedAt": "2026-09-27T09:54:06.528Z"
     },
     {
-      "id": "req_pat_1790502319994",
+      "id": "req_pat_1790502846540",
       "type": "PATIENT_ADMISSION",
       "patientId": "usr_patient_1",
       "patientName": "Aarav Sharma",
@@ -900,17 +900,17 @@
       "timeline": [
         {
           "status": "PENDING",
-          "timestamp": "2026-09-27T09:45:19.995Z",
+          "timestamp": "2026-09-27T09:54:06.540Z",
           "actorRole": "PATIENT",
           "actorName": "Aarav Sharma",
           "note": "Request initiated by Aarav Sharma (PATIENT)."
         }
       ],
-      "createdAt": "2026-09-27T09:45:19.995Z",
-      "updatedAt": "2026-09-27T09:45:19.995Z"
+      "createdAt": "2026-09-27T09:54:06.540Z",
+      "updatedAt": "2026-09-27T09:54:06.540Z"
     },
     {
-      "id": "req_amb_1790502320083",
+      "id": "req_amb_1790502846554",
       "type": "AMBULANCE_REQUEST",
       "patientId": "usr_patient_1",
       "patientName": "Aarav Sharma",
@@ -932,14 +932,14 @@
       "timeline": [
         {
           "status": "ASSIGNED",
-          "timestamp": "2026-09-27T09:45:20.083Z",
+          "timestamp": "2026-09-27T09:54:06.554Z",
           "actorRole": "PATIENT",
           "actorName": "Aarav Sharma",
           "note": "Request initiated by Aarav Sharma (PATIENT)."
         }
       ],
-      "createdAt": "2026-09-27T09:45:20.083Z",
-      "updatedAt": "2026-09-27T09:45:20.083Z"
+      "createdAt": "2026-09-27T09:54:06.554Z",
+      "updatedAt": "2026-09-27T09:54:06.554Z"
     },
     {
       "id": "req_doc_conflict_test",
@@ -948,8 +948,8 @@
       "assignedDoctorId": "usr_doc_1",
       "assignedDoctorName": "Dr. Anand Joshi",
       "targetHospitalId": "hosp_ruby_hall",
-      "createdAt": "2026-09-27T09:45:20.171Z",
-      "updatedAt": "2026-09-27T09:45:20.171Z"
+      "createdAt": "2026-09-27T09:54:06.588Z",
+      "updatedAt": "2026-09-27T09:54:06.588Z"
     }
   ],
   "auditLogs": [
@@ -987,8 +987,8 @@
       "details": "Driver accepted trip. Set trip status to ON_THE_WAY"
     },
     {
-      "id": "log_1790502314321_x8lq",
-      "timestamp": "2026-09-27T09:45:14.321Z",
+      "id": "log_1790502845657_pv8t",
+      "timestamp": "2026-09-27T09:54:05.657Z",
       "actorId": "usr_patient_1",
       "actorName": "Aarav Sharma",
       "actorRole": "PATIENT",
@@ -996,12 +996,12 @@
       "resourceType": "AUTH",
       "resourceId": "usr_patient_1",
       "details": "User Aarav Sharma logged in successfully as PATIENT",
-      "createdAt": "2026-09-27T09:45:14.323Z",
-      "updatedAt": "2026-09-27T09:45:14.323Z"
+      "createdAt": "2026-09-27T09:54:05.658Z",
+      "updatedAt": "2026-09-27T09:54:05.658Z"
     },
     {
-      "id": "log_1790502314582_hht3",
-      "timestamp": "2026-09-27T09:45:14.582Z",
+      "id": "log_1790502845767_7ugw",
+      "timestamp": "2026-09-27T09:54:05.767Z",
       "actorId": "usr_hosp_1",
       "actorName": "Ruby Hall Clinic Admin",
       "actorRole": "HOSPITAL",
@@ -1009,12 +1009,12 @@
       "resourceType": "AUTH",
       "resourceId": "usr_hosp_1",
       "details": "User Ruby Hall Clinic Admin logged in successfully as HOSPITAL",
-      "createdAt": "2026-09-27T09:45:14.582Z",
-      "updatedAt": "2026-09-27T09:45:14.582Z"
+      "createdAt": "2026-09-27T09:54:05.767Z",
+      "updatedAt": "2026-09-27T09:54:05.767Z"
     },
     {
-      "id": "log_1790502315088_kv7t",
-      "timestamp": "2026-09-27T09:45:15.088Z",
+      "id": "log_1790502845880_9t5l",
+      "timestamp": "2026-09-27T09:54:05.880Z",
       "actorId": "usr_hosp_2",
       "actorName": "KEM Hospital Admin",
       "actorRole": "HOSPITAL",
@@ -1022,12 +1022,12 @@
       "resourceType": "AUTH",
       "resourceId": "usr_hosp_2",
       "details": "User KEM Hospital Admin logged in successfully as HOSPITAL",
-      "createdAt": "2026-09-27T09:45:15.088Z",
-      "updatedAt": "2026-09-27T09:45:15.088Z"
+      "createdAt": "2026-09-27T09:54:05.880Z",
+      "updatedAt": "2026-09-27T09:54:05.880Z"
     },
     {
-      "id": "log_1790502315678_xkbc",
-      "timestamp": "2026-09-27T09:45:15.679Z",
+      "id": "log_1790502845989_lish",
+      "timestamp": "2026-09-27T09:54:05.989Z",
       "actorId": "usr_amb_1",
       "actorName": "Santosh Shinde",
       "actorRole": "AMBULANCE",
@@ -1035,12 +1035,12 @@
       "resourceType": "AUTH",
       "resourceId": "usr_amb_1",
       "details": "User Santosh Shinde logged in successfully as AMBULANCE",
-      "createdAt": "2026-09-27T09:45:15.679Z",
-      "updatedAt": "2026-09-27T09:45:15.679Z"
+      "createdAt": "2026-09-27T09:54:05.989Z",
+      "updatedAt": "2026-09-27T09:54:05.989Z"
     },
     {
-      "id": "log_1790502316620_2kl8",
-      "timestamp": "2026-09-27T09:45:16.620Z",
+      "id": "log_1790502846085_2ymy",
+      "timestamp": "2026-09-27T09:54:06.085Z",
       "actorId": "usr_amb_2",
       "actorName": "Vijay Gaikwad",
       "actorRole": "AMBULANCE",
@@ -1048,12 +1048,12 @@
       "resourceType": "AUTH",
       "resourceId": "usr_amb_2",
       "details": "User Vijay Gaikwad logged in successfully as AMBULANCE",
-      "createdAt": "2026-09-27T09:45:16.620Z",
-      "updatedAt": "2026-09-27T09:45:16.620Z"
+      "createdAt": "2026-09-27T09:54:06.085Z",
+      "updatedAt": "2026-09-27T09:54:06.085Z"
     },
     {
-      "id": "log_1790502317615_351n",
-      "timestamp": "2026-09-27T09:45:17.615Z",
+      "id": "log_1790502846195_l3zq",
+      "timestamp": "2026-09-27T09:54:06.195Z",
       "actorId": "usr_admin",
       "actorName": "State Health Command Admin",
       "actorRole": "ADMIN",
@@ -1061,12 +1061,12 @@
       "resourceType": "AUTH",
       "resourceId": "usr_admin",
       "details": "User State Health Command Admin logged in successfully as ADMIN",
-      "createdAt": "2026-09-27T09:45:17.615Z",
-      "updatedAt": "2026-09-27T09:45:17.615Z"
+      "createdAt": "2026-09-27T09:54:06.196Z",
+      "updatedAt": "2026-09-27T09:54:06.196Z"
     },
     {
-      "id": "log_1790502318171_v2sz",
-      "timestamp": "2026-09-27T09:45:18.171Z",
+      "id": "log_1790502846300_b1iv",
+      "timestamp": "2026-09-27T09:54:06.300Z",
       "actorId": "usr_doc_1",
       "actorName": "Dr. Anand Joshi",
       "actorRole": "SYSTEM_DOCTOR",
@@ -1074,12 +1074,12 @@
       "resourceType": "AUTH",
       "resourceId": "usr_doc_1",
       "details": "User Dr. Anand Joshi logged in successfully as SYSTEM_DOCTOR",
-      "createdAt": "2026-09-27T09:45:18.171Z",
-      "updatedAt": "2026-09-27T09:45:18.171Z"
+      "createdAt": "2026-09-27T09:54:06.300Z",
+      "updatedAt": "2026-09-27T09:54:06.300Z"
     },
     {
-      "id": "log_1790502318963_88zz",
-      "timestamp": "2026-09-27T09:45:18.963Z",
+      "id": "log_1790502846451_pu2d",
+      "timestamp": "2026-09-27T09:54:06.451Z",
       "actorId": "usr_doc_2",
       "actorName": "Dr. Meera Kulkarni",
       "actorRole": "SYSTEM_DOCTOR",
@@ -1087,393 +1087,393 @@
       "resourceType": "AUTH",
       "resourceId": "usr_doc_2",
       "details": "User Dr. Meera Kulkarni logged in successfully as SYSTEM_DOCTOR",
-      "createdAt": "2026-09-27T09:45:18.963Z",
-      "updatedAt": "2026-09-27T09:45:18.963Z"
+      "createdAt": "2026-09-27T09:54:06.451Z",
+      "updatedAt": "2026-09-27T09:54:06.451Z"
     },
     {
-      "id": "log_1790502319052_tsav",
-      "timestamp": "2026-09-27T09:45:19.052Z",
+      "id": "log_1790502846465_b30q",
+      "timestamp": "2026-09-27T09:54:06.465Z",
       "actorId": "usr_patient_1",
       "actorName": "Aarav Sharma",
       "actorRole": "PATIENT",
       "action": "CREATE_REQUEST",
       "resourceType": "PATIENT_ADMISSION",
-      "resourceId": "req_pat_1790502319028",
-      "details": "{\"id\":\"req_pat_1790502319028\",\"type\":\"PATIENT_ADMISSION\",\"patientId\":\"usr_patient_1\",\"patientName\":\"Aarav Sharma\",\"patientPhone\":\"9876543210\",\"sourceHospitalId\":null,\"sourceHospitalName\":null,\"targetHospitalId\":\"hosp_ruby_hall\",\"targetHospitalName\":\"Ruby Hall Clinic (Multi-Speciality)\",\"assignedAmbulanceId\":null,\"assignedAmbulanceVehicle\":null,\"assignedDoctorId\":null,\"assignedDoctorName\":null,\"status\":\"PENDING\",\"ambulanceTripStatus\":null,\"priority\":\"NORMAL\",\"details\":{\"bedType\":\"GENERAL\",\"reason\":\"Elective medical admission\"},\"responseNotes\":\"\",\"resolutionNotes\":\"\",\"timeline\":[{\"status\":\"PENDING\",\"timestamp\":\"2026-09-27T09:45:19.028Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"}],\"createdAt\":\"2026-09-27T09:45:19.028Z\",\"updatedAt\":\"2026-09-27T09:45:19.028Z\"}",
-      "createdAt": "2026-09-27T09:45:19.052Z",
-      "updatedAt": "2026-09-27T09:45:19.052Z"
+      "resourceId": "req_pat_1790502846459",
+      "details": "{\"id\":\"req_pat_1790502846459\",\"type\":\"PATIENT_ADMISSION\",\"patientId\":\"usr_patient_1\",\"patientName\":\"Aarav Sharma\",\"patientPhone\":\"9876543210\",\"sourceHospitalId\":null,\"sourceHospitalName\":null,\"targetHospitalId\":\"hosp_ruby_hall\",\"targetHospitalName\":\"Ruby Hall Clinic (Multi-Speciality)\",\"assignedAmbulanceId\":null,\"assignedAmbulanceVehicle\":null,\"assignedDoctorId\":null,\"assignedDoctorName\":null,\"status\":\"PENDING\",\"ambulanceTripStatus\":null,\"priority\":\"NORMAL\",\"details\":{\"bedType\":\"GENERAL\",\"reason\":\"Elective medical admission\"},\"responseNotes\":\"\",\"resolutionNotes\":\"\",\"timeline\":[{\"status\":\"PENDING\",\"timestamp\":\"2026-09-27T09:54:06.459Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"}],\"createdAt\":\"2026-09-27T09:54:06.459Z\",\"updatedAt\":\"2026-09-27T09:54:06.459Z\"}",
+      "createdAt": "2026-09-27T09:54:06.465Z",
+      "updatedAt": "2026-09-27T09:54:06.465Z"
     },
     {
-      "id": "log_1790502319105_6lsg",
-      "timestamp": "2026-09-27T09:45:19.105Z",
+      "id": "log_1790502846473_75k7",
+      "timestamp": "2026-09-27T09:54:06.473Z",
       "actorId": "usr_hosp_1",
       "actorName": "Ruby Hall Clinic Admin",
       "actorRole": "HOSPITAL",
       "action": "UPDATE_REQUEST_STATUS",
       "resourceType": "PATIENT_ADMISSION",
-      "resourceId": "req_pat_1790502319028",
-      "details": "{\"from\":\"PENDING\",\"to\":\"ACCEPTED\",\"updates\":{\"status\":\"ACCEPTED\",\"responseNotes\":\"Bed allocated in Ward 3\",\"timeline\":[{\"status\":\"PENDING\",\"timestamp\":\"2026-09-27T09:45:19.028Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:45:19.101Z\",\"actorRole\":\"HOSPITAL\",\"actorName\":\"Ruby Hall Clinic Admin\",\"note\":\"Bed allocated in Ward 3\"}]}}",
-      "createdAt": "2026-09-27T09:45:19.105Z",
-      "updatedAt": "2026-09-27T09:45:19.105Z"
+      "resourceId": "req_pat_1790502846459",
+      "details": "{\"from\":\"PENDING\",\"to\":\"ACCEPTED\",\"updates\":{\"status\":\"ACCEPTED\",\"responseNotes\":\"Bed allocated in Ward 3\",\"timeline\":[{\"status\":\"PENDING\",\"timestamp\":\"2026-09-27T09:54:06.459Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:54:06.471Z\",\"actorRole\":\"HOSPITAL\",\"actorName\":\"Ruby Hall Clinic Admin\",\"note\":\"Bed allocated in Ward 3\"}]}}",
+      "createdAt": "2026-09-27T09:54:06.473Z",
+      "updatedAt": "2026-09-27T09:54:06.473Z"
     },
     {
-      "id": "log_1790502319147_dmr1",
-      "timestamp": "2026-09-27T09:45:19.147Z",
+      "id": "log_1790502846478_ty58",
+      "timestamp": "2026-09-27T09:54:06.478Z",
       "actorId": "usr_hosp_1",
       "actorName": "Ruby Hall Clinic Admin",
       "actorRole": "HOSPITAL",
       "action": "UPDATE_REQUEST_STATUS",
       "resourceType": "PATIENT_ADMISSION",
-      "resourceId": "req_pat_1790502319028",
-      "details": "{\"from\":\"ACCEPTED\",\"to\":\"COMPLETED\",\"updates\":{\"status\":\"COMPLETED\",\"responseNotes\":\"Admission procedure finished\",\"timeline\":[{\"status\":\"PENDING\",\"timestamp\":\"2026-09-27T09:45:19.028Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:45:19.101Z\",\"actorRole\":\"HOSPITAL\",\"actorName\":\"Ruby Hall Clinic Admin\",\"note\":\"Bed allocated in Ward 3\"},{\"status\":\"COMPLETED\",\"timestamp\":\"2026-09-27T09:45:19.136Z\",\"actorRole\":\"HOSPITAL\",\"actorName\":\"Ruby Hall Clinic Admin\",\"note\":\"Admission procedure finished\"}]}}",
-      "createdAt": "2026-09-27T09:45:19.147Z",
-      "updatedAt": "2026-09-27T09:45:19.147Z"
+      "resourceId": "req_pat_1790502846459",
+      "details": "{\"from\":\"ACCEPTED\",\"to\":\"COMPLETED\",\"updates\":{\"status\":\"COMPLETED\",\"responseNotes\":\"Admission procedure finished\",\"timeline\":[{\"status\":\"PENDING\",\"timestamp\":\"2026-09-27T09:54:06.459Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:54:06.471Z\",\"actorRole\":\"HOSPITAL\",\"actorName\":\"Ruby Hall Clinic Admin\",\"note\":\"Bed allocated in Ward 3\"},{\"status\":\"COMPLETED\",\"timestamp\":\"2026-09-27T09:54:06.476Z\",\"actorRole\":\"HOSPITAL\",\"actorName\":\"Ruby Hall Clinic Admin\",\"note\":\"Admission procedure finished\"}]}}",
+      "createdAt": "2026-09-27T09:54:06.478Z",
+      "updatedAt": "2026-09-27T09:54:06.478Z"
     },
     {
-      "id": "log_1790502319210_fepp",
-      "timestamp": "2026-09-27T09:45:19.210Z",
+      "id": "log_1790502846482_6p06",
+      "timestamp": "2026-09-27T09:54:06.482Z",
       "actorId": "usr_patient_1",
       "actorName": "Aarav Sharma",
       "actorRole": "PATIENT",
       "action": "CREATE_REQUEST",
       "resourceType": "PATIENT_ADMISSION",
-      "resourceId": "req_pat_1790502319176",
-      "details": "{\"id\":\"req_pat_1790502319176\",\"type\":\"PATIENT_ADMISSION\",\"patientId\":\"usr_patient_1\",\"patientName\":\"Aarav Sharma\",\"patientPhone\":\"9876543210\",\"sourceHospitalId\":null,\"sourceHospitalName\":null,\"targetHospitalId\":\"hosp_ruby_hall\",\"targetHospitalName\":\"Ruby Hall Clinic (Multi-Speciality)\",\"assignedAmbulanceId\":null,\"assignedAmbulanceVehicle\":null,\"assignedDoctorId\":null,\"assignedDoctorName\":null,\"status\":\"PENDING\",\"ambulanceTripStatus\":null,\"priority\":\"NORMAL\",\"details\":{\"bedType\":\"ICU\"},\"responseNotes\":\"\",\"resolutionNotes\":\"\",\"timeline\":[{\"status\":\"PENDING\",\"timestamp\":\"2026-09-27T09:45:19.176Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"}],\"createdAt\":\"2026-09-27T09:45:19.176Z\",\"updatedAt\":\"2026-09-27T09:45:19.176Z\"}",
-      "createdAt": "2026-09-27T09:45:19.210Z",
-      "updatedAt": "2026-09-27T09:45:19.210Z"
+      "resourceId": "req_pat_1790502846481",
+      "details": "{\"id\":\"req_pat_1790502846481\",\"type\":\"PATIENT_ADMISSION\",\"patientId\":\"usr_patient_1\",\"patientName\":\"Aarav Sharma\",\"patientPhone\":\"9876543210\",\"sourceHospitalId\":null,\"sourceHospitalName\":null,\"targetHospitalId\":\"hosp_ruby_hall\",\"targetHospitalName\":\"Ruby Hall Clinic (Multi-Speciality)\",\"assignedAmbulanceId\":null,\"assignedAmbulanceVehicle\":null,\"assignedDoctorId\":null,\"assignedDoctorName\":null,\"status\":\"PENDING\",\"ambulanceTripStatus\":null,\"priority\":\"NORMAL\",\"details\":{\"bedType\":\"ICU\"},\"responseNotes\":\"\",\"resolutionNotes\":\"\",\"timeline\":[{\"status\":\"PENDING\",\"timestamp\":\"2026-09-27T09:54:06.481Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"}],\"createdAt\":\"2026-09-27T09:54:06.481Z\",\"updatedAt\":\"2026-09-27T09:54:06.481Z\"}",
+      "createdAt": "2026-09-27T09:54:06.482Z",
+      "updatedAt": "2026-09-27T09:54:06.482Z"
     },
     {
-      "id": "log_1790502319380_09o0",
-      "timestamp": "2026-09-27T09:45:19.380Z",
+      "id": "log_1790502846494_wn5z",
+      "timestamp": "2026-09-27T09:54:06.494Z",
       "actorId": "usr_hosp_1",
       "actorName": "Ruby Hall Clinic Admin",
       "actorRole": "HOSPITAL",
       "action": "UPDATE_REQUEST_STATUS",
       "resourceType": "PATIENT_ADMISSION",
-      "resourceId": "req_pat_1790502319176",
-      "details": "{\"from\":\"PENDING\",\"to\":\"REJECTED\",\"updates\":{\"status\":\"REJECTED\",\"responseNotes\":\"All ICU beds full\",\"timeline\":[{\"status\":\"PENDING\",\"timestamp\":\"2026-09-27T09:45:19.176Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"REJECTED\",\"timestamp\":\"2026-09-27T09:45:19.324Z\",\"actorRole\":\"HOSPITAL\",\"actorName\":\"Ruby Hall Clinic Admin\",\"note\":\"All ICU beds full\"}]}}",
-      "createdAt": "2026-09-27T09:45:19.380Z",
-      "updatedAt": "2026-09-27T09:45:19.380Z"
+      "resourceId": "req_pat_1790502846481",
+      "details": "{\"from\":\"PENDING\",\"to\":\"REJECTED\",\"updates\":{\"status\":\"REJECTED\",\"responseNotes\":\"All ICU beds full\",\"timeline\":[{\"status\":\"PENDING\",\"timestamp\":\"2026-09-27T09:54:06.481Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"REJECTED\",\"timestamp\":\"2026-09-27T09:54:06.492Z\",\"actorRole\":\"HOSPITAL\",\"actorName\":\"Ruby Hall Clinic Admin\",\"note\":\"All ICU beds full\"}]}}",
+      "createdAt": "2026-09-27T09:54:06.494Z",
+      "updatedAt": "2026-09-27T09:54:06.494Z"
     },
     {
-      "id": "log_1790502319485_ptud",
-      "timestamp": "2026-09-27T09:45:19.485Z",
+      "id": "log_1790502846499_8smx",
+      "timestamp": "2026-09-27T09:54:06.499Z",
       "actorId": "usr_admin",
       "actorName": "State Health Command Admin",
       "actorRole": "ADMIN",
       "action": "ESCALATE_TO_SYSTEM_DOCTOR",
       "resourceType": "PATIENT_ADMISSION",
-      "resourceId": "req_pat_1790502319176",
-      "details": "{\"oldStatus\":\"REJECTED\",\"newStatus\":\"ASSIGNED\",\"assignedDoctorId\":\"usr_doc_1\",\"doctorName\":\"Dr. Anand Joshi\",\"assignedAt\":\"2026-09-27T09:45:19.446Z\",\"triageNotes\":\"Re-route ICU patient\"}",
-      "createdAt": "2026-09-27T09:45:19.485Z",
-      "updatedAt": "2026-09-27T09:45:19.485Z"
+      "resourceId": "req_pat_1790502846481",
+      "details": "{\"oldStatus\":\"REJECTED\",\"newStatus\":\"ASSIGNED\",\"assignedDoctorId\":\"usr_doc_1\",\"doctorName\":\"Dr. Anand Joshi\",\"assignedAt\":\"2026-09-27T09:54:06.497Z\",\"triageNotes\":\"Re-route ICU patient\"}",
+      "createdAt": "2026-09-27T09:54:06.499Z",
+      "updatedAt": "2026-09-27T09:54:06.499Z"
     },
     {
-      "id": "log_1790502319540_xwde",
-      "timestamp": "2026-09-27T09:45:19.540Z",
+      "id": "log_1790502846506_m6po",
+      "timestamp": "2026-09-27T09:54:06.506Z",
       "actorId": "usr_doc_1",
       "actorName": "Dr. Anand Joshi",
       "actorRole": "SYSTEM_DOCTOR",
       "action": "RESOLVE_CONFLICT_REQUEST",
       "resourceType": "PATIENT_ADMISSION",
-      "resourceId": "req_pat_1790502319176",
-      "details": "{\"oldStatus\":\"ASSIGNED\",\"newStatus\":\"RESOLVED\",\"alternativeHospital\":\"KEM Hospital & Research Centre\",\"resolutionNotes\":\"Alternative ICU bed booked at KEM\",\"resolvedAt\":\"2026-09-27T09:45:19.505Z\"}",
-      "createdAt": "2026-09-27T09:45:19.540Z",
-      "updatedAt": "2026-09-27T09:45:19.540Z"
+      "resourceId": "req_pat_1790502846481",
+      "details": "{\"oldStatus\":\"ASSIGNED\",\"newStatus\":\"RESOLVED\",\"alternativeHospital\":\"KEM Hospital & Research Centre\",\"resolutionNotes\":\"Alternative ICU bed booked at KEM\",\"resolvedAt\":\"2026-09-27T09:54:06.503Z\"}",
+      "createdAt": "2026-09-27T09:54:06.506Z",
+      "updatedAt": "2026-09-27T09:54:06.506Z"
     },
     {
-      "id": "log_1790502319615_be88",
-      "timestamp": "2026-09-27T09:45:19.615Z",
+      "id": "log_1790502846513_xnpj",
+      "timestamp": "2026-09-27T09:54:06.513Z",
       "actorId": "usr_patient_1",
       "actorName": "Aarav Sharma",
       "actorRole": "PATIENT",
       "action": "CREATE_REQUEST",
       "resourceType": "AMBULANCE_REQUEST",
-      "resourceId": "req_amb_1790502319570",
-      "details": "{\"id\":\"req_amb_1790502319570\",\"type\":\"AMBULANCE_REQUEST\",\"patientId\":\"usr_patient_1\",\"patientName\":\"Aarav Sharma\",\"patientPhone\":\"9876543210\",\"sourceHospitalId\":null,\"sourceHospitalName\":null,\"targetHospitalId\":\"hosp_ruby_hall\",\"targetHospitalName\":\"Ruby Hall Clinic\",\"assignedAmbulanceId\":\"amb_pune_101\",\"assignedAmbulanceVehicle\":\"MH-12-CR-1011\",\"assignedDoctorId\":null,\"assignedDoctorName\":null,\"status\":\"ASSIGNED\",\"ambulanceTripStatus\":\"Pending\",\"priority\":\"EMERGENCY\",\"details\":{\"location\":\"Shivajinagar\"},\"responseNotes\":\"\",\"resolutionNotes\":\"\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T09:45:19.570Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"}],\"createdAt\":\"2026-09-27T09:45:19.570Z\",\"updatedAt\":\"2026-09-27T09:45:19.570Z\"}",
-      "createdAt": "2026-09-27T09:45:19.615Z",
-      "updatedAt": "2026-09-27T09:45:19.615Z"
+      "resourceId": "req_amb_1790502846509",
+      "details": "{\"id\":\"req_amb_1790502846509\",\"type\":\"AMBULANCE_REQUEST\",\"patientId\":\"usr_patient_1\",\"patientName\":\"Aarav Sharma\",\"patientPhone\":\"9876543210\",\"sourceHospitalId\":null,\"sourceHospitalName\":null,\"targetHospitalId\":\"hosp_ruby_hall\",\"targetHospitalName\":\"Ruby Hall Clinic\",\"assignedAmbulanceId\":\"amb_pune_101\",\"assignedAmbulanceVehicle\":\"MH-12-CR-1011\",\"assignedDoctorId\":null,\"assignedDoctorName\":null,\"status\":\"ASSIGNED\",\"ambulanceTripStatus\":\"Pending\",\"priority\":\"EMERGENCY\",\"details\":{\"location\":\"Shivajinagar\"},\"responseNotes\":\"\",\"resolutionNotes\":\"\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T09:54:06.509Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"}],\"createdAt\":\"2026-09-27T09:54:06.509Z\",\"updatedAt\":\"2026-09-27T09:54:06.509Z\"}",
+      "createdAt": "2026-09-27T09:54:06.513Z",
+      "updatedAt": "2026-09-27T09:54:06.513Z"
     },
     {
-      "id": "log_1790502319685_gdhk",
-      "timestamp": "2026-09-27T09:45:19.685Z",
+      "id": "log_1790502846524_hj8k",
+      "timestamp": "2026-09-27T09:54:06.524Z",
       "actorId": "usr_amb_1",
       "actorName": "Santosh Shinde",
       "actorRole": "AMBULANCE",
       "action": "UPDATE_REQUEST_STATUS",
       "resourceType": "AMBULANCE_REQUEST",
-      "resourceId": "req_amb_1790502319570",
-      "details": "{\"from\":\"ASSIGNED\",\"to\":\"ACCEPTED\",\"updates\":{\"status\":\"ACCEPTED\",\"responseNotes\":\"\",\"ambulanceTripStatus\":\"On the Way\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T09:45:19.570Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:45:19.646Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"On the Way\"}]}}",
-      "createdAt": "2026-09-27T09:45:19.685Z",
-      "updatedAt": "2026-09-27T09:45:19.685Z"
+      "resourceId": "req_amb_1790502846509",
+      "details": "{\"from\":\"ASSIGNED\",\"to\":\"ACCEPTED\",\"updates\":{\"status\":\"ACCEPTED\",\"responseNotes\":\"\",\"ambulanceTripStatus\":\"On the Way\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T09:54:06.509Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:54:06.519Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"On the Way\"}]}}",
+      "createdAt": "2026-09-27T09:54:06.524Z",
+      "updatedAt": "2026-09-27T09:54:06.524Z"
     },
     {
-      "id": "log_1790502319769_thx3",
-      "timestamp": "2026-09-27T09:45:19.769Z",
+      "id": "log_1790502846530_f539",
+      "timestamp": "2026-09-27T09:54:06.530Z",
       "actorId": "usr_amb_1",
       "actorName": "Santosh Shinde",
       "actorRole": "AMBULANCE",
       "action": "UPDATE_REQUEST_STATUS",
       "resourceType": "AMBULANCE_REQUEST",
-      "resourceId": "req_amb_1790502319570",
-      "details": "{\"from\":\"ACCEPTED\",\"to\":\"REJECTED\",\"updates\":{\"status\":\"REJECTED\",\"responseNotes\":\"Vehicle breakdown en route\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T09:45:19.570Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:45:19.646Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"On the Way\"},{\"status\":\"REJECTED\",\"timestamp\":\"2026-09-27T09:45:19.753Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"Vehicle breakdown en route\"}]}}",
-      "createdAt": "2026-09-27T09:45:19.769Z",
-      "updatedAt": "2026-09-27T09:45:19.769Z"
+      "resourceId": "req_amb_1790502846509",
+      "details": "{\"from\":\"ACCEPTED\",\"to\":\"REJECTED\",\"updates\":{\"status\":\"REJECTED\",\"responseNotes\":\"Vehicle breakdown en route\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T09:54:06.509Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:54:06.519Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"On the Way\"},{\"status\":\"REJECTED\",\"timestamp\":\"2026-09-27T09:54:06.528Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"Vehicle breakdown en route\"}]}}",
+      "createdAt": "2026-09-27T09:54:06.530Z",
+      "updatedAt": "2026-09-27T09:54:06.530Z"
     },
     {
-      "id": "log_1790502320032_jz9f",
-      "timestamp": "2026-09-27T09:45:20.032Z",
+      "id": "log_1790502846544_tw7u",
+      "timestamp": "2026-09-27T09:54:06.544Z",
       "actorId": "usr_patient_1",
       "actorName": "Aarav Sharma",
       "actorRole": "PATIENT",
       "action": "CREATE_REQUEST",
       "resourceType": "PATIENT_ADMISSION",
-      "resourceId": "req_pat_1790502319994",
-      "details": "{\"id\":\"req_pat_1790502319994\",\"type\":\"PATIENT_ADMISSION\",\"patientId\":\"usr_patient_1\",\"patientName\":\"Aarav Sharma\",\"patientPhone\":\"9876543210\",\"sourceHospitalId\":null,\"sourceHospitalName\":null,\"targetHospitalId\":\"hosp_ruby_hall\",\"targetHospitalName\":\"Ruby Hall Clinic (Multi-Speciality)\",\"assignedAmbulanceId\":null,\"assignedAmbulanceVehicle\":null,\"assignedDoctorId\":null,\"assignedDoctorName\":null,\"status\":\"PENDING\",\"ambulanceTripStatus\":null,\"priority\":\"NORMAL\",\"details\":{},\"responseNotes\":\"\",\"resolutionNotes\":\"\",\"timeline\":[{\"status\":\"PENDING\",\"timestamp\":\"2026-09-27T09:45:19.995Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"}],\"createdAt\":\"2026-09-27T09:45:19.995Z\",\"updatedAt\":\"2026-09-27T09:45:19.995Z\"}",
-      "createdAt": "2026-09-27T09:45:20.032Z",
-      "updatedAt": "2026-09-27T09:45:20.032Z"
+      "resourceId": "req_pat_1790502846540",
+      "details": "{\"id\":\"req_pat_1790502846540\",\"type\":\"PATIENT_ADMISSION\",\"patientId\":\"usr_patient_1\",\"patientName\":\"Aarav Sharma\",\"patientPhone\":\"9876543210\",\"sourceHospitalId\":null,\"sourceHospitalName\":null,\"targetHospitalId\":\"hosp_ruby_hall\",\"targetHospitalName\":\"Ruby Hall Clinic (Multi-Speciality)\",\"assignedAmbulanceId\":null,\"assignedAmbulanceVehicle\":null,\"assignedDoctorId\":null,\"assignedDoctorName\":null,\"status\":\"PENDING\",\"ambulanceTripStatus\":null,\"priority\":\"NORMAL\",\"details\":{},\"responseNotes\":\"\",\"resolutionNotes\":\"\",\"timeline\":[{\"status\":\"PENDING\",\"timestamp\":\"2026-09-27T09:54:06.540Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"}],\"createdAt\":\"2026-09-27T09:54:06.540Z\",\"updatedAt\":\"2026-09-27T09:54:06.540Z\"}",
+      "createdAt": "2026-09-27T09:54:06.544Z",
+      "updatedAt": "2026-09-27T09:54:06.544Z"
     },
     {
-      "id": "log_1790502320100_p9dx",
-      "timestamp": "2026-09-27T09:45:20.100Z",
+      "id": "log_1790502846557_e938",
+      "timestamp": "2026-09-27T09:54:06.557Z",
       "actorId": "usr_patient_1",
       "actorName": "Aarav Sharma",
       "actorRole": "PATIENT",
       "action": "CREATE_REQUEST",
       "resourceType": "AMBULANCE_REQUEST",
-      "resourceId": "req_amb_1790502320083",
-      "details": "{\"id\":\"req_amb_1790502320083\",\"type\":\"AMBULANCE_REQUEST\",\"patientId\":\"usr_patient_1\",\"patientName\":\"Aarav Sharma\",\"patientPhone\":\"9876543210\",\"sourceHospitalId\":null,\"sourceHospitalName\":null,\"targetHospitalId\":\"hosp_ruby_hall\",\"targetHospitalName\":\"Ruby Hall Clinic\",\"assignedAmbulanceId\":\"amb_pune_101\",\"assignedAmbulanceVehicle\":\"MH-12-CR-1011\",\"assignedDoctorId\":null,\"assignedDoctorName\":null,\"status\":\"ASSIGNED\",\"ambulanceTripStatus\":\"Pending\",\"priority\":\"EMERGENCY\",\"details\":{},\"responseNotes\":\"\",\"resolutionNotes\":\"\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T09:45:20.083Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"}],\"createdAt\":\"2026-09-27T09:45:20.083Z\",\"updatedAt\":\"2026-09-27T09:45:20.083Z\"}",
-      "createdAt": "2026-09-27T09:45:20.100Z",
-      "updatedAt": "2026-09-27T09:45:20.100Z"
+      "resourceId": "req_amb_1790502846554",
+      "details": "{\"id\":\"req_amb_1790502846554\",\"type\":\"AMBULANCE_REQUEST\",\"patientId\":\"usr_patient_1\",\"patientName\":\"Aarav Sharma\",\"patientPhone\":\"9876543210\",\"sourceHospitalId\":null,\"sourceHospitalName\":null,\"targetHospitalId\":\"hosp_ruby_hall\",\"targetHospitalName\":\"Ruby Hall Clinic\",\"assignedAmbulanceId\":\"amb_pune_101\",\"assignedAmbulanceVehicle\":\"MH-12-CR-1011\",\"assignedDoctorId\":null,\"assignedDoctorName\":null,\"status\":\"ASSIGNED\",\"ambulanceTripStatus\":\"Pending\",\"priority\":\"EMERGENCY\",\"details\":{},\"responseNotes\":\"\",\"resolutionNotes\":\"\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T09:54:06.554Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"}],\"createdAt\":\"2026-09-27T09:54:06.554Z\",\"updatedAt\":\"2026-09-27T09:54:06.554Z\"}",
+      "createdAt": "2026-09-27T09:54:06.557Z",
+      "updatedAt": "2026-09-27T09:54:06.557Z"
     }
   ],
   "notifications": [
     {
-      "id": "notif_1790502319044_ttjg2",
+      "id": "notif_1790502846464_dju80",
       "userId": "usr_patient_1",
       "type": "ADMISSION_REQUEST",
       "title": "Admission Request: PENDING",
       "message": "Your admission request for Ruby Hall Clinic (Multi-Speciality) is now PENDING.",
       "read": true,
       "metadata": {
-        "requestId": "req_pat_1790502319028",
+        "requestId": "req_pat_1790502846459",
         "status": "PENDING"
       },
-      "createdAt": "2026-09-27T09:45:19.044Z",
-      "updatedAt": "2026-09-27T09:45:20.319Z"
+      "createdAt": "2026-09-27T09:54:06.464Z",
+      "updatedAt": "2026-09-27T09:54:06.618Z"
     },
     {
-      "id": "notif_1790502319104_pwme6",
+      "id": "notif_1790502846472_wma1f",
       "userId": "usr_patient_1",
       "type": "ADMISSION_REQUEST",
       "title": "Admission Request: ACCEPTED",
       "message": "Your admission request for Ruby Hall Clinic (Multi-Speciality) is now ACCEPTED.",
       "read": true,
       "metadata": {
-        "requestId": "req_pat_1790502319028",
+        "requestId": "req_pat_1790502846459",
         "status": "ACCEPTED"
       },
-      "createdAt": "2026-09-27T09:45:19.104Z",
-      "updatedAt": "2026-09-27T09:45:20.359Z"
+      "createdAt": "2026-09-27T09:54:06.472Z",
+      "updatedAt": "2026-09-27T09:54:06.619Z"
     },
     {
-      "id": "notif_1790502319138_aj3gp",
+      "id": "notif_1790502846477_hisgd",
       "userId": "usr_patient_1",
       "type": "ADMISSION_REQUEST",
       "title": "Admission Request: COMPLETED",
       "message": "Your admission request for Ruby Hall Clinic (Multi-Speciality) is now COMPLETED.",
       "read": true,
       "metadata": {
-        "requestId": "req_pat_1790502319028",
+        "requestId": "req_pat_1790502846459",
         "status": "COMPLETED"
       },
-      "createdAt": "2026-09-27T09:45:19.138Z",
-      "updatedAt": "2026-09-27T09:45:20.398Z"
+      "createdAt": "2026-09-27T09:54:06.477Z",
+      "updatedAt": "2026-09-27T09:54:06.619Z"
     },
     {
-      "id": "notif_1790502319208_60yp5",
+      "id": "notif_1790502846482_etv3i",
       "userId": "usr_patient_1",
       "type": "ADMISSION_REQUEST",
       "title": "Admission Request: PENDING",
       "message": "Your admission request for Ruby Hall Clinic (Multi-Speciality) is now PENDING.",
       "read": true,
       "metadata": {
-        "requestId": "req_pat_1790502319176",
+        "requestId": "req_pat_1790502846481",
         "status": "PENDING"
       },
-      "createdAt": "2026-09-27T09:45:19.208Z",
-      "updatedAt": "2026-09-27T09:45:20.412Z"
+      "createdAt": "2026-09-27T09:54:06.482Z",
+      "updatedAt": "2026-09-27T09:54:06.620Z"
     },
     {
-      "id": "notif_1790502319378_nnry1",
+      "id": "notif_1790502846493_njql5",
       "userId": "usr_patient_1",
       "type": "ADMISSION_REQUEST",
       "title": "Admission Request: REJECTED",
       "message": "Your admission request for Ruby Hall Clinic (Multi-Speciality) is now REJECTED.",
       "read": true,
       "metadata": {
-        "requestId": "req_pat_1790502319176",
+        "requestId": "req_pat_1790502846481",
         "status": "REJECTED"
       },
-      "createdAt": "2026-09-27T09:45:19.378Z",
-      "updatedAt": "2026-09-27T09:45:20.431Z"
+      "createdAt": "2026-09-27T09:54:06.493Z",
+      "updatedAt": "2026-09-27T09:54:06.621Z"
     },
     {
-      "id": "notif_1790502319473_abuip",
+      "id": "notif_1790502846498_bk9hv",
       "userId": "usr_doc_1",
       "type": "CONFLICT_ASSIGNMENT",
       "title": "⚖️ Conflict Resolution Assigned",
-      "message": "Admin assigned rejected request #req_pat_1790502319176 for patient Aarav Sharma to you for alternative facility coordination.",
+      "message": "Admin assigned rejected request #req_pat_1790502846481 for patient Aarav Sharma to you for alternative facility coordination.",
       "read": false,
       "metadata": {
-        "requestId": "req_pat_1790502319176"
+        "requestId": "req_pat_1790502846481"
       },
-      "createdAt": "2026-09-27T09:45:19.473Z",
-      "updatedAt": "2026-09-27T09:45:19.473Z"
+      "createdAt": "2026-09-27T09:54:06.498Z",
+      "updatedAt": "2026-09-27T09:54:06.498Z"
     },
     {
-      "id": "notif_1790502319515_l9uk5",
+      "id": "notif_1790502846504_547yj",
       "userId": "usr_patient_1",
       "type": "CONFLICT_RESOLUTION",
       "title": "Healthcare Request Resolved",
       "message": "Your healthcare coordination request has been resolved. Please review the updated facility information.",
       "read": true,
       "metadata": {
-        "requestId": "req_pat_1790502319176",
+        "requestId": "req_pat_1790502846481",
         "targetHospitalName": "KEM Hospital & Research Centre"
       },
-      "createdAt": "2026-09-27T09:45:19.515Z",
-      "updatedAt": "2026-09-27T09:45:20.441Z"
+      "createdAt": "2026-09-27T09:54:06.504Z",
+      "updatedAt": "2026-09-27T09:54:06.623Z"
     },
     {
-      "id": "notif_1790502319587_o6os9",
+      "id": "notif_1790502846511_k31zc",
       "userId": "usr_patient_1",
       "type": "AMBULANCE_STATUS",
       "title": "Ambulance Dispatch: ASSIGNED",
       "message": "Ambulance unit MH-12-CR-1011 has been assigned to your location.",
       "read": true,
       "metadata": {
-        "requestId": "req_amb_1790502319570",
+        "requestId": "req_amb_1790502846509",
         "status": "ASSIGNED",
         "vehicle": "MH-12-CR-1011"
       },
-      "createdAt": "2026-09-27T09:45:19.587Z",
-      "updatedAt": "2026-09-27T09:45:20.457Z"
+      "createdAt": "2026-09-27T09:54:06.511Z",
+      "updatedAt": "2026-09-27T09:54:06.624Z"
     },
     {
-      "id": "notif_1790502319603_8n88e",
+      "id": "notif_1790502846512_0h17w",
       "userId": "usr_amb_1",
       "type": "AMBULANCE_ASSIGNMENT",
       "title": "Dispatch Update: ASSIGNED",
       "message": "Trip for patient Aarav Sharma is now ASSIGNED.",
       "read": false,
       "metadata": {
-        "requestId": "req_amb_1790502319570",
+        "requestId": "req_amb_1790502846509",
         "status": "ASSIGNED"
       },
-      "createdAt": "2026-09-27T09:45:19.603Z",
-      "updatedAt": "2026-09-27T09:45:19.603Z"
+      "createdAt": "2026-09-27T09:54:06.512Z",
+      "updatedAt": "2026-09-27T09:54:06.512Z"
     },
     {
-      "id": "notif_1790502319665_u0cyx",
+      "id": "notif_1790502846521_5yhoh",
       "userId": "usr_patient_1",
       "type": "AMBULANCE_STATUS",
       "title": "Ambulance Dispatch: ACCEPTED",
       "message": "Driver accepted your dispatch and is currently on the way.",
       "read": true,
       "metadata": {
-        "requestId": "req_amb_1790502319570",
+        "requestId": "req_amb_1790502846509",
         "status": "ACCEPTED",
         "vehicle": "MH-12-CR-1011"
       },
-      "createdAt": "2026-09-27T09:45:19.665Z",
-      "updatedAt": "2026-09-27T09:45:20.471Z"
+      "createdAt": "2026-09-27T09:54:06.521Z",
+      "updatedAt": "2026-09-27T09:54:06.625Z"
     },
     {
-      "id": "notif_1790502319676_4e0j3",
+      "id": "notif_1790502846522_gzonn",
       "userId": "usr_amb_1",
       "type": "AMBULANCE_ASSIGNMENT",
       "title": "Dispatch Update: ACCEPTED",
       "message": "Trip for patient Aarav Sharma is now ACCEPTED.",
       "read": false,
       "metadata": {
-        "requestId": "req_amb_1790502319570",
+        "requestId": "req_amb_1790502846509",
         "status": "ACCEPTED"
       },
-      "createdAt": "2026-09-27T09:45:19.676Z",
-      "updatedAt": "2026-09-27T09:45:19.676Z"
+      "createdAt": "2026-09-27T09:54:06.522Z",
+      "updatedAt": "2026-09-27T09:54:06.522Z"
     },
     {
-      "id": "notif_1790502319765_idihj",
+      "id": "notif_1790502846529_dopdo",
       "userId": "usr_patient_1",
       "type": "AMBULANCE_STATUS",
       "title": "Ambulance Dispatch: REJECTED",
-      "message": "Your ambulance request #req_amb_1790502319570 is now REJECTED.",
+      "message": "Your ambulance request #req_amb_1790502846509 is now REJECTED.",
       "read": true,
       "metadata": {
-        "requestId": "req_amb_1790502319570",
+        "requestId": "req_amb_1790502846509",
         "status": "REJECTED",
         "vehicle": "MH-12-CR-1011"
       },
-      "createdAt": "2026-09-27T09:45:19.765Z",
-      "updatedAt": "2026-09-27T09:45:20.493Z"
+      "createdAt": "2026-09-27T09:54:06.529Z",
+      "updatedAt": "2026-09-27T09:54:06.626Z"
     },
     {
-      "id": "notif_1790502319767_rp3nb",
+      "id": "notif_1790502846529_5txrp",
       "userId": "usr_amb_1",
       "type": "AMBULANCE_ASSIGNMENT",
       "title": "Dispatch Update: REJECTED",
       "message": "Trip for patient Aarav Sharma is now REJECTED.",
       "read": false,
       "metadata": {
-        "requestId": "req_amb_1790502319570",
+        "requestId": "req_amb_1790502846509",
         "status": "REJECTED"
       },
-      "createdAt": "2026-09-27T09:45:19.767Z",
-      "updatedAt": "2026-09-27T09:45:19.767Z"
+      "createdAt": "2026-09-27T09:54:06.529Z",
+      "updatedAt": "2026-09-27T09:54:06.529Z"
     },
     {
-      "id": "notif_1790502320025_p3lny",
+      "id": "notif_1790502846543_e3727",
       "userId": "usr_patient_1",
       "type": "ADMISSION_REQUEST",
       "title": "Admission Request: PENDING",
       "message": "Your admission request for Ruby Hall Clinic (Multi-Speciality) is now PENDING.",
       "read": true,
       "metadata": {
-        "requestId": "req_pat_1790502319994",
+        "requestId": "req_pat_1790502846540",
         "status": "PENDING"
       },
-      "createdAt": "2026-09-27T09:45:20.025Z",
-      "updatedAt": "2026-09-27T09:45:20.506Z"
+      "createdAt": "2026-09-27T09:54:06.543Z",
+      "updatedAt": "2026-09-27T09:54:06.627Z"
     },
     {
-      "id": "notif_1790502320090_tql53",
+      "id": "notif_1790502846555_meyt7",
       "userId": "usr_patient_1",
       "type": "AMBULANCE_STATUS",
       "title": "Ambulance Dispatch: ASSIGNED",
       "message": "Ambulance unit MH-12-CR-1011 has been assigned to your location.",
       "read": true,
       "metadata": {
-        "requestId": "req_amb_1790502320083",
+        "requestId": "req_amb_1790502846554",
         "status": "ASSIGNED",
         "vehicle": "MH-12-CR-1011"
       },
-      "createdAt": "2026-09-27T09:45:20.090Z",
-      "updatedAt": "2026-09-27T09:45:20.252Z"
+      "createdAt": "2026-09-27T09:54:06.555Z",
+      "updatedAt": "2026-09-27T09:54:06.601Z"
     },
     {
-      "id": "notif_1790502320093_kokhb",
+      "id": "notif_1790502846556_95n5u",
       "userId": "usr_amb_1",
       "type": "AMBULANCE_ASSIGNMENT",
       "title": "Dispatch Update: ASSIGNED",
       "message": "Trip for patient Aarav Sharma is now ASSIGNED.",
       "read": false,
       "metadata": {
-        "requestId": "req_amb_1790502320083",
+        "requestId": "req_amb_1790502846554",
         "status": "ASSIGNED"
       },
-      "createdAt": "2026-09-27T09:45:20.093Z",
-      "updatedAt": "2026-09-27T09:45:20.093Z"
+      "createdAt": "2026-09-27T09:54:06.556Z",
+      "updatedAt": "2026-09-27T09:54:06.556Z"
     }
   ]
 }

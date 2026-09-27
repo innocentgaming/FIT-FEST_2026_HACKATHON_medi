@@ -318,50 +318,65 @@ export const HospitalDashboard = () => {
         </div>
       </div>
 
-      {/* Tabs Navigation */}
-      <div className="tabs-nav">
+      {/* Tabs Navigation (Hospital: Dashboard, Appointments, Patients, Resources, Blood Bank, Ambulances, Requests, Emergency) */}
+      <nav className="tabs-nav" aria-label="Hospital Portal Navigation">
+        <button
+          className={`tab-btn ${activeTab === 'DASHBOARD' ? 'active' : ''}`}
+          onClick={() => setActiveTab('DASHBOARD')}
+        >
+          <Activity size={16} aria-hidden="true" /> Dashboard
+        </button>
+
         <button
           className={`tab-btn ${activeTab === 'APPOINTMENTS' ? 'active' : ''}`}
           onClick={() => setActiveTab('APPOINTMENTS')}
         >
-          <Calendar size={16} /> Clinic Appointments ({appointments.length})
-        </button>
-
-        <button
-          className={`tab-btn ${activeTab === 'RESOURCES' ? 'active' : ''}`}
-          onClick={() => setActiveTab('RESOURCES')}
-        >
-          <Activity size={16} /> Live Resources & Blood Stock
-        </button>
-
-        <button
-          className={`tab-btn ${activeTab === 'REQUESTS' ? 'active' : ''}`}
-          onClick={() => setActiveTab('REQUESTS')}
-        >
-          <Send size={16} /> Inbound Emergency Queue ({pendingInboundRequests.length})
+          <Calendar size={16} aria-hidden="true" /> Appointments ({appointments.length})
         </button>
 
         <button
           className={`tab-btn ${activeTab === 'PATIENTS_SEARCH' ? 'active' : ''}`}
           onClick={() => { setActiveTab('PATIENTS_SEARCH'); handlePatientSearch(); }}
         >
-          <Search size={16} /> Patient Directory Search
+          <Search size={16} aria-hidden="true" /> Patients
         </button>
 
         <button
-          className={`tab-btn ${activeTab === 'SPECIALISTS' ? 'active' : ''}`}
-          onClick={() => setActiveTab('SPECIALISTS')}
+          className={`tab-btn ${activeTab === 'RESOURCES' ? 'active' : ''}`}
+          onClick={() => setActiveTab('RESOURCES')}
         >
-          <UserCheck size={16} /> Specialists Roster ({specialists.length})
+          <Bed size={16} aria-hidden="true" /> Resources
+        </button>
+
+        <button
+          className={`tab-btn ${activeTab === 'BLOOD_BANK' ? 'active' : ''}`}
+          onClick={() => setActiveTab('BLOOD_BANK')}
+        >
+          <Droplet size={16} aria-hidden="true" /> Blood Bank
         </button>
 
         <button
           className={`tab-btn ${activeTab === 'AMBULANCES' ? 'active' : ''}`}
           onClick={() => setActiveTab('AMBULANCES')}
         >
-          <Truck size={16} /> Facility Ambulances ({ambulances.length})
+          <Truck size={16} aria-hidden="true" /> Ambulances ({ambulances.length})
         </button>
-      </div>
+
+        <button
+          className={`tab-btn ${activeTab === 'REQUESTS' ? 'active' : ''}`}
+          onClick={() => setActiveTab('REQUESTS')}
+        >
+          <Send size={16} aria-hidden="true" /> Requests ({pendingInboundRequests.length})
+        </button>
+
+        <button
+          className="tab-btn"
+          style={{ color: '#f87171', fontWeight: 700 }}
+          onClick={() => openEmergencyMode('AMBULANCE')}
+        >
+          <AlertCircle size={16} aria-hidden="true" /> Emergency
+        </button>
+      </nav>
 
       {/* TAB 1: CLINIC APPOINTMENTS & SMART BREAKDOWN */}
       {activeTab === 'APPOINTMENTS' && (

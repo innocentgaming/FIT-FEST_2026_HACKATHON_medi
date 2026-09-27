@@ -4,11 +4,14 @@ import { useSocket } from '../../context/SocketContext';
 import { api } from '../../services/api';
 import { StatusBadge } from '../../components/StatusBadge';
 import { LiveMap } from '../../components/LiveMap';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
+import { EmptyState } from '../../components/EmptyState';
+import { ErrorMessage } from '../../components/ErrorMessage';
 import {
   Truck,
   MapPin,
   Navigation,
-  CheckCircle,
+  CheckCircle2,
   XCircle,
   Radio,
   Phone,
@@ -16,17 +19,24 @@ import {
   Shield,
   AlertCircle,
   Play,
-  Square
+  Square,
+  Activity,
+  User,
+  FileText
 } from 'lucide-react';
 
 export const AmbulanceDashboard = () => {
   const { user } = useAuth();
   const { liveRequestUpdate, socket } = useSocket();
 
+  // Tabs: DASHBOARD, REQUESTS, LOCATION, PROFILE
+  const [activeTab, setActiveTab] = useState('DASHBOARD');
   const [ambulance, setAmbulance] = useState(null);
   const [assignedRequest, setAssignedRequest] = useState(null);
+  const [allRequests, setAllRequests] = useState([]);
   const [hospitals, setHospitals] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
   const [isSharingLocation, setIsSharingLocation] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectionReason, setRejectionReason] = useState('');
@@ -51,6 +61,7 @@ export const AmbulanceDashboard = () => {
   const loadAmbulanceData = async () => {
     try {
       setLoading(true);
+      setErrorMessage(null);
       const [ambRes, reqsRes, hospsRes] = await Promise.all([
         api.getAmbulances(),
         api.getRequests(),
@@ -61,15 +72,19 @@ export const AmbulanceDashboard = () => {
       setAmbulance(foundAmb);
       setHospitals(hospsRes.hospitals || []);
 
-      // Find active request assigned to this ambulance
-      const activeReq = (reqsRes.requests || []).find(
+      const reqs = reqsRes.requests || [];
+      setAllRequests(reqs);
+
+      // Find active request for this ambulance
+      const active = reqs.find(
         (r) =>
-          r.assignedAmbulanceId === foundAmb?.id &&
-          ['PENDING', 'ASSIGNED', 'ACCEPTED'].includes(r.status)
+          r.assignedAmbulanceId === (foundAmb ? foundAmb.id : ambulanceId) &&
+          ['ASSIGNED', 'ACCEPTED', 'PENDING'].includes(r.status)
       );
-      setAssignedRequest(activeReq || null);
+      setAssignedRequest(active || null);
     } catch (err) {
-      console.error('Error loading ambulance data:', err);
+      console.error('Error loading ambulance driver portal:', err);
+      setErrorMessage('Failed to load fleet telemetry. Please check your network connection.');
     } finally {
       setLoading(false);
     }
@@ -145,16 +160,13 @@ export const AmbulanceDashboard = () => {
     }
   };
 
-  // Toggle periodic live simulated GPS sharing
   const toggleLocationSharing = () => {
     if (isSharingLocation) {
       if (sharingIntervalRef.current) clearInterval(sharingIntervalRef.current);
       setIsSharingLocation(false);
     } else {
       setIsSharingLocation(true);
-      // Run immediately
       sendLocationPulse();
-      // Periodically update every 4 seconds
       sharingIntervalRef.current = setInterval(() => {
         sendLocationPulse();
       }, 4000);
@@ -166,7 +178,6 @@ export const AmbulanceDashboard = () => {
     const currentLat = ambulance.latitude || ambulance.currentLocation?.lat || 18.5204;
     const currentLng = ambulance.longitude || ambulance.currentLocation?.lng || 73.8567;
 
-    // Small jitter/shift towards Pune center or destination
     const targetLat = 18.5314;
     const targetLng = 73.8765;
     const nextLat = currentLat + (targetLat - currentLat) * 0.15 + (Math.random() - 0.5) * 0.002;
@@ -187,9 +198,9 @@ export const AmbulanceDashboard = () => {
   };
 
   return (
-    <div>
+    <div className="ambulance-portal-view">
       {/* Driver Header */}
-      <div
+      <section
         className="card"
         style={{
           background: 'linear-gradient(135deg, #111927 0%, #78350f 100%)',
@@ -201,13 +212,14 @@ export const AmbulanceDashboard = () => {
           flexWrap: 'wrap',
           gap: '1rem'
         }}
+        aria-label="Ambulance Fleet Status Header"
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span className="role-pill role-ambulance">AMBULANCE DRIVER PORTAL</span>
             <span style={{ color: '#fde68a', fontSize: '0.8rem' }}>Vehicle: {ambulance?.vehicleNumber || ambulance?.vehicleNo}</span>
           </div>
-          <h2 style={{ fontSize: '1.5rem', marginTop: '0.35rem' }}>
+          <h2 style={{ fontSize: '1.5rem', marginTop: '0.35rem', color: '#f8fafc' }}>
             {user?.name} (Driver ID: {user?.id})
           </h2>
           <p style={{ color: '#cbd5e1', fontSize: '0.88rem' }}>
@@ -236,226 +248,355 @@ export const AmbulanceDashboard = () => {
             );
           })}
         </div>
-      </div>
+      </section>
 
-      <div className="grid-2">
-        {/* Left Column: Active Trip & Progression */}
-        <div>
-          <div className="card" style={{ marginBottom: '1.5rem' }}>
-            <div className="card-header">
-              <div className="card-title">
-                <Truck size={20} color="#fbbf24" />
-                <span>Active Assigned Emergency Dispatch</span>
-              </div>
-              {assignedRequest && (
-                <StatusBadge
-                  status={assignedRequest.status}
-                  tripStatus={assignedRequest.ambulanceTripStatus}
-                />
-              )}
-            </div>
+      {/* Navigation Tabs (Ambulance: Dashboard, Requests, Location, Profile) */}
+      <nav className="tabs-nav" aria-label="Ambulance Navigation">
+        <button
+          className={`tab-btn ${activeTab === 'DASHBOARD' ? 'active' : ''}`}
+          onClick={() => setActiveTab('DASHBOARD')}
+        >
+          <Activity size={16} aria-hidden="true" /> Dashboard
+        </button>
 
-            {assignedRequest ? (
+        <button
+          className={`tab-btn ${activeTab === 'REQUESTS' ? 'active' : ''}`}
+          onClick={() => setActiveTab('REQUESTS')}
+        >
+          <FileText size={16} aria-hidden="true" /> Requests ({allRequests.length})
+        </button>
+
+        <button
+          className={`tab-btn ${activeTab === 'LOCATION' ? 'active' : ''}`}
+          onClick={() => setActiveTab('LOCATION')}
+        >
+          <Navigation size={16} aria-hidden="true" /> Location & GPS Telemetry
+        </button>
+
+        <button
+          className={`tab-btn ${activeTab === 'PROFILE' ? 'active' : ''}`}
+          onClick={() => setActiveTab('PROFILE')}
+        >
+          <User size={16} aria-hidden="true" /> Profile
+        </button>
+      </nav>
+
+      {errorMessage && <ErrorMessage message={errorMessage} onRetry={loadAmbulanceData} />}
+
+      {loading ? (
+        <LoadingSpinner text="Synchronizing ambulance dispatch feed..." />
+      ) : (
+        <>
+          {/* TAB 1: DASHBOARD (Active Assigned Dispatch & Live Fleet Stats) */}
+          {activeTab === 'DASHBOARD' && (
+            <div className="grid-2">
+              {/* Left Column: Active Trip & Progression */}
               <div>
-                <div style={{ background: 'var(--bg-input)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
-                  <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Emergency Request #{assignedRequest.id}</div>
-                  <div style={{ fontSize: '1.1rem', fontWeight: 700, color: '#f8fafc', marginTop: '4px' }}>
-                    Patient: {assignedRequest.patientName} ({assignedRequest.patientPhone})
-                  </div>
-                  <div style={{ fontSize: '0.88rem', color: '#fca5a5', marginTop: '4px' }}>
-                    ⚠️ Priority: <strong>{assignedRequest.priority}</strong> • Urgency: {assignedRequest.details?.urgency || 'CRITICAL'}
-                  </div>
-
-                  <div style={{ marginTop: '0.75rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.75rem', fontSize: '0.85rem' }}>
-                    <div>📍 <strong>Pickup Location:</strong> {assignedRequest.details?.pickupLocation || assignedRequest.details?.location || 'Emergency Site'}</div>
-                    <div style={{ marginTop: '4px' }}>🏥 <strong>Target Hospital:</strong> {assignedRequest.targetHospitalName || 'Designated Facility'}</div>
-                    {assignedRequest.details?.administrativeNote && (
-                      <div style={{ marginTop: '4px', color: '#cbd5e1' }}>📝 <strong>Notes:</strong> {assignedRequest.details.administrativeNote}</div>
+                <div className="card" style={{ marginBottom: '1.5rem' }}>
+                  <div className="card-header">
+                    <div className="card-title">
+                      <Truck size={20} color="#fbbf24" aria-hidden="true" />
+                      <span>Active Assigned Emergency Dispatch</span>
+                    </div>
+                    {assignedRequest && (
+                      <StatusBadge
+                        status={assignedRequest.status}
+                        tripStatus={assignedRequest.ambulanceTripStatus}
+                      />
                     )}
                   </div>
-                </div>
 
-                {/* TRIP LIFECYCLE PROGRESSION CONTROLS */}
-                <div style={{ marginTop: '1rem' }}>
-                  <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fbbf24', marginBottom: '0.5rem' }}>
-                    Dispatch Response & Trip Progress:
-                  </div>
+                  {assignedRequest ? (
+                    <div>
+                      <div style={{ background: 'var(--bg-input)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+                          <span style={{ fontSize: '0.8rem', color: '#f59e0b', fontWeight: 700 }}>#{assignedRequest.id}</span>
+                          <span className="badge badge-danger">PRIORITY: {assignedRequest.priority}</span>
+                        </div>
 
-                  {assignedRequest.status === 'ASSIGNED' && (
-                    <div style={{ display: 'flex', gap: '0.75rem' }}>
-                      <button onClick={handleAcceptTrip} className="btn btn-success" style={{ flex: 2 }}>
-                        <CheckCircle size={16} /> Accept Request
-                      </button>
-                      <button onClick={() => setShowRejectModal(true)} className="btn btn-danger" style={{ flex: 1 }}>
-                        <XCircle size={16} /> Reject
-                      </button>
-                    </div>
-                  )}
-
-                  {assignedRequest.status === 'ACCEPTED' && (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        <button
-                          onClick={() => handleUpdateTripStep('On the Way')}
-                          className={`btn btn-sm ${assignedRequest.ambulanceTripStatus === 'On the Way' ? 'btn-primary' : 'btn-secondary'}`}
-                          style={{ flex: 1 }}
-                        >
-                          1. On the Way
-                        </button>
-                        <button
-                          onClick={() => handleUpdateTripStep('Arrived')}
-                          className={`btn btn-sm ${assignedRequest.ambulanceTripStatus === 'Arrived' ? 'btn-primary' : 'btn-secondary'}`}
-                          style={{ flex: 1 }}
-                        >
-                          2. Arrived
-                        </button>
+                        <div style={{ fontSize: '0.9rem', marginBottom: '0.35rem' }}>
+                          <strong>Patient:</strong> {assignedRequest.patientName || 'Emergency Patient'}
+                        </div>
+                        <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.35rem' }}>
+                          <Phone size={13} style={{ display: 'inline', marginRight: '4px' }} />
+                          {assignedRequest.patientPhone || 'Direct Dispatch'}
+                        </div>
+                        <div style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '0.35rem' }}>
+                          <MapPin size={13} style={{ display: 'inline', marginRight: '4px' }} />
+                          Pickup: {assignedRequest.details?.location || 'Emergency Coordinates (Pune)'}
+                        </div>
+                        <div style={{ fontSize: '0.85rem', color: '#38bdf8', marginBottom: '0.35rem' }}>
+                          Destination Facility: <strong>{assignedRequest.targetHospitalName || 'Apollo / Ruby Hall'}</strong>
+                        </div>
+                        {assignedRequest.details?.administrativeNote && (
+                          <div style={{ fontSize: '0.8rem', color: '#cbd5e1', background: 'rgba(255,255,255,0.03)', padding: '0.5rem', borderRadius: '4px', marginTop: '0.5rem' }}>
+                            Intake Note: {assignedRequest.details.administrativeNote}
+                          </div>
+                        )}
                       </div>
 
-                      <button
-                        onClick={() => handleUpdateTripStep('Completed')}
-                        className="btn btn-success"
-                        style={{ width: '100%', marginTop: '0.5rem' }}
-                      >
-                        <CheckCircle size={16} /> 3. Complete Trip (Delivered to ER)
-                      </button>
+                      {/* Acceptance Action Buttons if ASSIGNED */}
+                      {assignedRequest.status === 'ASSIGNED' && (
+                        <div style={{ display: 'flex', gap: '0.75rem', marginBottom: '1rem' }}>
+                          <button
+                            onClick={handleAcceptTrip}
+                            className="btn btn-primary"
+                            style={{ flex: 1, padding: '0.75rem' }}
+                          >
+                            <CheckCircle2 size={18} /> ACCEPT TRIP
+                          </button>
+                          <button
+                            onClick={() => setShowRejectModal(true)}
+                            className="btn btn-secondary"
+                            style={{ borderColor: '#ef4444', color: '#ef4444' }}
+                          >
+                            <XCircle size={18} /> REJECT
+                          </button>
+                        </div>
+                      )}
+
+                      {/* Stepper Progression if ACCEPTED */}
+                      {assignedRequest.status === 'ACCEPTED' && (
+                        <div>
+                          <label style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 600, display: 'block', marginBottom: '0.5rem' }}>
+                            Update Trip Progress:
+                          </label>
+                          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '0.5rem' }}>
+                            <button
+                              onClick={() => handleUpdateTripStep('On the Way')}
+                              className={`btn btn-sm ${assignedRequest.ambulanceTripStatus === 'On the Way' ? 'btn-primary' : 'btn-secondary'}`}
+                            >
+                              1. On The Way
+                            </button>
+                            <button
+                              onClick={() => handleUpdateTripStep('Arrived')}
+                              className={`btn btn-sm ${assignedRequest.ambulanceTripStatus === 'Arrived' ? 'btn-primary' : 'btn-secondary'}`}
+                            >
+                              2. Arrived
+                            </button>
+                            <button
+                              onClick={() => handleUpdateTripStep('Completed')}
+                              className="btn btn-sm btn-success"
+                            >
+                              3. Complete Trip
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
+                  ) : (
+                    <EmptyState
+                      icon={Truck}
+                      title="No Active Emergency Dispatches"
+                      description="You are currently standing by on the network. Emergency dispatches will automatically appear here."
+                    />
                   )}
                 </div>
+
+                {/* Simulated GPS Controls */}
+                <div className="card">
+                  <div className="card-header">
+                    <div className="card-title">
+                      <Radio size={18} color="#38bdf8" />
+                      <span>Live GPS Telemetry Simulation</span>
+                    </div>
+                    <span className={`status-badge ${isSharingLocation ? 'status-accepted' : 'status-pending'}`}>
+                      {isSharingLocation ? 'Broadcasting Coordinates' : 'Telemetry Standby'}
+                    </span>
+                  </div>
+
+                  <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '1rem' }}>
+                    Click below to broadcast simulated live GPS movement to coordinating hospitals and tracking patients.
+                  </p>
+
+                  <button
+                    onClick={toggleLocationSharing}
+                    className={`btn ${isSharingLocation ? 'btn-secondary' : 'btn-primary'}`}
+                    style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', padding: '0.75rem' }}
+                  >
+                    {isSharingLocation ? (
+                      <>
+                        <Square size={16} /> STOP LOCATION SHARING
+                      </>
+                    ) : (
+                      <>
+                        <Play size={16} /> START LOCATION SHARING
+                      </>
+                    )}
+                  </button>
+
+                  <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#cbd5e1', background: 'var(--bg-input)', padding: '0.75rem', borderRadius: '6px' }}>
+                    <div>Current Lat: <strong>{ambulance?.latitude || ambulance?.currentLocation?.lat || 18.5204}</strong></div>
+                    <div>Current Lng: <strong>{ambulance?.longitude || ambulance?.currentLocation?.lng || 73.8567}</strong></div>
+                    <div>Speed: <strong>{ambulance?.currentLocation?.speedKmph || 0} km/h</strong></div>
+                  </div>
+                </div>
               </div>
-            ) : (
-              <div style={{ textAlign: 'center', padding: '2.5rem 1rem' }}>
-                <Truck size={36} color="#64748b" style={{ margin: '0 auto 0.5rem' }} />
-                <h4>No active emergency dispatch assigned</h4>
-                <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
-                  You will receive real-time Socket.io audio/visual notifications when a hospital or patient requests this unit.
+
+              {/* Right Column: Live Map View */}
+              <div>
+                <div className="card" style={{ height: '100%', minHeight: '480px', display: 'flex', flexDirection: 'column' }}>
+                  <div className="card-header">
+                    <div className="card-title">
+                      <Navigation size={18} color="#38bdf8" />
+                      <span>Live Navigation Radar</span>
+                    </div>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Pune Medical Grid</span>
+                  </div>
+                  <div style={{ flex: 1, minHeight: '400px' }}>
+                    <LiveMap
+                      hospitals={hospitals}
+                      ambulances={ambulance ? [ambulance] : []}
+                      activeRequest={assignedRequest}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: REQUESTS (History of Dispatches) */}
+          {activeTab === 'REQUESTS' && (
+            <div className="tab-pane">
+              <div style={{ marginBottom: '1.25rem' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#f8fafc' }}>
+                  Ambulance Emergency Dispatch Queue
+                </h3>
+                <p style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
+                  View assigned, active, and completed emergency dispatches.
                 </p>
               </div>
-            )}
-          </div>
 
-          {/* GPS Simulation Controls */}
-          <div className="card">
-            <div className="card-header">
-              <div className="card-title">
-                <Radio size={18} color="#38bdf8" />
-                <span>Simulated GPS Telemetry Streamer</span>
-              </div>
-              <span className="role-pill role-ambulance">
-                {isSharingLocation ? '🟢 BROADCASTING DEMO GPS' : '⚪ DEMO GPS IDLE'}
-              </span>
-            </div>
-
-            <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.25)', padding: '0.75rem', borderRadius: '6px', fontSize: '0.82rem', color: '#fde68a', marginBottom: '1rem' }}>
-              ℹ️ <strong>Demo / Simulated GPS:</strong> Real-time coordinates are streamed over WebSockets to hospitals and patients for testing & demonstration.
-            </div>
-
-            <div style={{ background: 'var(--bg-input)', padding: '0.75rem', borderRadius: '6px', fontSize: '0.82rem', marginBottom: '1rem' }}>
-              <div>Current Coords: <strong>{(ambulance?.latitude || ambulance?.currentLocation?.lat || 18.5204)?.toFixed(4)}, {(ambulance?.longitude || ambulance?.currentLocation?.lng || 73.8567)?.toFixed(4)}</strong></div>
-              <div>Estimated Speed: <strong>{ambulance?.currentLocation?.speedKmph || 40} km/h</strong></div>
-              <div>Heading: <strong>{ambulance?.currentLocation?.heading || 90}°</strong></div>
-            </div>
-
-            <button
-              onClick={toggleLocationSharing}
-              className={`btn ${isSharingLocation ? 'btn-danger' : 'btn-primary'}`}
-              style={{ width: '100%' }}
-            >
-              {isSharingLocation ? (
-                <>
-                  <Square size={16} /> STOP LOCATION SHARING
-                </>
+              {allRequests.length === 0 ? (
+                <EmptyState
+                  icon={FileText}
+                  title="No Dispatches Found"
+                  description="No emergency requests have been logged on this unit."
+                />
               ) : (
-                <>
-                  <Play size={16} /> START LOCATION SHARING
-                </>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
+                  {allRequests.map((r) => (
+                    <div key={r.id} className="card" style={{ border: '1px solid var(--border-card)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                        <div>
+                          <span style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 700 }}>#{r.id}</span>
+                          <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#f8fafc' }}>{r.type}</h4>
+                          <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{r.patientName || 'Emergency Patient'}</span>
+                        </div>
+                        <StatusBadge status={r.status} tripStatus={r.ambulanceTripStatus} />
+                      </div>
+
+                      <div style={{ fontSize: '0.82rem', color: '#cbd5e1', background: 'rgba(255,255,255,0.02)', padding: '0.6rem', borderRadius: '6px', margin: '0.75rem 0' }}>
+                        <div>Pickup: <strong>{r.details?.location || 'Pune Region'}</strong></div>
+                        <div>Destination: <strong>{r.targetHospitalName || 'Network Hospital'}</strong></div>
+                        {r.responseNotes && <div>Notes: <em>"{r.responseNotes}"</em></div>}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               )}
-            </button>
-          </div>
-        </div>
-
-        {/* Right Column: Live Route Map */}
-        <div>
-          <div className="card" style={{ padding: '1rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-              <h3 style={{ fontSize: '1.1rem' }}>Live Dispatch Radar & Route View</h3>
-              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Pune Dispatch Network (Demo GPS)</span>
             </div>
+          )}
 
-            <LiveMap
-              hospitals={hospitals}
-              ambulances={ambulance ? [ambulance] : []}
-              activeRequest={assignedRequest}
-              height="450px"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Reject Modal */}
-      {showRejectModal && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background: 'rgba(0, 0, 0, 0.75)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1000,
-            padding: '1rem'
-          }}
-        >
-          <div
-            className="card"
-            style={{
-              maxWidth: '500px',
-              width: '100%',
-              background: '#0f172a',
-              border: '1px solid #ef4444'
-            }}
-          >
-            <div className="card-header">
-              <div className="card-title" style={{ color: '#ef4444' }}>
-                <AlertCircle size={20} />
-                <span>Reject Dispatch Request</span>
+          {/* TAB 3: LOCATION (Live GPS Radar) */}
+          {activeTab === 'LOCATION' && (
+            <div className="tab-pane">
+              <div className="card" style={{ minHeight: '500px', display: 'flex', flexDirection: 'column' }}>
+                <div className="card-header">
+                  <div className="card-title">
+                    <Navigation size={20} color="#38bdf8" />
+                    <span>Real-Time Fleet Radar & GPS Streaming</span>
+                  </div>
+                  <button
+                    onClick={toggleLocationSharing}
+                    className={`btn btn-sm ${isSharingLocation ? 'btn-secondary' : 'btn-primary'}`}
+                  >
+                    {isSharingLocation ? 'Stop Location Stream' : 'Start Location Stream'}
+                  </button>
+                </div>
+                <div style={{ flex: 1, minHeight: '440px' }}>
+                  <LiveMap
+                    hospitals={hospitals}
+                    ambulances={ambulance ? [ambulance] : []}
+                    activeRequest={assignedRequest}
+                  />
+                </div>
               </div>
             </div>
+          )}
 
-            <p style={{ fontSize: '0.88rem', color: '#cbd5e1', marginBottom: '1rem' }}>
-              System policy requires a mandatory reason for rejecting an emergency ambulance request.
-            </p>
+          {/* TAB 4: PROFILE */}
+          {activeTab === 'PROFILE' && (
+            <div className="tab-pane">
+              <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-card)', paddingBottom: '1rem' }}>
+                  <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(245, 158, 11, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fbbf24' }}>
+                    <Truck size={30} />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc' }}>{user?.name}</h3>
+                    <span className="role-pill role-ambulance">DRIVER</span>
+                    <span style={{ fontSize: '0.8rem', color: '#94a3b8', marginLeft: '0.5rem' }}>Vehicle: {ambulance?.vehicleNumber || ambulance?.vehicleNo}</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', fontSize: '0.88rem', color: '#cbd5e1' }}>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block' }}>Driver Phone</span>
+                    <strong>{user?.phone || '9822012345'}</strong>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block' }}>Base Hospital</span>
+                    <strong>{ambulance?.hospitalName || 'Ruby Hall Clinic'}</strong>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block' }}>Vehicle Category</span>
+                    <strong>{ambulance?.type || 'ACLS Advanced Life Support'}</strong>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block' }}>Duty State</span>
+                    <strong style={{ color: '#10b981' }}>{ambulance?.status || 'AVAILABLE'}</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Reject Modal with Mandatory Reason */}
+      {showRejectModal && (
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <div className="modal-content" style={{ maxWidth: '440px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 800, color: '#ef4444' }}>
+                Decline Emergency Dispatch
+              </h3>
+              <button onClick={() => setShowRejectModal(false)} className="btn btn-secondary btn-icon">
+                <XCircle size={18} />
+              </button>
+            </div>
 
             <form onSubmit={handleRejectTrip}>
-              <div className="form-group" style={{ marginBottom: '1.25rem' }}>
-                <label className="form-label" style={{ fontWeight: 600 }}>
-                  Mandatory Rejection Reason:
+              <div style={{ marginBottom: '1rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8', display: 'block', marginBottom: '0.35rem' }}>
+                  Mandatory Rejection Explanation:
                 </label>
                 <textarea
                   className="form-control"
                   rows={3}
                   required
-                  placeholder="e.g. Unit undergoing emergency refuel / patient transfer in progress / mechanical inspection"
+                  placeholder="e.g. Severe tire puncture en route, mechanical failure, road blockage..."
                   value={rejectionReason}
                   onChange={(e) => setRejectionReason(e.target.value)}
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setShowRejectModal(false)}
-                >
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button type="button" onClick={() => setShowRejectModal(false)} className="btn btn-secondary" style={{ flex: 1 }}>
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  className="btn btn-danger"
-                  disabled={submittingReject || !rejectionReason.trim()}
-                >
+                <button type="submit" className="btn btn-danger" style={{ flex: 1 }} disabled={submittingReject}>
                   {submittingReject ? 'Submitting...' : 'Confirm Rejection'}
                 </button>
               </div>

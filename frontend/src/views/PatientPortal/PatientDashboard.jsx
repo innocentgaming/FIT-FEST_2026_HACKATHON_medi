@@ -5,6 +5,9 @@ import { useSocket } from '../../context/SocketContext';
 import { api } from '../../services/api';
 import { StatusBadge } from '../../components/StatusBadge';
 import { LiveMap } from '../../components/LiveMap';
+import { LoadingSpinner } from '../../components/LoadingSpinner';
+import { EmptyState } from '../../components/EmptyState';
+import { ErrorMessage } from '../../components/ErrorMessage';
 import {
   Calendar,
   Clock,
@@ -14,11 +17,18 @@ import {
   AlertCircle,
   Plus,
   Search,
-  CheckCircle,
+  CheckCircle2,
   XCircle,
   Phone,
   User,
-  Activity
+  Activity,
+  Layers,
+  MapPin,
+  Shield,
+  FileText,
+  ExternalLink,
+  ChevronRight,
+  ArrowRight
 } from 'lucide-react';
 
 export const PatientDashboard = () => {
@@ -26,12 +36,14 @@ export const PatientDashboard = () => {
   const { openEmergencyMode } = useEmergency();
   const { liveResourceUpdate, liveBloodBankUpdate, liveRequestUpdate, liveLocationUpdate } = useSocket();
 
-  const [activeTab, setActiveTab] = useState('APPOINTMENTS'); // APPOINTMENTS, HOSPITALS, BLOOD, AMBULANCE, PROFILE
+  // Navigation Tabs: DASHBOARD, APPOINTMENTS, HOSPITALS, BLOOD, REQUESTS, PROFILE
+  const [activeTab, setActiveTab] = useState('DASHBOARD');
   const [appointments, setAppointments] = useState([]);
   const [hospitals, setHospitals] = useState([]);
   const [ambulances, setAmbulances] = useState([]);
   const [myRequests, setMyRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState(null);
 
   // Booking Modal State
   const [showBookingModal, setShowBookingModal] = useState(false);
@@ -86,6 +98,7 @@ export const PatientDashboard = () => {
   const loadData = async () => {
     try {
       setLoading(true);
+      setErrorMessage(null);
       const [apts, hosps, ambs, reqs] = await Promise.all([
         api.getAppointments(),
         api.getHospitals(),
@@ -101,6 +114,7 @@ export const PatientDashboard = () => {
       }
     } catch (err) {
       console.error('Error loading patient dashboard data:', err);
+      setErrorMessage('Failed to load patient coordination records. Please retry.');
     } finally {
       setLoading(false);
     }
@@ -191,12 +205,12 @@ export const PatientDashboard = () => {
     return true;
   });
 
-  const activeAmbulanceRequests = myRequests.filter((r) => r.type === 'AMBULANCE');
+  const activeAmbulanceRequests = myRequests.filter((r) => r.type === 'AMBULANCE' || r.type === 'AMBULANCE_REQUEST');
 
   return (
-    <div>
-      {/* Patient Welcome & Emergency Banner */}
-      <div
+    <div className="patient-portal-view">
+      {/* Patient Welcome & Hero 10-Second Communicator */}
+      <section
         className="card"
         style={{
           background: 'linear-gradient(135deg, #111927 0%, #1e293b 100%)',
@@ -208,15 +222,18 @@ export const PatientDashboard = () => {
           flexWrap: 'wrap',
           gap: '1rem'
         }}
+        aria-label="Patient Overview Header"
       >
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span className="role-pill role-patient">PATIENT PORTAL</span>
             <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>ID: {user?.id}</span>
           </div>
-          <h2 style={{ fontSize: '1.5rem', marginTop: '0.35rem' }}>Welcome, {user?.name}</h2>
-          <p style={{ color: '#cbd5e1', fontSize: '0.88rem' }}>
-            Blood Group: <strong style={{ color: '#ef4444' }}>{user?.bloodGroup || 'B+'}</strong> • Location: Pune, Maharashtra
+          <h2 style={{ fontSize: '1.45rem', fontWeight: 800, marginTop: '0.35rem', color: '#f8fafc' }}>
+            Welcome, {user?.name}
+          </h2>
+          <p style={{ color: '#94a3b8', fontSize: '0.88rem' }}>
+            Blood Group: <strong style={{ color: '#ef4444' }}>{user?.bloodGroup || 'B+'}</strong> • Region: Pune Medical Command Grid
           </p>
         </div>
 
@@ -224,642 +241,817 @@ export const PatientDashboard = () => {
           onClick={() => openEmergencyMode('AMBULANCE')}
           className="emergency-mode-btn"
           style={{ padding: '0.75rem 1.5rem', fontSize: '0.95rem' }}
+          aria-label="Activate Emergency Mode Command Center"
         >
-          <AlertCircle size={20} />
-          <span>ACTIVATE EMERGENCY MODE</span>
+          <AlertCircle size={20} aria-hidden="true" />
+          <span>🚨 ACTIVATE EMERGENCY MODE</span>
         </button>
-      </div>
+      </section>
 
-      {/* Tabs Navigation */}
-      <div className="tabs-nav">
+      {/* Navigation Tabs (Patient: Dashboard, Appointments, Find Facilities, Find Blood, Emergency, Requests, Profile) */}
+      <nav className="tabs-nav" aria-label="Patient Portal Navigation">
+        <button
+          className={`tab-btn ${activeTab === 'DASHBOARD' ? 'active' : ''}`}
+          onClick={() => setActiveTab('DASHBOARD')}
+        >
+          <Activity size={16} aria-hidden="true" /> Dashboard
+        </button>
+
         <button
           className={`tab-btn ${activeTab === 'APPOINTMENTS' ? 'active' : ''}`}
           onClick={() => setActiveTab('APPOINTMENTS')}
         >
-          <Calendar size={16} /> Appointments & Visits ({appointments.length})
+          <Calendar size={16} aria-hidden="true" /> Appointments ({appointments.length})
         </button>
 
         <button
           className={`tab-btn ${activeTab === 'HOSPITALS' ? 'active' : ''}`}
           onClick={() => setActiveTab('HOSPITALS')}
         >
-          <Building2 size={16} /> Hospital & Live Bed Finder
+          <Building2 size={16} aria-hidden="true" /> Find Facilities ({hospitals.length})
         </button>
 
         <button
           className={`tab-btn ${activeTab === 'BLOOD' ? 'active' : ''}`}
-          onClick={() => { setActiveTab('BLOOD'); if (bloodMatches.length === 0) handleRunBloodSearch(); }}
+          onClick={() => {
+            setActiveTab('BLOOD');
+            if (bloodMatches.length === 0) handleRunBloodSearch();
+          }}
         >
-          <Droplet size={16} /> Smart Blood Requirement Matcher
+          <Droplet size={16} aria-hidden="true" /> Find Blood
         </button>
 
         <button
-          className={`tab-btn ${activeTab === 'AMBULANCE' ? 'active' : ''}`}
-          onClick={() => setActiveTab('AMBULANCE')}
+          className="tab-btn"
+          style={{ color: '#f87171', fontWeight: 700 }}
+          onClick={() => openEmergencyMode('AMBULANCE')}
         >
-          <Truck size={16} /> Ambulance Dispatch & Live Tracking ({activeAmbulanceRequests.length})
+          <AlertCircle size={16} aria-hidden="true" /> Emergency
+        </button>
+
+        <button
+          className={`tab-btn ${activeTab === 'REQUESTS' ? 'active' : ''}`}
+          onClick={() => setActiveTab('REQUESTS')}
+        >
+          <FileText size={16} aria-hidden="true" /> Requests ({myRequests.length})
         </button>
 
         <button
           className={`tab-btn ${activeTab === 'PROFILE' ? 'active' : ''}`}
           onClick={() => setActiveTab('PROFILE')}
         >
-          <User size={16} /> Administrative Record
+          <User size={16} aria-hidden="true" /> Profile
         </button>
-      </div>
+      </nav>
 
-      {/* TAB 1: APPOINTMENTS */}
-      {activeTab === 'APPOINTMENTS' && (
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1.2rem' }}>Your Clinic & Hospital Appointments</h3>
-            <button
-              onClick={() => {
-                setSelectedDate(new Date(Date.now() + 86400000).toISOString().split('T')[0]);
-                setShowBookingModal(true);
-              }}
-              className="btn btn-primary btn-sm"
-            >
-              <Plus size={16} /> Book New Appointment
-            </button>
-          </div>
+      {errorMessage && <ErrorMessage message={errorMessage} onRetry={loadData} />}
 
-          {appointments.length === 0 ? (
-            <div className="card" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-              <Calendar size={36} color="#64748b" style={{ margin: '0 auto 0.75rem' }} />
-              <h4>No appointments booked yet</h4>
-              <p style={{ color: '#94a3b8', fontSize: '0.88rem', marginTop: '0.25rem' }}>
-                Schedule a routine consultation desk appointment with clinics across the network.
-              </p>
-            </div>
-          ) : (
-            <div className="table-responsive card" style={{ padding: 0 }}>
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Hospital / Clinic</th>
-                    <th>Specialist / Department</th>
-                    <th>Date & Time</th>
-                    <th>Administrative Purpose</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {appointments.map((apt) => (
-                    <tr key={apt.id}>
-                      <td>
-                        <strong style={{ color: '#38bdf8' }}>{apt.hospitalName}</strong>
-                        <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>ID: #{apt.id}</div>
-                      </td>
-                      <td>
-                        <div>{apt.specialistName || 'OPD Desk'}</div>
-                        <span style={{ fontSize: '0.75rem', color: '#a78bfa' }}>{apt.specialty}</span>
-                      </td>
-                      <td>
-                        <div style={{ fontWeight: 600 }}>📅 {apt.date}</div>
-                        <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>⏰ {apt.time}</div>
-                      </td>
-                      <td style={{ fontSize: '0.85rem' }}>{apt.purpose}</td>
-                      <td>
-                        <StatusBadge status={apt.status} />
-                      </td>
-                      <td>
-                        {apt.status === 'SCHEDULED' || apt.status === 'CONFIRMED' ? (
-                          <button
-                            onClick={() => handleCancelAppointment(apt.id)}
-                            className="btn btn-secondary btn-sm"
-                            style={{ color: '#f87171', borderColor: 'rgba(239,68,68,0.3)' }}
-                          >
-                            Cancel
-                          </button>
-                        ) : (
-                          <span style={{ fontSize: '0.75rem', color: '#64748b' }}>No action</span>
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* TAB 2: HOSPITALS & LIVE BED FINDER */}
-      {activeTab === 'HOSPITALS' && (
-        <div>
-          {/* Advanced Search & Filtering Bar */}
-          <div className="card" style={{ marginBottom: '1.25rem', padding: '1.25rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <h3 style={{ fontSize: '1.15rem', color: '#38bdf8' }}>
-                🏥 Hospital & Critical Care Facility Search
-              </h3>
-              <span style={{ fontSize: '0.78rem', color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '0.3rem 0.6rem', borderRadius: '12px' }}>
-                ⚡ Live Beds Telemetry Active
-              </span>
-            </div>
-
-            <div className="grid-4" style={{ gap: '0.75rem' }}>
-              <div style={{ minWidth: '200px' }}>
-                <label className="form-label" style={{ fontSize: '0.75rem' }}>Search Name / Area / Equipment</label>
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="e.g. Ruby Hall, KEM, Deccan, MRI, ICU..."
-                  value={hospitalQuery}
-                  onChange={(e) => setHospitalQuery(e.target.value)}
-                />
-              </div>
-
-              <div>
-                <label className="form-label" style={{ fontSize: '0.75rem' }}>Bed / Equipment Availability</label>
-                <select
-                  className="form-select"
-                  value={bedTypeFilter}
-                  onChange={(e) => setBedTypeFilter(e.target.value)}
-                >
-                  <option value="">All Bed Types</option>
-                  <option value="ICU">Available ICU Beds Only</option>
-                  <option value="VENTILATOR">Available Ventilators Only</option>
-                  <option value="OXYGEN">Available Oxygen Only</option>
-                  <option value="GENERAL">Available General Beds</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="form-label" style={{ fontSize: '0.75rem' }}>Blood Stock Availability</label>
-                <select
-                  className="form-select"
-                  value={bloodGroupFilter}
-                  onChange={(e) => setBloodGroupFilter(e.target.value)}
-                >
-                  <option value="">All Blood Groups</option>
-                  {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((bg) => (
-                    <option key={bg} value={bg}>Has {bg} Stock</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="form-label" style={{ fontSize: '0.75rem' }}>Specialist Department</label>
-                <select
-                  className="form-select"
-                  value={specialistFilter}
-                  onChange={(e) => setSpecialistFilter(e.target.value)}
-                >
-                  <option value="">All Specialties</option>
-                  <option value="Cardiology">Cardiology & Cardiac</option>
-                  <option value="Neurology">Neurology & Stroke</option>
-                  <option value="Orthopedics">Orthopedics & Trauma</option>
-                  <option value="Pediatrics">Pediatrics & Neonatal</option>
-                  <option value="Nephrology">Nephrology & Dialysis</option>
-                  <option value="Pulmonology">Pulmonology & Respiratory</option>
-                  <option value="General">General Medicine & OPD</option>
-                </select>
-              </div>
-            </div>
-
-            {(hospitalQuery || bedTypeFilter || bloodGroupFilter || specialistFilter) && (
-              <div style={{ marginTop: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Active Filters:</span>
-                <button
-                  onClick={() => {
-                    setHospitalQuery('');
-                    setBedTypeFilter('');
-                    setBloodGroupFilter('');
-                    setSpecialistFilter('');
+      {loading ? (
+        <LoadingSpinner text="Synchronizing patient health coordination telemetry..." />
+      ) : (
+        <>
+          {/* TAB 1: DASHBOARD (10-Second 5 Pillar Overview) */}
+          {activeTab === 'DASHBOARD' && (
+            <div className="tab-pane">
+              {/* 5-Pillar Feature Cards Grid */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                  gap: '1rem',
+                  marginBottom: '1.5rem'
+                }}
+              >
+                {/* Pillar 1: Appointments */}
+                <div
+                  className="card"
+                  style={{
+                    background: 'rgba(18, 26, 45, 0.7)',
+                    border: '1px solid var(--border-card)',
+                    cursor: 'pointer'
                   }}
-                  className="btn btn-secondary btn-sm"
-                  style={{ fontSize: '0.75rem', padding: '0.2rem 0.5rem' }}
+                  onClick={() => setActiveTab('APPOINTMENTS')}
                 >
-                  Reset All Filters
-                </button>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                    <div style={{ padding: '0.5rem', background: 'rgba(56, 189, 248, 0.12)', borderRadius: '8px', color: '#38bdf8' }}>
+                      <Calendar size={20} />
+                    </div>
+                    <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc' }}>
+                      {appointments.length}
+                    </span>
+                  </div>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.2rem' }}>
+                    Appointments
+                  </h4>
+                  <p style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                    OPD desk bookings & follow-ups
+                  </p>
+                </div>
+
+                {/* Pillar 2: Emergency */}
+                <div
+                  className="card"
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.1)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => openEmergencyMode('AMBULANCE')}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                    <div style={{ padding: '0.5rem', background: 'rgba(239, 68, 68, 0.2)', borderRadius: '8px', color: '#ef4444' }}>
+                      <AlertCircle size={20} />
+                    </div>
+                    <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#ef4444', textTransform: 'uppercase' }}>
+                      24x7 Live
+                    </span>
+                  </div>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f87171', marginBottom: '0.2rem' }}>
+                    Emergency Mode
+                  </h4>
+                  <p style={{ fontSize: '0.78rem', color: '#fca5a5' }}>
+                    Ambulance, blood & critical dispatch
+                  </p>
+                </div>
+
+                {/* Pillar 3: Ambulances */}
+                <div
+                  className="card"
+                  style={{
+                    background: 'rgba(18, 26, 45, 0.7)',
+                    border: '1px solid var(--border-card)',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => openEmergencyMode('AMBULANCE')}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                    <div style={{ padding: '0.5rem', background: 'rgba(16, 185, 129, 0.12)', borderRadius: '8px', color: '#10b981' }}>
+                      <Truck size={20} />
+                    </div>
+                    <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#10b981' }}>
+                      {ambulances.filter((a) => (a.status || '').toUpperCase() === 'AVAILABLE').length} Available
+                    </span>
+                  </div>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.2rem' }}>
+                    Ambulances
+                  </h4>
+                  <p style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                    GPS tracked emergency transit fleet
+                  </p>
+                </div>
+
+                {/* Pillar 4: Blood Bank */}
+                <div
+                  className="card"
+                  style={{
+                    background: 'rgba(18, 26, 45, 0.7)',
+                    border: '1px solid var(--border-card)',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => {
+                    setActiveTab('BLOOD');
+                    if (bloodMatches.length === 0) handleRunBloodSearch();
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                    <div style={{ padding: '0.5rem', background: 'rgba(239, 68, 68, 0.12)', borderRadius: '8px', color: '#ef4444' }}>
+                      <Droplet size={20} />
+                    </div>
+                    <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ef4444' }}>
+                      8 Groups
+                    </span>
+                  </div>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.2rem' }}>
+                    Blood Bank
+                  </h4>
+                  <p style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                    Smart cold storage inventory search
+                  </p>
+                </div>
+
+                {/* Pillar 5: Facilities */}
+                <div
+                  className="card"
+                  style={{
+                    background: 'rgba(18, 26, 45, 0.7)',
+                    border: '1px solid var(--border-card)',
+                    cursor: 'pointer'
+                  }}
+                  onClick={() => setActiveTab('HOSPITALS')}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                    <div style={{ padding: '0.5rem', background: 'rgba(99, 102, 241, 0.12)', borderRadius: '8px', color: '#818cf8' }}>
+                      <Building2 size={20} />
+                    </div>
+                    <span style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc' }}>
+                      {hospitals.length}
+                    </span>
+                  </div>
+                  <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#f8fafc', marginBottom: '0.2rem' }}>
+                    Healthcare Facilities
+                  </h4>
+                  <p style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                    Live ICU, bed & oxygen inventory
+                  </p>
+                </div>
               </div>
-            )}
-          </div>
 
-          <div className="grid-2">
-            {filteredHospitals.map((h) => (
-              <div key={h.id} className="card" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-                <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {/* Active Emergency Tracker Strip if any */}
+              {activeAmbulanceRequests.length > 0 && (
+                <div
+                  className="card"
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.08)',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
+                    marginBottom: '1.5rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    flexWrap: 'wrap',
+                    gap: '1rem'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div style={{ padding: '0.5rem', background: '#ef4444', color: '#fff', borderRadius: '8px' }}>
+                      <Truck size={22} />
+                    </div>
                     <div>
-                      <span className="role-pill role-hospital" style={{ fontSize: '0.68rem', marginBottom: '0.35rem' }}>
-                        {h.type || 'Tertiary Care Hospital'}
-                      </span>
-                      <h3 style={{ fontSize: '1.2rem', color: '#38bdf8', marginTop: '0.2rem' }}>{h.name}</h3>
-                      <p style={{ fontSize: '0.82rem', color: '#94a3b8' }}>📍 {h.address}</p>
+                      <h4 style={{ color: '#f87171', fontSize: '0.95rem', fontWeight: 700 }}>
+                        Active Emergency Dispatch: #{activeAmbulanceRequests[0].id}
+                      </h4>
+                      <p style={{ color: '#cbd5e1', fontSize: '0.8rem' }}>
+                        Vehicle: {activeAmbulanceRequests[0].assignedAmbulanceVehicle || 'Assigned Nearest Unit'} • Priority: {activeAmbulanceRequests[0].priority}
+                      </p>
                     </div>
+                  </div>
 
-                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                      <a
-                        href={h.mapUrl || `https://www.google.com/maps/search/?api=1&query=${h.lat},${h.lng}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="btn btn-secondary btn-sm"
-                        style={{ color: '#38bdf8', borderColor: 'rgba(56,189,248,0.3)' }}
-                        title="Open in Google Maps"
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <StatusBadge status={activeAmbulanceRequests[0].status} tripStatus={activeAmbulanceRequests[0].ambulanceTripStatus} />
+                    <button
+                      onClick={() => openEmergencyMode('STATUS')}
+                      className="btn btn-sm btn-primary"
+                    >
+                      Track Live Progress
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Recent Activity: Appointments & Requests */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+                <div className="card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#f8fafc' }}>
+                      Upcoming Appointments
+                    </h3>
+                    <button
+                      onClick={() => setShowBookingModal(true)}
+                      className="btn btn-primary btn-sm"
+                      style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
+                    >
+                      <Plus size={14} /> Book OPD
+                    </button>
+                  </div>
+
+                  {appointments.length === 0 ? (
+                    <EmptyState
+                      icon={Calendar}
+                      title="No Appointments Booked"
+                      description="Schedule an OPD visit at any network healthcare facility."
+                      action={
+                        <button onClick={() => setShowBookingModal(true)} className="btn btn-primary btn-sm">
+                          Book Appointment
+                        </button>
+                      }
+                    />
+                  ) : (
+                    appointments.slice(0, 3).map((apt) => (
+                      <div
+                        key={apt.id}
+                        style={{
+                          padding: '0.75rem',
+                          borderRadius: '8px',
+                          background: 'rgba(255, 255, 255, 0.03)',
+                          border: '1px solid var(--border-subtle)',
+                          marginBottom: '0.5rem',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}
                       >
-                        🗺️ Map
-                      </a>
-                      <a href={`tel:${h.emergencyHelpline}`} className="btn btn-danger btn-sm">
-                        <Phone size={14} /> {h.emergencyHelpline || h.phone}
-                      </a>
-                    </div>
-                  </div>
-
-                  {/* Live Resources Telemetry */}
-                  <div className="grid-4" style={{ marginTop: '1rem', gap: '0.4rem' }}>
-                    <div style={{ background: 'var(--bg-subtle)', padding: '0.5rem 0.4rem', borderRadius: '6px', textAlign: 'center' }}>
-                      <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>General Beds</span>
-                      <strong style={{ fontSize: '1.15rem', color: '#38bdf8' }}>
-                        {h.resources?.generalBedsAvailable ?? 0}/{h.resources?.generalBedsTotal ?? 100}
-                      </strong>
-                    </div>
-
-                    <div style={{ background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.25)', padding: '0.5rem 0.4rem', borderRadius: '6px', textAlign: 'center' }}>
-                      <span style={{ fontSize: '0.7rem', color: '#fca5a5', display: 'block' }}>ICU Beds</span>
-                      <strong style={{ fontSize: '1.15rem', color: '#ef4444' }}>
-                        {h.resources?.icuBedsAvailable ?? 0}/{h.resources?.icuBedsTotal ?? 20}
-                      </strong>
-                    </div>
-
-                    <div style={{ background: 'var(--bg-subtle)', padding: '0.5rem 0.4rem', borderRadius: '6px', textAlign: 'center' }}>
-                      <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>Ventilators</span>
-                      <strong style={{ fontSize: '1.15rem', color: '#a78bfa' }}>
-                        {h.resources?.ventilatorsAvailable ?? 0}/{h.resources?.ventilatorsTotal ?? 10}
-                      </strong>
-                    </div>
-
-                    <div style={{ background: 'var(--bg-subtle)', padding: '0.5rem 0.4rem', borderRadius: '6px', textAlign: 'center' }}>
-                      <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>Oxygen Cyl.</span>
-                      <strong style={{ fontSize: '1.15rem', color: '#34d399' }}>
-                        {h.resources?.oxygenCylindersAvailable ?? 0}/{h.resources?.oxygenCylindersTotal ?? 50}
-                      </strong>
-                    </div>
-                  </div>
-
-                  {/* Equipment Badges */}
-                  {h.equipment && h.equipment.length > 0 && (
-                    <div style={{ marginTop: '0.85rem' }}>
-                      <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.35rem' }}>Specialized Equipment:</div>
-                      <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap' }}>
-                        {h.equipment.map((eq) => (
-                          <span
-                            key={eq}
-                            style={{
-                              fontSize: '0.72rem',
-                              background: 'rgba(56, 189, 248, 0.08)',
-                              color: '#93c5fd',
-                              border: '1px solid rgba(56, 189, 248, 0.2)',
-                              padding: '0.2rem 0.5rem',
-                              borderRadius: '4px'
-                            }}
-                          >
-                            ⚙️ {eq}
+                        <div>
+                          <h4 style={{ fontSize: '0.88rem', fontWeight: 600, color: '#f8fafc' }}>
+                            {apt.hospitalName || 'Network Facility'}
+                          </h4>
+                          <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                            📅 {apt.appointmentDate || apt.date} • ⏰ {apt.appointmentTime || apt.time}
                           </span>
-                        ))}
+                        </div>
+                        <StatusBadge status={apt.status} />
                       </div>
-                    </div>
-                  )}
-
-                  {/* Blood Bank Live Stock Preview */}
-                  {h.bloodBank && (
-                    <div style={{ marginTop: '0.85rem' }}>
-                      <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.35rem' }}>🩸 Blood Stock Available (Units):</div>
-                      <div style={{ display: 'flex', gap: '0.3rem', flexWrap: 'wrap' }}>
-                        {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((bg) => (
-                          <span
-                            key={bg}
-                            style={{
-                              fontSize: '0.7rem',
-                              background: (h.bloodBank[bg] || 0) > 0 ? 'rgba(239, 68, 68, 0.15)' : 'rgba(100, 116, 139, 0.1)',
-                              color: (h.bloodBank[bg] || 0) > 0 ? '#fca5a5' : '#64748b',
-                              border: '1px solid rgba(239, 68, 68, 0.25)',
-                              padding: '0.15rem 0.4rem',
-                              borderRadius: '4px',
-                              fontWeight: 600
-                            }}
-                          >
-                            {bg}: <b>{h.bloodBank[bg] ?? 0}</b>
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Specialists Available */}
-                  {h.specialists && h.specialists.length > 0 && (
-                    <div style={{ marginTop: '0.85rem' }}>
-                      <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.35rem' }}>👨‍⚕️ Specialists Roster:</div>
-                      <div style={{ fontSize: '0.78rem', color: '#cbd5e1' }}>
-                        {h.specialists.map((s) => `${s.name} (${s.specialty})`).join(' • ')}
-                      </div>
-                    </div>
+                    ))
                   )}
                 </div>
 
-                <div style={{ marginTop: '1.25rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border-subtle)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-                    ⚡ Real-time Socket.io synchronized
+                <div className="card">
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#f8fafc' }}>
+                      Coordination Requests
+                    </h3>
+                    <button
+                      onClick={() => setActiveTab('REQUESTS')}
+                      className="btn btn-secondary btn-sm"
+                      style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
+                    >
+                      View All
+                    </button>
                   </div>
-                  <button
-                    onClick={() => {
-                      setSelectedHospitalId(h.id);
-                      setSelectedDate(new Date(Date.now() + 86400000).toISOString().split('T')[0]);
-                      setShowBookingModal(true);
-                    }}
-                    className="btn btn-primary btn-sm"
-                  >
-                    📅 Book Appointment
+
+                  {myRequests.length === 0 ? (
+                    <EmptyState
+                      icon={FileText}
+                      title="No Coordination Requests"
+                      description="Your admission, blood, and emergency requests will appear here."
+                    />
+                  ) : (
+                    myRequests.slice(0, 3).map((req) => (
+                      <div
+                        key={req.id}
+                        style={{
+                          padding: '0.75rem',
+                          borderRadius: '8px',
+                          background: 'rgba(255, 255, 255, 0.03)',
+                          border: '1px solid var(--border-subtle)',
+                          marginBottom: '0.5rem',
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center'
+                        }}
+                      >
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                            <span style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 700 }}>
+                              {req.type}
+                            </span>
+                            <span style={{ fontSize: '0.75rem', color: '#64748b' }}>#{req.id}</span>
+                          </div>
+                          <span style={{ fontSize: '0.82rem', color: '#cbd5e1' }}>
+                            {req.targetHospitalName || 'Network Facility'}
+                          </span>
+                        </div>
+                        <StatusBadge status={req.status} tripStatus={req.ambulanceTripStatus} />
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* TAB 2: APPOINTMENTS */}
+          {activeTab === 'APPOINTMENTS' && (
+            <div className="tab-pane">
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#f8fafc' }}>
+                    Administrative OPD Appointments
+                  </h3>
+                  <p style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
+                    Schedule and manage out-patient visits with network hospitals.
+                  </p>
+                </div>
+                <button onClick={() => setShowBookingModal(true)} className="btn btn-primary">
+                  <Plus size={16} /> Book Appointment
+                </button>
+              </div>
+
+              {appointments.length === 0 ? (
+                <EmptyState
+                  icon={Calendar}
+                  title="No Appointments Found"
+                  description="You have not scheduled any appointments yet."
+                  action={
+                    <button onClick={() => setShowBookingModal(true)} className="btn btn-primary btn-sm">
+                      Book First Appointment
+                    </button>
+                  }
+                />
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(310px, 1fr))', gap: '1rem' }}>
+                  {appointments.map((apt) => (
+                    <div key={apt.id} className="card" style={{ border: '1px solid var(--border-card)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                        <div>
+                          <span style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 700 }}>#{apt.id}</span>
+                          <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#f8fafc' }}>
+                            {apt.hospitalName || 'Healthcare Facility'}
+                          </h4>
+                          <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{apt.department || 'General Medicine'}</span>
+                        </div>
+                        <StatusBadge status={apt.status} />
+                      </div>
+
+                      <div style={{ fontSize: '0.85rem', color: '#cbd5e1', marginBottom: '1rem', background: 'rgba(255,255,255,0.02)', padding: '0.6rem', borderRadius: '6px' }}>
+                        <div>📅 Date: <strong>{apt.appointmentDate || apt.date}</strong></div>
+                        <div>⏰ Time: <strong>{apt.appointmentTime || apt.time}</strong></div>
+                        <div>👨‍⚕️ Desk: {apt.specialistName || 'Duty OPD Officer'}</div>
+                        <div>📝 Purpose: {apt.purpose}</div>
+                      </div>
+
+                      {apt.status === 'SCHEDULED' && (
+                        <button
+                          onClick={() => handleCancelAppointment(apt.id)}
+                          className="btn btn-secondary btn-sm"
+                          style={{ width: '100%', borderColor: 'rgba(239, 68, 68, 0.4)', color: '#f87171' }}
+                        >
+                          Cancel Appointment
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 3: FIND FACILITIES (HOSPITALS) */}
+          {activeTab === 'HOSPITALS' && (
+            <div className="tab-pane">
+              <div style={{ marginBottom: '1.25rem' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#f8fafc' }}>
+                  Healthcare Facility Directory & Live Bed Telemetry
+                </h3>
+                <p style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
+                  Real-time bed, ICU, ventilator, and oxygen availability across network hospitals.
+                </p>
+              </div>
+
+              {/* Filters */}
+              <div className="card" style={{ marginBottom: '1.25rem', padding: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem' }}>
+                  <div>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8' }}>Search Facility / Area</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="e.g. Apollo, Ruby Hall, Deccan"
+                      value={hospitalQuery}
+                      onChange={(e) => setHospitalQuery(e.target.value)}
+                    />
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8' }}>Bed Availability</label>
+                    <select
+                      className="form-control"
+                      value={bedTypeFilter}
+                      onChange={(e) => setBedTypeFilter(e.target.value)}
+                    >
+                      <option value="">All Bed Capacities</option>
+                      <option value="GENERAL">General Beds Available</option>
+                      <option value="ICU">ICU Beds Available</option>
+                      <option value="VENTILATOR">Ventilators Available</option>
+                      <option value="OXYGEN">Oxygen Available</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8' }}>Blood Group</label>
+                    <select
+                      className="form-control"
+                      value={bloodGroupFilter}
+                      onChange={(e) => setBloodGroupFilter(e.target.value)}
+                    >
+                      <option value="">Any Blood Group</option>
+                      {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((g) => (
+                        <option key={g} value={g}>{g}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              {filteredHospitals.length === 0 ? (
+                <EmptyState
+                  icon={Building2}
+                  title="No Matching Facilities"
+                  description="No healthcare facilities match your current search and filter criteria."
+                />
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
+                  {filteredHospitals.map((h) => (
+                    <div key={h.id} className="card" style={{ border: '1px solid var(--border-card)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                        <div>
+                          <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#f8fafc' }}>{h.name}</h4>
+                          <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>📍 {h.area || h.address || 'Pune'}</span>
+                        </div>
+                        <span className="badge badge-primary">{h.type || 'Hospital'}</span>
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem', margin: '0.75rem 0' }}>
+                        <div style={{ padding: '0.5rem', background: 'rgba(56, 189, 248, 0.08)', borderRadius: '6px' }}>
+                          <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>General Beds</span>
+                          <strong style={{ fontSize: '1rem', color: '#38bdf8' }}>
+                            {h.resources?.generalBedsAvailable || 0} / {h.resources?.generalBedsTotal || 0}
+                          </strong>
+                        </div>
+                        <div style={{ padding: '0.5rem', background: 'rgba(239, 68, 68, 0.08)', borderRadius: '6px' }}>
+                          <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>ICU Beds</span>
+                          <strong style={{ fontSize: '1rem', color: '#ef4444' }}>
+                            {h.resources?.icuBedsAvailable || 0} / {h.resources?.icuBedsTotal || 0}
+                          </strong>
+                        </div>
+                        <div style={{ padding: '0.5rem', background: 'rgba(16, 185, 129, 0.08)', borderRadius: '6px' }}>
+                          <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>Ventilators</span>
+                          <strong style={{ fontSize: '1rem', color: '#10b981' }}>
+                            {h.resources?.ventilatorsAvailable || 0} / {h.resources?.ventilatorsTotal || 0}
+                          </strong>
+                        </div>
+                        <div style={{ padding: '0.5rem', background: 'rgba(245, 158, 11, 0.08)', borderRadius: '6px' }}>
+                          <span style={{ fontSize: '0.7rem', color: '#94a3b8', display: 'block' }}>Oxygen Units</span>
+                          <strong style={{ fontSize: '1rem', color: '#f59e0b' }}>
+                            {h.resources?.oxygenCylindersAvailable || 0} Cylinders
+                          </strong>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem' }}>
+                        <button
+                          onClick={() => {
+                            setSelectedHospitalId(h.id);
+                            setShowBookingModal(true);
+                          }}
+                          className="btn btn-primary btn-sm"
+                          style={{ flex: 1 }}
+                        >
+                          Book Visit
+                        </button>
+                        {h.mapUrl && (
+                          <a
+                            href={h.mapUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-secondary btn-sm"
+                            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                            title="Open Google Maps Location"
+                          >
+                            <ExternalLink size={14} />
+                          </a>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 4: FIND BLOOD */}
+          {activeTab === 'BLOOD' && (
+            <div className="tab-pane">
+              <div style={{ marginBottom: '1.25rem' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#f8fafc' }}>
+                  Smart Blood Requirement Matcher
+                </h3>
+                <p style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
+                  Real-time stock locator across verified hospital cold storage banks.
+                </p>
+              </div>
+
+              {/* Search Form */}
+              <form onSubmit={handleRunBloodSearch} className="card" style={{ marginBottom: '1.25rem', padding: '1rem' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '0.75rem', alignItems: 'flex-end' }}>
+                  <div>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8' }}>Blood Group</label>
+                    <select
+                      className="form-control"
+                      value={bloodGroup}
+                      onChange={(e) => setBloodGroup(e.target.value)}
+                    >
+                      {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((g) => (
+                        <option key={g} value={g}>{g}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8' }}>Units Required</label>
+                    <input
+                      type="number"
+                      min="1"
+                      max="20"
+                      className="form-control"
+                      value={bloodUnits}
+                      onChange={(e) => setBloodUnits(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8' }}>Location</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      placeholder="e.g. Pune, Kothrud"
+                      value={bloodLocation}
+                      onChange={(e) => setBloodLocation(e.target.value)}
+                    />
+                  </div>
+
+                  <div>
+                    <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#94a3b8' }}>Urgency Level</label>
+                    <select
+                      className="form-control"
+                      value={bloodUrgency}
+                      onChange={(e) => setBloodUrgency(e.target.value)}
+                    >
+                      <option value="NORMAL">Normal</option>
+                      <option value="URGENT">Urgent</option>
+                      <option value="CRITICAL">Critical</option>
+                    </select>
+                  </div>
+
+                  <button type="submit" className="btn btn-danger" disabled={bloodSearchLoading}>
+                    <Search size={16} /> {bloodSearchLoading ? 'Searching...' : 'Find Matches'}
                   </button>
                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+              </form>
 
-      {/* TAB 3: SMART BLOOD REQUIREMENT MATCHER */}
-      {activeTab === 'BLOOD' && (
-        <div>
-          <div className="card" style={{ marginBottom: '1.5rem', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <h3 style={{ fontSize: '1.2rem', color: '#f87171' }}>
-                🩸 Smart Blood Requirement Matcher
-              </h3>
-              <span style={{ fontSize: '0.75rem', color: '#cbd5e1', background: 'rgba(239, 68, 68, 0.15)', padding: '0.25rem 0.6rem', borderRadius: '12px' }}>
-                Verified Cold Storage Telemetry (MVP Seeded Data)
-              </span>
-            </div>
-            <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '1.25rem' }}>
-              Submit emergency or scheduled blood requirements. Matches are sorted by practical relevance, location proximity, and live available units:
-            </p>
-
-            <form onSubmit={handleRunBloodSearch}>
-              <div className="grid-4" style={{ gap: '1rem' }}>
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Blood Group</label>
-                  <select
-                    className="form-select"
-                    value={bloodGroup}
-                    onChange={(e) => setBloodGroup(e.target.value)}
-                  >
-                    {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((bg) => (
-                      <option key={bg} value={bg}>{bg}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Units Required</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="20"
-                    className="form-control"
-                    value={bloodUnits}
-                    onChange={(e) => setBloodUnits(Number(e.target.value))}
-                    required
-                  />
-                </div>
-
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Location / City / Area</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    placeholder="e.g. Pune, Deccan, Sangamvadi, Camp..."
-                    value={bloodLocation}
-                    onChange={(e) => setBloodLocation(e.target.value)}
-                  />
-                </div>
-
-                <div className="form-group" style={{ margin: 0 }}>
-                  <label className="form-label">Urgency Level</label>
-                  <select
-                    className="form-select"
-                    value={bloodUrgency}
-                    onChange={(e) => setBloodUrgency(e.target.value)}
-                  >
-                    <option value="NORMAL">NORMAL (Scheduled / Elective)</option>
-                    <option value="URGENT">URGENT (Within 2-4 Hours)</option>
-                    <option value="CRITICAL">CRITICAL (Immediate Life Support)</option>
-                  </select>
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem', alignItems: 'center' }}>
-                <button
-                  type="submit"
-                  disabled={bloodSearchLoading}
-                  className="btn btn-primary"
-                  style={{ minWidth: '180px' }}
-                >
-                  {bloodSearchLoading ? 'Searching Stock...' : '🔍 Find Matching Blood Banks'}
-                </button>
-                <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-                  Example: <b>B+ | 2 Units | Pune | URGENT</b>
-                </span>
-              </div>
-            </form>
-          </div>
-
-          <div className="table-responsive card" style={{ padding: 0 }}>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Hospital / Blood Bank</th>
-                  <th>Location & Area</th>
-                  <th>Blood Group</th>
-                  <th>Available Units</th>
-                  <th>Match Status</th>
-                  <th>ICU / Critical Telemetry</th>
-                  <th>Helpline & Direct Call</th>
-                </tr>
-              </thead>
-              <tbody>
-                {bloodMatches.length === 0 ? (
-                  <tr>
-                    <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#94a3b8' }}>
-                      Click "Find Matching Blood Banks" to view real-time facility inventory.
-                    </td>
-                  </tr>
-                ) : (
-                  bloodMatches.map((m) => (
-                    <tr key={m.hospitalId}>
-                      <td>
-                        <div style={{ fontWeight: 700, color: '#38bdf8' }}>{m.hospitalName}</div>
-                        <a
-                          href={m.mapUrl || `https://www.google.com/maps/search/?api=1&query=${m.lat},${m.lng}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          style={{ fontSize: '0.75rem', color: '#93c5fd', textDecoration: 'underline' }}
-                        >
-                          🗺️ View on Map
-                        </a>
-                      </td>
-                      <td>
-                        <div><b>{m.area}</b></div>
-                        <small style={{ color: '#94a3b8' }}>{m.city}</small>
-                      </td>
-                      <td>
-                        <span style={{ fontWeight: 800, color: '#ef4444', fontSize: '1.1rem' }}>{m.bloodGroup}</span>
-                      </td>
-                      <td style={{ fontSize: '1.1rem', fontWeight: 800 }}>
-                        <span style={{ color: m.availableUnits >= bloodUnits ? '#10b981' : (m.availableUnits > 0 ? '#f59e0b' : '#ef4444') }}>
-                          {m.availableUnits} Units
+              {/* Matches List */}
+              {bloodMatches.length === 0 ? (
+                <EmptyState
+                  icon={Droplet}
+                  title="No Blood Matches Found"
+                  description="Run a blood requirement search above to query verified cold storage inventory."
+                />
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
+                  {bloodMatches.map((m) => (
+                    <div key={m.hospitalId} className="card" style={{ border: m.isSufficient ? '1px solid #10b981' : '1px solid var(--border-card)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                        <div>
+                          <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#f8fafc' }}>{m.hospitalName}</h4>
+                          <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>📍 {m.area || m.address || 'Pune'}</span>
+                        </div>
+                        <span className={`badge ${m.isSufficient ? 'badge-success' : 'badge-warning'}`}>
+                          {m.isSufficient ? 'Sufficient Stock' : 'Partial Stock'}
                         </span>
-                      </td>
-                      <td>
-                        {m.isSufficient ? (
-                          <span style={{ color: '#10b981', fontWeight: 700, fontSize: '0.8rem', background: 'rgba(16,185,129,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
-                            ✅ Full Match ({m.availableUnits} ≥ {bloodUnits})
-                          </span>
-                        ) : m.availableUnits > 0 ? (
-                          <span style={{ color: '#f59e0b', fontWeight: 700, fontSize: '0.8rem', background: 'rgba(245,158,11,0.1)', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>
-                            ⚠️ Partial ({m.availableUnits}/{bloodUnits})
-                          </span>
-                        ) : (
-                          <span style={{ color: '#ef4444', fontWeight: 700, fontSize: '0.8rem' }}>
-                            ❌ Out of Stock
-                          </span>
-                        )}
-                      </td>
-                      <td style={{ fontSize: '0.78rem', color: '#cbd5e1' }}>
-                        <div>ICU: <b>{m.resources?.icuBedsAvailable ?? 0}</b> avail</div>
-                        <div>O2: <b>{m.resources?.oxygenCylindersAvailable ?? 0}</b> cyl</div>
-                      </td>
-                      <td>
+                      </div>
+
+                      <div style={{ background: 'rgba(239, 68, 68, 0.08)', padding: '0.75rem', borderRadius: '6px', margin: '0.75rem 0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div>
+                          <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Group {m.bloodGroup} Available:</span>
+                          <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#ef4444' }}>{m.availableUnits} Units</h3>
+                        </div>
+                        <div style={{ textAlign: 'right' }}>
+                          <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Relevance:</span>
+                          <span style={{ fontSize: '0.9rem', fontWeight: 700, color: '#38bdf8', display: 'block' }}>{m.locationScore}%</span>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
                         <a
-                          href={`tel:${m.emergencyHelpline}`}
-                          className="btn btn-danger btn-sm"
-                          style={{ fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: '0.35rem' }}
+                          href={`tel:${m.emergencyHelpline || m.phone || '108'}`}
+                          className="btn btn-secondary btn-sm"
+                          style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}
                         >
-                          <Phone size={13} /> {m.emergencyHelpline || m.phone}
+                          <Phone size={14} /> Helpline
                         </a>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* TAB 4: AMBULANCE DISPATCH & LIVE TRACKING */}
-      {activeTab === 'AMBULANCE' && (
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1.2rem' }}>Ambulance Dispatch & Simulated GPS Tracking</h3>
-            <button onClick={() => openEmergencyMode('AMBULANCE')} className="btn btn-danger btn-sm">
-              <Plus size={16} /> Request Emergency Ambulance
-            </button>
-          </div>
-
-          {/* Interactive Map */}
-          <div style={{ marginBottom: '1.5rem' }}>
-            <LiveMap
-              hospitals={hospitals}
-              ambulances={ambulances}
-              activeRequest={activeAmbulanceRequests[0] || null}
-              height="350px"
-            />
-          </div>
-
-          {activeAmbulanceRequests.length === 0 ? (
-            <div className="card" style={{ textAlign: 'center', padding: '2rem' }}>
-              <Truck size={36} color="#64748b" style={{ margin: '0 auto 0.5rem' }} />
-              <h4>No active ambulance requests</h4>
-              <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
-                Use Emergency Mode to dispatch an ambulance with live GPS tracking.
-              </p>
-            </div>
-          ) : (
-            <div className="grid-2">
-              {activeAmbulanceRequests.map((req) => (
-                <div key={req.id} className="card" style={{ border: '1px solid rgba(239,68,68,0.3)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
-                    <StatusBadge status={req.status} tripStatus={req.ambulanceTripStatus} />
-                    <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>#{req.id}</span>
-                  </div>
-
-                  <div style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>
-                    <div>📍 Pickup: <strong>{req.details?.pickupLocation}</strong></div>
-                    <div>🏥 Destination: <strong>{req.targetHospitalName}</strong></div>
-                    <div>🚑 Vehicle: <strong>{req.assignedAmbulanceVehicle || 'Unit Assigned'}</strong></div>
-                  </div>
-
-                  <div style={{ borderTop: '1px solid var(--border-subtle)', paddingTop: '0.75rem', marginTop: '0.75rem' }}>
-                    <div style={{ fontSize: '0.8rem', fontWeight: 600, color: '#38bdf8', marginBottom: '0.25rem' }}>
-                      Dispatch Progression:
+                        <button
+                          onClick={() => openEmergencyMode('BLOOD')}
+                          className="btn btn-danger btn-sm"
+                          style={{ flex: 1 }}
+                        >
+                          Request Units
+                        </button>
+                      </div>
                     </div>
-                    <div style={{ fontSize: '0.78rem', color: '#cbd5e1' }}>
-                      {req.responseNotes || 'Ambulance is progressing towards destination.'}
-                    </div>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              )}
             </div>
           )}
-        </div>
+
+          {/* TAB 5: REQUESTS (Patient Requests History) */}
+          {activeTab === 'REQUESTS' && (
+            <div className="tab-pane">
+              <div style={{ marginBottom: '1.25rem' }}>
+                <h3 style={{ fontSize: '1.2rem', fontWeight: 700, color: '#f8fafc' }}>
+                  Patient Coordination Requests
+                </h3>
+                <p style={{ fontSize: '0.82rem', color: '#94a3b8' }}>
+                  History and live status of admission, transfer, blood, and ambulance requests.
+                </p>
+              </div>
+
+              {myRequests.length === 0 ? (
+                <EmptyState
+                  icon={FileText}
+                  title="No Coordination Requests"
+                  description="You have not submitted any healthcare coordination requests yet."
+                />
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1rem' }}>
+                  {myRequests.map((r) => (
+                    <div key={r.id} className="card" style={{ border: '1px solid var(--border-card)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.5rem' }}>
+                        <div>
+                          <span style={{ fontSize: '0.75rem', color: '#38bdf8', fontWeight: 700 }}>#{r.id}</span>
+                          <h4 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#f8fafc' }}>{r.type}</h4>
+                          <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{r.targetHospitalName || 'Network Facility'}</span>
+                        </div>
+                        <StatusBadge status={r.status} tripStatus={r.ambulanceTripStatus} />
+                      </div>
+
+                      <div style={{ fontSize: '0.82rem', color: '#cbd5e1', background: 'rgba(255,255,255,0.02)', padding: '0.6rem', borderRadius: '6px', margin: '0.75rem 0' }}>
+                        <div>Priority: <strong>{r.priority}</strong></div>
+                        {r.assignedAmbulanceVehicle && <div>Ambulance: <strong>{r.assignedAmbulanceVehicle}</strong></div>}
+                        {r.responseNotes && <div>Facility Notes: <em>"{r.responseNotes}"</em></div>}
+                        {r.resolutionNotes && <div style={{ color: '#34d399' }}>Doctor Override: <em>"{r.resolutionNotes}"</em></div>}
+                        <div style={{ fontSize: '0.72rem', color: '#64748b', marginTop: '0.35rem' }}>
+                          Submitted: {new Date(r.createdAt).toLocaleString()}
+                        </div>
+                      </div>
+
+                      {r.type === 'AMBULANCE' && (
+                        <button
+                          onClick={() => openEmergencyMode('STATUS')}
+                          className="btn btn-secondary btn-sm"
+                          style={{ width: '100%' }}
+                        >
+                          View Live GPS Track
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB 6: PROFILE */}
+          {activeTab === 'PROFILE' && (
+            <div className="tab-pane">
+              <div className="card" style={{ maxWidth: '600px', margin: '0 auto' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', borderBottom: '1px solid var(--border-card)', paddingBottom: '1rem' }}>
+                  <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(56, 189, 248, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#38bdf8' }}>
+                    <User size={30} />
+                  </div>
+                  <div>
+                    <h3 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f8fafc' }}>{user?.name}</h3>
+                    <span className="role-pill role-patient">PATIENT</span>
+                    <span style={{ fontSize: '0.8rem', color: '#94a3b8', marginLeft: '0.5rem' }}>ID: {user?.id}</span>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem', fontSize: '0.88rem', color: '#cbd5e1' }}>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block' }}>Primary Phone</span>
+                    <strong>{user?.phone || 'Not provided'}</strong>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block' }}>Registered Email</span>
+                    <strong>{user?.email || 'Not provided'}</strong>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block' }}>Verified Blood Group</span>
+                    <strong style={{ color: '#ef4444' }}>{user?.bloodGroup || 'B+'}</strong>
+                  </div>
+                  <div>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block' }}>Emergency Contact</span>
+                    <strong>{user?.emergencyContact || '9876543211 (Family)'}</strong>
+                  </div>
+                  <div style={{ gridColumn: 'span 2' }}>
+                    <span style={{ fontSize: '0.75rem', color: '#94a3b8', display: 'block' }}>Registered Address</span>
+                    <strong>{user?.address || 'Pune, Maharashtra, India'}</strong>
+                  </div>
+                </div>
+
+                <div style={{ marginTop: '1.5rem', padding: '0.75rem', background: 'rgba(56, 189, 248, 0.08)', borderRadius: '6px', fontSize: '0.78rem', color: '#94a3b8' }}>
+                  🔒 MediLink CARE administrative profile data is stored with zero clinical diagnostic annotations for complete privacy.
+                </div>
+              </div>
+            </div>
+          )}
+        </>
       )}
 
-      {/* TAB 5: ADMINISTRATIVE PROFILE */}
-      {activeTab === 'PROFILE' && (
-        <div className="card" style={{ maxWidth: '640px' }}>
-          <h3 style={{ fontSize: '1.2rem', marginBottom: '1rem' }}>Patient Administrative Record</h3>
-          <div className="grid-2">
-            <div className="form-group">
-              <label className="form-label">Patient Name</label>
-              <input type="text" className="form-control" value={user?.name || ''} readOnly />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Phone Number</label>
-              <input type="text" className="form-control" value={user?.phone || ''} readOnly />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Blood Group</label>
-              <input type="text" className="form-control" value={user?.bloodGroup || 'B+'} readOnly />
-            </div>
-
-            <div className="form-group">
-              <label className="form-label">Emergency Contact</label>
-              <input type="text" className="form-control" value={user?.emergencyContact || 'Not Specified'} readOnly />
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label className="form-label">Registered Address</label>
-            <input type="text" className="form-control" value={user?.address || 'Pune, Maharashtra'} readOnly />
-          </div>
-
-          <div style={{ marginTop: '1rem', padding: '0.75rem', background: 'var(--bg-input)', borderRadius: '6px', fontSize: '0.8rem', color: '#94a3b8' }}>
-            🔒 <strong>Administrative Scope:</strong> Records are securely stored for appointment logistics and emergency facility lookup. MediLink does not store clinical diagnosis records.
-          </div>
-        </div>
-      )}
-
-      {/* BOOKING MODAL */}
+      {/* Booking Appointment Modal */}
       {showBookingModal && (
-        <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '540px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-              <h3 style={{ fontSize: '1.2rem' }}>Book Administrative Appointment</h3>
-              <button onClick={() => setShowBookingModal(false)} className="btn btn-secondary btn-icon">
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <div className="modal-content" style={{ maxWidth: '480px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem', borderBottom: '1px solid var(--border-card)', paddingBottom: '0.5rem' }}>
+              <h3 style={{ fontSize: '1.15rem', fontWeight: 800, color: '#f8fafc' }}>
+                Schedule OPD Appointment
+              </h3>
+              <button onClick={() => setShowBookingModal(false)} className="btn btn-secondary btn-icon" aria-label="Close">
                 <XCircle size={18} />
               </button>
             </div>
 
             <form onSubmit={handleBookAppointment}>
-              <div className="form-group">
-                <label className="form-label">Hospital / Clinic</label>
+              <div style={{ marginBottom: '0.75rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8' }}>Target Healthcare Facility</label>
                 <select
-                  className="form-select"
+                  className="form-control"
                   value={selectedHospitalId}
                   onChange={(e) => setSelectedHospitalId(e.target.value)}
                   required
@@ -870,62 +1062,60 @@ export const PatientDashboard = () => {
                 </select>
               </div>
 
-              <div className="grid-2">
-                <div className="form-group">
-                  <label className="form-label">Date</label>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '0.75rem' }}>
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8' }}>Date</label>
                   <input
                     type="date"
                     className="form-control"
+                    min={new Date().toISOString().split('T')[0]}
                     value={selectedDate}
                     onChange={(e) => setSelectedDate(e.target.value)}
                     required
                   />
                 </div>
-
-                <div className="form-group">
-                  <label className="form-label">Time Slot</label>
+                <div>
+                  <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8' }}>Preferred Time</label>
                   <select
-                    className="form-select"
+                    className="form-control"
                     value={selectedTime}
                     onChange={(e) => setSelectedTime(e.target.value)}
                   >
-                    <option value="09:30 AM">09:30 AM</option>
-                    <option value="10:00 AM">10:00 AM</option>
-                    <option value="11:30 AM">11:30 AM</option>
-                    <option value="02:00 PM">02:00 PM</option>
-                    <option value="04:30 PM">04:30 PM</option>
+                    {['09:00 AM', '10:00 AM', '11:30 AM', '02:00 PM', '03:30 PM', '05:00 PM'].map((t) => (
+                      <option key={t} value={t}>{t}</option>
+                    ))}
                   </select>
                 </div>
               </div>
 
-              <div className="form-group">
-                <label className="form-label">Purpose (Administrative Only)</label>
+              <div style={{ marginBottom: '0.75rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8' }}>Appointment Purpose</label>
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="e.g. Routine OPD Consultation Desk, Checkup Intake"
                   value={appointmentPurpose}
                   onChange={(e) => setAppointmentPurpose(e.target.value)}
                   required
                 />
               </div>
 
-              <div style={{ display: 'flex', gap: '0.75rem', marginTop: '1.25rem' }}>
-                <button
-                  type="button"
-                  onClick={() => setShowBookingModal(false)}
-                  className="btn btn-secondary"
-                  style={{ flex: 1 }}
-                >
+              <div style={{ marginBottom: '1.25rem' }}>
+                <label style={{ fontSize: '0.8rem', fontWeight: 600, color: '#94a3b8' }}>Specialist / OPD Desk</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="e.g. General OPD Desk, Cardiology OPD"
+                  value={specialistName}
+                  onChange={(e) => setSpecialistName(e.target.value)}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem' }}>
+                <button type="button" onClick={() => setShowBookingModal(false)} className="btn btn-secondary" style={{ flex: 1 }}>
                   Cancel
                 </button>
-                <button
-                  type="submit"
-                  disabled={bookingLoading}
-                  className="btn btn-primary"
-                  style={{ flex: 1 }}
-                >
-                  {bookingLoading ? 'Scheduling...' : 'Confirm Appointment'}
+                <button type="submit" className="btn btn-primary" style={{ flex: 1 }} disabled={bookingLoading}>
+                  {bookingLoading ? 'Scheduling...' : 'Confirm Booking'}
                 </button>
               </div>
             </form>

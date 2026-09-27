@@ -210,39 +210,140 @@ export const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="tabs-nav">
+      {/* Tabs Navigation (Admin: Dashboard, Hospitals, Ambulances, Requests, Conflicts) */}
+      <nav className="tabs-nav" aria-label="Admin Portal Navigation">
         <button
-          className={`tab-btn ${activeTab === 'TRIAGE' ? 'active' : ''}`}
-          onClick={() => setActiveTab('TRIAGE')}
+          className={`tab-btn ${activeTab === 'DASHBOARD' ? 'active' : ''}`}
+          onClick={() => setActiveTab('DASHBOARD')}
         >
-          <AlertTriangle size={16} /> Escalation & Triage Queue ({rejectedQueue.length})
+          <Activity size={16} aria-hidden="true" /> Dashboard
+        </button>
+
+        <button
+          className={`tab-btn ${activeTab === 'CONFLICTS' ? 'active' : ''}`}
+          onClick={() => setActiveTab('CONFLICTS')}
+        >
+          <AlertTriangle size={16} aria-hidden="true" /> Conflicts & Triage ({rejectedQueue.length})
         </button>
 
         <button
           className={`tab-btn ${activeTab === 'HOSPITALS' ? 'active' : ''}`}
           onClick={() => setActiveTab('HOSPITALS')}
         >
-          <Building2 size={16} /> Hospital Resource Surveillance
+          <Building2 size={16} aria-hidden="true" /> Hospitals ({hospitals.length})
         </button>
 
         <button
           className={`tab-btn ${activeTab === 'AMBULANCES' ? 'active' : ''}`}
           onClick={() => setActiveTab('AMBULANCES')}
         >
-          <Truck size={16} /> Ambulance Fleet & Map
+          <Truck size={16} aria-hidden="true" /> Ambulances ({ambulances.length})
+        </button>
+
+        <button
+          className={`tab-btn ${activeTab === 'REQUESTS' ? 'active' : ''}`}
+          onClick={() => setActiveTab('REQUESTS')}
+        >
+          <FileText size={16} aria-hidden="true" /> Requests ({allRequests.length})
         </button>
 
         <button
           className={`tab-btn ${activeTab === 'AUDIT' ? 'active' : ''}`}
           onClick={() => setActiveTab('AUDIT')}
         >
-          <FileText size={16} /> Audit Log Stream ({auditLogs.length})
+          <ShieldAlert size={16} aria-hidden="true" /> Audit Logs ({auditLogs.length})
         </button>
-      </div>
+      </nav>
 
-      {/* TAB 1: ESCALATION & TRIAGE QUEUE */}
-      {activeTab === 'TRIAGE' && (
+      {/* TAB 1: DASHBOARD / OVERVIEW */}
+      {activeTab === 'DASHBOARD' && (
+        <div className="tab-pane">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem', marginBottom: '1.5rem' }}>
+            <div className="card" style={{ border: '1px solid var(--border-card)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#f8fafc' }}>
+                  🚨 Priority Triage Escalation
+                </h3>
+                <button
+                  onClick={() => setActiveTab('CONFLICTS')}
+                  className="btn btn-danger btn-sm"
+                  style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
+                >
+                  View Queue ({rejectedQueue.length})
+                </button>
+              </div>
+              {rejectedQueue.length === 0 ? (
+                <div style={{ padding: '1.5rem', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>
+                  <CheckCircle size={28} color="#10b981" style={{ margin: '0 auto 0.5rem' }} />
+                  <p>All network emergency requests fulfilled.</p>
+                </div>
+              ) : (
+                rejectedQueue.slice(0, 3).map((req) => (
+                  <div
+                    key={req.id}
+                    style={{
+                      padding: '0.75rem',
+                      borderRadius: '8px',
+                      background: 'rgba(239, 68, 68, 0.08)',
+                      border: '1px solid rgba(239, 68, 68, 0.25)',
+                      marginBottom: '0.5rem',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center'
+                    }}
+                  >
+                    <div>
+                      <strong style={{ fontSize: '0.85rem', color: '#f87171' }}>#{req.id} • {req.type}</strong>
+                      <div style={{ fontSize: '0.75rem', color: '#cbd5e1' }}>
+                        {req.patientName} → {req.targetHospitalName}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => handleOpenEscalateModal(req.id)}
+                      className="btn btn-primary btn-sm"
+                      style={{ fontSize: '0.75rem', padding: '0.3rem 0.6rem' }}
+                    >
+                      Assign Doctor
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
+
+            <div className="card" style={{ border: '1px solid var(--border-card)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: 700, color: '#f8fafc' }}>
+                  🏥 Network Capacity Telemetry
+                </h3>
+                <button
+                  onClick={() => setActiveTab('HOSPITALS')}
+                  className="btn btn-secondary btn-sm"
+                  style={{ fontSize: '0.75rem', padding: '0.25rem 0.6rem' }}
+                >
+                  Manage
+                </button>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+                <div style={{ padding: '0.75rem', background: 'var(--bg-subtle)', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Network Total Beds</span>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#38bdf8' }}>
+                    {hospitals.reduce((acc, h) => acc + (h.resources?.generalBedsAvailable || 0), 0)} Available
+                  </div>
+                </div>
+                <div style={{ padding: '0.75rem', background: 'var(--bg-subtle)', borderRadius: '8px' }}>
+                  <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Critical ICU Units</span>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ef4444' }}>
+                    {hospitals.reduce((acc, h) => acc + (h.resources?.icuBedsAvailable || 0), 0)} Available
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 2: CONFLICTS / ESCALATION QUEUE */}
+      {activeTab === 'CONFLICTS' && (
         <div>
           <div style={{ marginBottom: '1rem' }}>
             <h3 style={{ fontSize: '1.2rem', color: '#f87171' }}>
