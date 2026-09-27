@@ -34,7 +34,7 @@ export const HospitalDashboard = () => {
   const { openEmergencyMode } = useEmergency();
   const { liveResourceUpdate, liveBloodBankUpdate, liveRequestUpdate } = useSocket();
 
-  const [activeTab, setActiveTab] = useState('RESOURCES'); // RESOURCES, APPOINTMENTS, REQUESTS, PATIENTS_SEARCH, SPECIALISTS
+  const [activeTab, setActiveTab] = useState('DASHBOARD'); // DASHBOARD, APPOINTMENTS, PATIENTS_SEARCH, RESOURCES, BLOOD_BANK, AMBULANCES, REQUESTS, SPECIALISTS
   const [summary, setSummary] = useState(null);
   const [resources, setResources] = useState({});
   const [equipment, setEquipment] = useState([]);
@@ -315,6 +315,8 @@ export const HospitalDashboard = () => {
     (r) => r.targetHospitalId === hospitalId && r.status === 'PENDING'
   );
 
+  const totalBloodUnits = Object.values(bloodBank || {}).reduce((acc, v) => acc + (Number(v) || 0), 0);
+
   return (
     <div>
       {/* Header Profile */}
@@ -424,6 +426,195 @@ export const HospitalDashboard = () => {
           <AlertCircle size={16} aria-hidden="true" /> Emergency
         </button>
       </nav>
+
+      {/* TAB 0: EXECUTIVE OPERATIONS OVERVIEW DASHBOARD */}
+      {activeTab === 'DASHBOARD' && (
+        <div>
+          {/* Top KPI Metrics Grid */}
+          <div className="grid-4" style={{ marginBottom: '1.25rem' }}>
+            <div className="card stat-card" onClick={() => setActiveTab('RESOURCES')} style={{ cursor: 'pointer' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span className="stat-label">🛏️ Bed Telemetry</span>
+                <span className="badge badge-success" style={{ fontSize: '0.68rem' }}>Live Sync</span>
+              </div>
+              <div className="stat-value" style={{ color: '#38bdf8' }}>
+                {resources.generalBedsAvailable ?? 0}
+                <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>/{resources.generalBedsTotal ?? 100}</span>
+              </div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+                ICU Available: <strong style={{ color: '#ef4444' }}>{resources.icuBedsAvailable ?? 0}</strong> • Vents: <strong>{resources.ventilatorsAvailable ?? 0}</strong>
+              </div>
+            </div>
+
+            <div className="card stat-card" onClick={() => setActiveTab('BLOOD_BANK')} style={{ cursor: 'pointer' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span className="stat-label">🩸 Blood Bank Cold Storage</span>
+                <Droplet size={16} color="#ef4444" />
+              </div>
+              <div className="stat-value" style={{ color: '#ef4444' }}>
+                {totalBloodUnits} <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>Units</span>
+              </div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+                8 Groups • Cold Storage Active
+              </div>
+            </div>
+
+            <div className="card stat-card" onClick={() => setActiveTab('APPOINTMENTS')} style={{ cursor: 'pointer' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span className="stat-label">📅 Today's OPD Appointments</span>
+                <Calendar size={16} color="#34d399" />
+              </div>
+              <div className="stat-value" style={{ color: '#34d399' }}>
+                {appointmentSummary.today ?? 0}
+              </div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+                Total Active Queue: <strong>{appointments.length}</strong>
+              </div>
+            </div>
+
+            <div className="card stat-card" onClick={() => setActiveTab('AMBULANCES')} style={{ cursor: 'pointer' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span className="stat-label">🚑 Emergency Fleet</span>
+                <Truck size={16} color="#fbbf24" />
+              </div>
+              <div className="stat-value" style={{ color: '#fbbf24' }}>
+                {ambulances.filter((a) => a.status === 'AVAILABLE').length}
+                <span style={{ fontSize: '0.9rem', color: 'var(--text-muted)' }}>/{ambulances.length} Free</span>
+              </div>
+              <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+                On-Duty / En Route: <strong>{ambulances.filter((a) => a.status === 'ON_DUTY').length}</strong>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Shortcuts Bar */}
+          <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+            <button onClick={() => setActiveTab('RESOURCES')} className="btn btn-secondary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Bed size={14} /> Update Bed Telemetry
+            </button>
+            <button onClick={() => setActiveTab('BLOOD_BANK')} className="btn btn-secondary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Droplet size={14} /> Manage Blood Bank (8 Groups)
+            </button>
+            <button onClick={() => setActiveTab('APPOINTMENTS')} className="btn btn-secondary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Calendar size={14} /> Manage Appointments ({appointments.length})
+            </button>
+            <button onClick={() => setActiveTab('REQUESTS')} className="btn btn-secondary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+              <Send size={14} /> Inbound Requests ({pendingInboundRequests.length})
+            </button>
+          </div>
+
+          {/* Inbound Requests & Live Telemetry Dual Column */}
+          <div className="grid-2" style={{ marginBottom: '1.5rem' }}>
+            {/* Live Inbound Queue */}
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">
+                  <Send size={18} color="#38bdf8" />
+                  <span>Incoming Emergency & Admission Requisitions</span>
+                </div>
+                <span className="badge badge-primary">{pendingInboundRequests.length} Pending</span>
+              </div>
+              {pendingInboundRequests.length === 0 ? (
+                <div style={{ padding: '2rem 1rem', textAlign: 'center', color: 'var(--text-muted)' }}>
+                  <CheckCircle size={32} color="#10b981" style={{ margin: '0 auto 0.5rem' }} />
+                  <div style={{ fontWeight: 600, color: 'var(--text-primary)' }}>No pending inbound requests</div>
+                  <div style={{ fontSize: '0.8rem' }}>All admissions and emergency transfers have been processed.</div>
+                </div>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {pendingInboundRequests.slice(0, 3).map((req) => (
+                    <div key={req.id} style={{ background: 'var(--bg-subtle)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-card)' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                        <div>
+                          <strong style={{ color: '#38bdf8' }}>#{req.id}</strong>
+                          <span style={{ marginLeft: '0.5rem', fontSize: '0.75rem', color: req.priority === 'EMERGENCY' ? '#ef4444' : '#f59e0b', fontWeight: 700 }}>
+                            {req.priority}
+                          </span>
+                          <div style={{ fontWeight: 600, marginTop: '2px' }}>{req.patientName}</div>
+                        </div>
+                        <div style={{ display: 'flex', gap: '0.35rem' }}>
+                          <button onClick={() => handleAcceptRequest(req.id)} className="btn btn-success btn-sm" style={{ padding: '0.2rem 0.5rem', fontSize: '0.72rem' }}>
+                            Accept
+                          </button>
+                          <button onClick={() => handleOpenRejectModal(req.id)} className="btn btn-danger btn-sm" style={{ padding: '0.2rem 0.5rem', fontSize: '0.72rem' }}>
+                            Reject
+                          </button>
+                        </div>
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.35rem' }}>
+                        {req.details?.bedType && <span>Bed: <b>{req.details.bedType}</b> • </span>}
+                        {req.details?.bloodGroup && <span>Blood: <b>{req.details.bloodGroup}</b> • </span>}
+                        <span>{req.details?.reason || req.details?.emergencyType || 'Admission requisition'}</span>
+                      </div>
+                    </div>
+                  ))}
+                  {pendingInboundRequests.length > 3 && (
+                    <button onClick={() => setActiveTab('REQUESTS')} className="btn btn-secondary btn-sm" style={{ width: '100%', textAlign: 'center' }}>
+                      View all {pendingInboundRequests.length} requests
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Live Bed & Blood Matrix Quick Telemetry */}
+            <div className="card">
+              <div className="card-header">
+                <div className="card-title">
+                  <Activity size={18} color="#10b981" />
+                  <span>Live Facility Telemetry Snapshot</span>
+                </div>
+                <button onClick={() => setActiveTab('RESOURCES')} className="btn btn-secondary btn-sm" style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem' }}>
+                  Edit Telemetry
+                </button>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem', marginBottom: '1rem' }}>
+                <div style={{ background: 'var(--bg-subtle)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-card)' }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🛏️ General Beds</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#38bdf8' }}>
+                    {resources.generalBedsAvailable ?? 0} <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>/ {resources.generalBedsTotal ?? 100}</span>
+                  </div>
+                </div>
+
+                <div style={{ background: 'var(--bg-subtle)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-card)' }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🚨 ICU Beds</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#ef4444' }}>
+                    {resources.icuBedsAvailable ?? 0} <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>/ {resources.icuBedsTotal ?? 20}</span>
+                  </div>
+                </div>
+
+                <div style={{ background: 'var(--bg-subtle)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-card)' }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>💨 Ventilators</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#a78bfa' }}>
+                    {resources.ventilatorsAvailable ?? 0} <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>/ {resources.ventilatorsTotal ?? 10}</span>
+                  </div>
+                </div>
+
+                <div style={{ background: 'var(--bg-subtle)', padding: '0.75rem', borderRadius: 'var(--radius-sm)', border: '1px solid var(--border-card)' }}>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>🫧 Oxygen Cylinders</div>
+                  <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#34d399' }}>
+                    {resources.oxygenCylindersAvailable ?? 0} <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>/ {resources.oxygenCylindersTotal ?? 50}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Mini Blood Bank Grid */}
+              <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)', marginBottom: '0.35rem' }}>
+                Cold Storage Blood Matrix:
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.35rem' }}>
+                {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((group) => (
+                  <div key={group} style={{ background: 'var(--bg-subtle)', padding: '0.35rem', borderRadius: '4px', textAlign: 'center', border: '1px solid var(--border-card)' }}>
+                    <div style={{ fontSize: '0.7rem', color: '#f87171', fontWeight: 700 }}>{group}</div>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 800 }}>{bloodBank[group] ?? 0}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* TAB 1: CLINIC APPOINTMENTS & SMART BREAKDOWN */}
       {activeTab === 'APPOINTMENTS' && (
@@ -927,6 +1118,121 @@ export const HospitalDashboard = () => {
                 <Plus size={16} /> Add Unit
               </button>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* TAB: DEDICATED BLOOD BANK COLD STORAGE */}
+      {activeTab === 'BLOOD_BANK' && (
+        <div>
+          <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div>
+              <h3 style={{ fontSize: '1.2rem', marginBottom: '0.25rem' }}>
+                🩸 Blood Bank Cold Storage Inventory Matrix (8 Groups Supported)
+              </h3>
+              <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
+                Manage verified cold-storage units for emergency transfusions and network allocation:
+              </p>
+            </div>
+            <span style={{ fontSize: '0.8rem', color: '#ef4444', background: 'rgba(239,68,68,0.1)', padding: '0.35rem 0.75rem', borderRadius: '20px', border: '1px solid rgba(239,68,68,0.3)' }}>
+              Total Stock: <strong>{totalBloodUnits} Units</strong>
+            </span>
+          </div>
+
+          {/* Staff Safeguard Banner */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '0.85rem 1.25rem',
+              borderRadius: 'var(--radius-md)',
+              marginBottom: '1.25rem',
+              background: isInventoryUnlocked ? 'rgba(16, 185, 129, 0.08)' : 'rgba(239, 68, 68, 0.08)',
+              border: isInventoryUnlocked ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid rgba(239, 68, 68, 0.3)',
+              gap: '1rem',
+              flexWrap: 'wrap'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              {isInventoryUnlocked ? (
+                <div style={{ background: '#10b981', color: '#fff', borderRadius: '50%', padding: '0.4rem', display: 'flex' }}>
+                  <Unlock size={18} />
+                </div>
+              ) : (
+                <div style={{ background: '#ef4444', color: '#fff', borderRadius: '50%', padding: '0.4rem', display: 'flex' }}>
+                  <Lock size={18} />
+                </div>
+              )}
+              <div>
+                <div style={{ fontWeight: 600, fontSize: '0.9rem', color: isInventoryUnlocked ? '#10b981' : '#f87171', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  <span>{isInventoryUnlocked ? 'Duty Manager Authenticated' : 'Inventory Safeguard: Locked (Read-Only Safeguard)'}</span>
+                  {isInventoryUnlocked && <span className="badge badge-success" style={{ fontSize: '0.68rem' }}>Active</span>}
+                </div>
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
+                  {isInventoryUnlocked
+                    ? `Staff verified (${user?.name || 'Hospital Staff'}). Blood Bank unit adjustments are active.`
+                    : 'Modifying blood inventory units requires Staff Passcode verification.'}
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              {isInventoryUnlocked ? (
+                <button
+                  onClick={() => setIsInventoryUnlocked(false)}
+                  className="btn btn-secondary btn-sm"
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem' }}
+                >
+                  <Lock size={14} />
+                  <span>Lock Safeguard</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    setStaffPin('');
+                    setPinError('');
+                    setShowPinModal(true);
+                  }}
+                  className="btn btn-primary btn-sm"
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontSize: '0.75rem' }}
+                >
+                  <Key size={14} />
+                  <span>Enter Staff PIN to Unlock</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          <div className="card" style={{ marginBottom: '1.5rem' }}>
+            <div className="blood-grid">
+              {['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'].map((group) => (
+                <div key={group} className="blood-card">
+                  <div className="blood-group-badge">{group}</div>
+                  <div className="blood-units-count">
+                    <strong style={{ fontSize: '1.3rem', color: '#f8fafc' }}>{bloodBank[group] ?? 0}</strong> Units
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: '0.4rem', marginTop: '0.5rem' }}>
+                    <button
+                      onClick={() => handleBloodStockChange(group, -1)}
+                      className="btn-counter"
+                      style={{ width: '28px', height: '28px' }}
+                      title="Decrease 1 unit"
+                    >
+                      <Minus size={13} />
+                    </button>
+                    <button
+                      onClick={() => handleBloodStockChange(group, 1)}
+                      className="btn-counter"
+                      style={{ width: '28px', height: '28px' }}
+                      title="Add 1 unit"
+                    >
+                      <Plus size={13} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       )}
