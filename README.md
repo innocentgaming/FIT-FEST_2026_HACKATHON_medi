@@ -1,188 +1,246 @@
-# 🏥 MediLink – CARE (Coordinated Assistance & Record Engine)
-> **FIT-FEST 2026 Hackathon MVP** | Unified Healthcare Coordination, Emergency Dispatch & Administrative Platform
+# MediLink — CARE
+> *"CARE brings appointments, patients, ambulances, blood requirements, and healthcare facilities into one simple coordination platform for clinics and patients."*
 
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/innocentgaming/FIT-FEST_2026_HACKATHON_medi)
 [![Test Suite](https://img.shields.io/badge/tests-258%20passed-success.svg)](https://github.com/innocentgaming/FIT-FEST_2026_HACKATHON_medi)
 [![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](file:///d:/medi/Dockerfile)
 [![WCAG 2.1 AA](https://img.shields.io/badge/accessibility-WCAG%202.1%20AA-emerald.svg)](file:///d:/medi/frontend)
+[![FIT-FEST 2026](https://img.shields.io/badge/Hackathon-FIT--FEST%202026-orange.svg)](https://github.com/innocentgaming/FIT-FEST_2026_HACKATHON_medi)
 
 ---
 
-## 🛡️ Critical Safety & Non-Diagnostic Scope Notice
-
-> **IMPORTANT REGULATORY & SAFETY DISCLAIMER:**  
-> **"MediLink provides administrative and emergency coordination functionality. It does NOT provide medical diagnosis, treatment recommendations, or clinical decision-making."**
-
-MediLink CARE is strictly a **healthcare coordination, logistics, and administrative management engine**:
-- ❌ **Explicitly Prohibited**: Clinical diagnosis, disease prediction, automated triage scoring, treatment suggestions, drug dosage prescriptions.
-- ✅ **Explicitly Supported**: Administrative OPD appointments, live bed/ICU/ventilator/oxygen telemetry, 8-group blood bank stock synchronization, 1-click emergency ambulance dispatch with live simulated GPS tracking, conflict escalation triage to System Doctors, and multi-channel real-time notifications.
+## 1. Problem
+Healthcare coordination in urban and peri-urban centers is crippled by severe fragmentation:
+- **Siloed Resource Telemetry**: Patients and emergency responders cannot see real-time bed, ICU, ventilator, or oxygen availability, causing life-threatening delays.
+- **Critical Blood Shortages**: Finding compatible blood units requires frantic phone calls across multiple hospitals without verified stock visibility.
+- **Uncoordinated Ambulance Fleet**: Lack of live GPS dispatch leads to suboptimal routing and delayed emergency transit.
+- **Lost Escalations**: When a hospital rejects an admission due to surge capacity, the patient is left stranded without administrative triage or alternative routing.
+- **Administrative OPD Friction**: OPD queues suffer from scheduling bottlenecks and uncoordinated follow-ups.
 
 ---
 
-## 🌟 10-Second Judge Clarity: The 5 Operational Pillars
+## 2. Solution
+**MediLink CARE** creates a single, real-time coordination bridge connecting Patients, Hospitals, Ambulance Drivers, Command Admins, and System Doctors. By unifying resource telemetry, emergency dispatch, blood bank inventory, and conflict escalation into one responsive platform, MediLink eliminates coordination friction and ensures zero lost emergencies.
 
-MediLink CARE organizes complex regional healthcare networks into 5 clear operational pillars:
+---
+
+## 3. Key Features
+- 🚨 **Emergency Mode Command Center**: 1-click auto-dispatch calculating nearest available ambulances and emergency facility matching.
+- 🩸 **Smart Blood Requirement Matcher**: Queries by `Blood Group + Units Required + Location + Urgency` against an 8-group cold storage stock matrix.
+- 🚑 **Live Ambulance Tracking & Simulated GPS**: Real-time fleet lifecycle (`AVAILABLE`, `ON_DUTY`, `OFFLINE`) with step progression (`On the Way` → `Arrived` → `Completed`) and GPS telemetry.
+- 🏥 **Live Hospital Resource Telemetry**: Real-time synchronization of general beds, ICU beds, ventilators, oxygen cylinders, and specialist rosters with atomic transactional updates.
+- ⚖️ **Central Admin & System Doctor Escalation**: Rejection triage queue allowing Admins to assign unfulfilled requests to System Doctors for re-routing to alternative facilities.
+- 📅 **OPD Appointment Intelligence**: Administrative clinic booking with duplicate slot prevention and past-date validation.
+- 🔔 **Multi-Channel Notification Center**: Real-time push notifications across 10 workflow triggers with read/unread tracking.
+
+---
+
+## 4. CARE Framework
+MediLink is built around the **C.A.R.E.** paradigm:
+- **C — Coordinated Emergency Dispatch**: Instant calculation of nearest ambulances with live radar simulation.
+- **A — Administrative Resource Synchronization**: Sub-millisecond broadcast of verified bed, ICU, oxygen, and blood inventories.
+- **R — Real-time Stakeholder Communication**: Bidirectional Socket.io event bus linking patients, clinicians, drivers, and coordinators.
+- **E — Escalation & Conflict Resolution**: Human-in-the-loop triage ensuring every rejected request is resolved.
+
+---
+
+## 5. Architecture
+MediLink adopts a decoupled, event-driven architecture with atomic data persistence and real-time WebSocket distribution:
 
 ```mermaid
 graph TD
-    ML["🏥 MediLink CARE Platform"]
-    ML --> P1["📅 Appointments<br/>OPD Scheduling & Queue"]
-    ML --> P2["🚨 Emergency Mode<br/>1-Click Auto-Dispatch"]
-    ML --> P3["🚑 Ambulances<br/>Fleet Telemetry & GPS"]
-    ML --> P4["🩸 Blood Bank<br/>8-Group Stock Matrix"]
-    ML --> P5["🏥 Facilities<br/>Beds, ICU, O2 & Specialists"]
+    subgraph Client Layer
+        P["👤 Patient Portal"]
+        H["🏥 Hospital Portal"]
+        A["🚑 Ambulance Portal"]
+        AD["⚖️ Admin Portal"]
+        D["🩺 Doctor Portal"]
+    end
+
+    subgraph Security & API Gateway
+        AUTH["🔒 JWT Auth & RBAC Middleware"]
+        SG["🛡️ Non-Diagnostic Safety Guard"]
+    end
+
+    subgraph Core Engine
+        RE["⚙️ Unified Request Engine<br/>(State Machine Validator)"]
+        NS["🔔 Notification Service"]
+        SE["⚡ Socket.io Real-Time Event Bus"]
+    end
+
+    subgraph Persistence Layer
+        DB[("💾 In-Memory Thread-Safe Data Store<br/>(Transactional & Audited)")]
+    end
+
+    Client Layer --> AUTH --> SG --> RE
+    RE --> DB
+    RE --> NS
+    RE --> SE
+    SE -.->|Live Telemetry Broadcast| Client Layer
 ```
 
 ---
 
-## 👥 5 Stakeholder Roles & Seed Credentials
+## 6. User Roles & RBAC Matrix
 
-The application provides pre-seeded accounts and a 1-click Quick Role Switcher in the top navigation bar:
-
-| Role | Email / Phone | Password | Primary Scope & Access |
-| :--- | :--- | :--- | :--- |
-| **👤 PATIENT** | `aarav@example.com` or `9876543210` | `patient123` | Emergency Mode, OPD appointments, Find Hospitals/ICU, Smart Blood Matcher, Request & Track Ambulances |
-| **🏥 HOSPITAL ADMIN** | `rubyhall@medilink.org` | `hospital123` | Manage live Beds, ICU, Ventilators, Oxygen & Blood stock, process admissions, assign ambulances |
-| **🚑 AMBULANCE DRIVER** | `driver1@medilink.org` or `9822012345` | `ambulance123` | Availability toggles (`AVAILABLE`, `ON_DUTY`, `OFFLINE`), dispatch acceptance, live simulated GPS stream |
-| **⚖️ COMMAND ADMIN** | `admin@medilink.gov.in` | `admin123` | Macro surveillance metrics, monitor network queues, triage rejected emergencies to System Doctors |
-| **🩺 SYSTEM DOCTOR** | `dr.joshi@medilink.gov.in` | `doctor123` | Isolated conflict queue, clinical resource re-routing to alternative facilities, resolution closure |
+| Role | Primary Identifier | Capabilities & Permissions |
+| :--- | :--- | :--- |
+| **👤 PATIENT** | `aarav@example.com` / `9876543210` | 1-Click Emergency Mode, book OPD appointments, search hospital resources, match blood units, dispatch & track ambulances. |
+| **🏥 HOSPITAL ADMIN** | `rubyhall@medilink.org` | Update own facility resources (Beds, ICU, Vents, O2, Blood Bank), manage specialists, accept/reject admissions & assign fleet. |
+| **🚑 AMBULANCE DRIVER** | `driver1@medilink.org` / `9822012345` | Toggle availability, accept/reject dispatches with mandatory reasons, stream simulated GPS, advance trip milestones. |
+| **⚖️ COMMAND ADMIN** | `admin@medilink.gov.in` | Network-wide surveillance, macro metrics, triage rejected emergency requests, assign conflicts to System Doctors, view audit trails. |
+| **🩺 SYSTEM DOCTOR** | `dr.joshi@medilink.gov.in` | Access isolated conflict queue, review rejection reasons, re-route patients to alternative facilities with comprehensive resolution notes. |
 
 ---
 
-## 🔄 Centralized Request Engine & State Lifecycle
+## 7. Main Workflows
 
-All patient admissions, hospital transfers, blood requisitions, equipment requests, and ambulance dispatches are governed by a centralized, atomic state machine:
+### 7.1. Emergency Dispatch Workflow
+1. Patient enters Emergency Mode and clicks **Request Ambulance**.
+2. System computes nearest available unit via Haversine calculation and dispatches `AMBULANCE_REQUEST`.
+3. Assigned driver receives real-time notification, accepts trip (`ON_DUTY`), and streams live GPS coordinates.
+4. Patient tracks vehicle on live visual stepper (`REQUESTED` → `PENDING` → `ASSIGNED` → `ACCEPTED` → `ON THE WAY` → `ARRIVED` → `COMPLETED`).
 
-```mermaid
-stateDiagram-v2
-    [*] --> PENDING: Patient / Hospital creates Request
-    PENDING --> ACCEPTED: Target Hospital accepts (Atomic Resource Decrement)
-    PENDING --> ASSIGNED: Nearest Ambulance assigned
-    PENDING --> REJECTED: Target Hospital rejects (Mandatory reason required)
-    
-    ASSIGNED --> ACCEPTED: Assigned Driver accepts (Ambulance ON_DUTY)
-    ASSIGNED --> REJECTED: Driver rejects with reason (Ambulance AVAILABLE)
-    
-    ACCEPTED --> COMPLETED: Trip/Service completed (Immutable Terminal)
-    
-    REJECTED --> ASSIGNED: Admin triages to System Doctor
-    ASSIGNED --> RESOLVED: System Doctor re-routes to Alternative Facility (Immutable Terminal)
-```
+### 7.2. Hospital Resource & Blood Management Workflow
+1. Hospital administrator updates live ICU beds or blood bank stock units.
+2. Changes are verified against clamp guards (preventing negative numbers).
+3. Real-time Socket.io events (`resource:update`, `blood:update`) immediately update all connected patient and emergency screens.
 
----
-
-## 🚀 Quick Start & Local Development
-
-### Prerequisites
-- **Node.js**: v18.0.0 or higher
-- **npm**: v9.0.0 or higher
-- **Docker**: (Optional, for containerized run)
-
-### 1. Clone & Install Dependencies
-```bash
-# Clone the repository
-git clone https://github.com/innocentgaming/FIT-FEST_2026_HACKATHON_medi.git
-cd FIT-FEST_2026_HACKATHON_medi
-
-# Install Backend dependencies
-cd backend
-npm install
-
-# Install Frontend dependencies
-cd ../frontend
-npm install
-```
-
-### 2. Run Local Development Servers
-In Terminal 1 (Backend API + Real-time Socket Bus):
-```bash
-cd backend
-npm run dev
-# Running on http://localhost:5000 (0.0.0.0)
-```
-
-In Terminal 2 (Vite Frontend SPA):
-```bash
-cd frontend
-npm run dev
-# Running on http://localhost:3000
-```
+### 7.3. Admin Triage & System Doctor Conflict Resolution Workflow
+1. Hospital rejects an admission request due to surge capacity (mandatory `responseNotes` enforced).
+2. Request transitions to `REJECTED` and surfaces in the Admin Triage Queue.
+3. Central Admin reviews case and assigns to an available System Doctor (`REJECTED` $\rightarrow$ `ASSIGNED`).
+4. Assigned Doctor investigates alternative facilities and resolves the case (`ASSIGNED` $\rightarrow$ `RESOLVED`), triggering an instant resolution notification to the patient.
 
 ---
 
-## 🧪 Comprehensive Automated Test Suites
+## 8. Security & Server-Side RBAC
+- **Strict Server-Side Authorization**: All mutations enforce role and ownership boundaries (e.g. Hospital A cannot modify Hospital B's beds; Doctor A cannot resolve Doctor B's conflicts).
+- **IDOR Protection**: Private patient records, appointments, and notifications are isolated by `req.user.id`.
+- **JWT Authentication**: High-entropy signed tokens with configurable expiration and session verification.
+- **Terminal State Immutability**: `COMPLETED` and `RESOLVED` records cannot be altered or reverted.
+- **PII Socket Sanitization**: Sensitive medical notes, patient names, and phone numbers are stripped from global socket broadcasts.
+- **Audit Logging**: Structured audit entries captured for all authentication, resource mutation, dispatch, and escalation events.
 
-Execute all 9 test suites covering 258 automated test assertions:
+---
 
+## 9. Accessibility (WCAG 2.1 AA)
+- **No Color-Only Status Indicators**: Status badges embed high-contrast text + distinct Lucide SVG icons (`role="status"`).
+- **Keyboard Navigation**: Visible focus rings (`focus:ring-2 focus:ring-emerald-500`) on all buttons, tabs, and form controls.
+- **Semantic HTML5**: Native `<main>`, `<header>`, `<nav>`, `<section>`, `<article>`, `<dialog>` structures with ARIA live alerts (`role="alert"`).
+- **Responsive Layout**: Validated across mobile (360px), tablet (768px), and desktop (1440px) viewports.
+
+---
+
+## 10. Technology Stack
+- **Frontend**: React 18, Vite, Lucide Icons, Leaflet / React-Leaflet, TailwindCSS & Vanilla CSS design system tokens.
+- **Backend**: Node.js, Express, Socket.io (WebSocket), JSON Web Tokens (`jsonwebtoken`), `bcryptjs`, `uuid`.
+- **Database**: In-memory JSON transactional datastore with atomic file persistence and auto-seeding.
+- **DevOps & Containerization**: Multi-stage Docker, Docker Compose, Google Cloud Build, Google Cloud Run.
+- **Testing**: Built-in automated test suites (258 tests across 9 suites).
+
+---
+
+## 11. API Reference
+- **Auth**: `POST /api/login`, `POST /api/patient/register`, `POST /api/ambulance/register`, `POST /api/hospital/register`
+- **Health**: `GET /health` (Root/Cloud Run), `GET /api/health` (Scope & Version)
+- **Hospitals & Resources**: `GET /api/hospitals`, `GET /api/hospital/:id`, `PUT /api/hospital/:id/resources`, `PUT /api/hospital/:id/bloodbank`
+- **Appointments**: `GET /api/appointments`, `POST /api/appointments`, `PUT /api/appointments/:id/status`
+- **Requests Engine**: `GET /api/requests`, `POST /api/requests`, `PUT /api/requests/:id/status`, `POST /api/requests/search-blood`
+- **Ambulance Fleet**: `GET /api/ambulance`, `PUT /api/ambulance/:id/status`, `PUT /api/ambulance/:id/location`
+- **Admin Triage**: `GET /api/admin/patient-requests`, `POST /api/admin/requests/:requestId/assign`
+- **Doctor Queue**: `GET /api/doctor/requests`, `PUT /api/doctor/requests/:requestId/resolve`
+- **Notifications**: `GET /api/notifications`, `PUT /api/notifications/:id/read`, `PUT /api/notifications/read-all`
+
+---
+
+## 12. Database Schema
+Entities managed in [`backend/src/db/store.js`](file:///d:/medi/backend/src/db/store.js):
+- `users`: User profiles, hashed passwords, roles (`PATIENT`, `HOSPITAL`, `AMBULANCE`, `ADMIN`, `SYSTEM_DOCTOR`).
+- `hospitals`: Facility metadata, location, resources (Beds, ICU, Vents, O2), equipment, 8-group blood stock.
+- `appointments`: OPD schedules, patient ID, specialist, time slot, appointment status.
+- `ambulances`: Vehicle numbers, driver info, hospital affiliation, fleet status (`AVAILABLE`, `ON_DUTY`, `OFFLINE`), GPS coordinates.
+- `requests`: Unified requests across 5 canonical types with priority, timeline, and escalation metadata.
+- `notifications`: Multi-channel notification queue with read/unread flags.
+- `auditLogs`: Immutable security and operation audit trail.
+
+---
+
+## 13. Realtime Architecture
+Socket.io event bus powers live multi-client synchronization:
+- `resource:update` / `resource_updated`: Live hospital capacity changes.
+- `blood:update` / `bloodbank_updated`: Blood bank unit updates.
+- `ambulance:status` & `ambulance:location`: Fleet availability and live GPS telemetry.
+- `request:status_changed`: Real-time request state transitions.
+- `notification:new`: Toast alerts and notification badge increments.
+
+---
+
+## 14. Testing & Verification
+
+Run the entire automated test suite:
 ```bash
 cd backend
 npm run test:all
 ```
 
-### Test Suite Breakdown:
-1. `test/api.test.js`: Core health, safety guard, login, and resource basics.
-2. `test/auth-rbac.test.js`: JWT token verification, RBAC permissions, and multi-tenant isolation.
-3. `test/appointments.test.js`: OPD booking, duplicate slot prevention, past-date guards, and patient search.
-4. `test/hospital-resources-blood.test.js`: Live resource telemetry, 8-group blood stock, clamping, and atomic decrements.
-5. `test/ambulance-tracking.test.js`: Fleet status toggles, nearest-unit auto-dispatch, simulated GPS telemetry, and driver RBAC.
-6. `test/emergency-mode.test.js`: 4 emergency actions, multi-resource filters, and 7-step visual timeline stepper.
-7. `test/escalation.test.js`: Macro admin metrics, rejection triage queue, System Doctor isolation, and resolution re-routing.
-8. `test/unified-request-engine.test.js`: Centralized state validator, notification service, Socket.io event bus, and privacy sanitization.
-9. `test/qa-e2e-audit.test.js`: Complete 5-stakeholder multi-role end-to-end scenario + security penetration audit.
+**Results: 258 Tests Passed (0 Failed, 100% Coverage across PRD & INF Workflows)**
+- `test/api.test.js` (18 Passed)
+- `test/auth-rbac.test.js` (24 Passed)
+- `test/appointments.test.js` (14 Passed)
+- `test/hospital-resources-blood.test.js` (22 Passed)
+- `test/ambulance-tracking.test.js` (22 Passed)
+- `test/emergency-mode.test.js` (16 Passed)
+- `test/escalation.test.js` (43 Passed)
+- `test/unified-request-engine.test.js` (46 Passed)
+- `test/qa-e2e-audit.test.js` (53 Passed)
 
 ---
 
-## 🐳 Production Deployment & Google Cloud Run
+## 15. Deployment (Google Cloud Run & Docker)
 
-### 1. Build and Run via Docker Locally
+### Docker Local Run:
 ```bash
-# Build multi-stage container (Vite Frontend + Express Backend)
 docker build -t medilink-care .
-
-# Run container on port 8080
 docker run -p 8080:8080 -e PORT=8080 medilink-care
 ```
 
-### 2. Deploy to Google Cloud Run
+### Cloud Run Deployment:
 ```bash
-# 1. Authenticate with Google Cloud
-gcloud auth login
-gcloud config set project YOUR_GCP_PROJECT_ID
-
-# 2. Build image with Google Cloud Build
-gcloud builds submit --tag gcr.io/YOUR_GCP_PROJECT_ID/medilink-care
-
-# 3. Deploy to Cloud Run (Managed, HTTPS, Public Entry)
+gcloud builds submit --tag gcr.io/YOUR_GCP_PROJECT/medilink-care
 gcloud run deploy medilink-care \
-  --image gcr.io/YOUR_GCP_PROJECT_ID/medilink-care \
+  --image gcr.io/YOUR_GCP_PROJECT/medilink-care \
   --platform managed \
   --region us-central1 \
   --allow-unauthenticated \
   --port 8080 \
-  --set-env-vars="NODE_ENV=production,PORT=8080,JWT_SECRET=production_strong_secret_key_2026"
+  --set-env-vars="NODE_ENV=production,PORT=8080,JWT_SECRET=production_secret_2026"
 ```
 
 ---
 
-## ⚙️ Environment Variables Reference
+## 16. Demo Credentials
 
-| Variable | Default | Description |
-| :--- | :--- | :--- |
-| `PORT` | `8080` (Cloud Run) / `5000` | Port for Express & Socket.io server (listens on `0.0.0.0`) |
-| `NODE_ENV` | `development` / `production` | Environment mode |
-| `JWT_SECRET` | `medilink_care_hackathon_secret_2026` | Secret key used to sign and verify JSON Web Tokens |
-| `VITE_API_URL` | `/api` | Base URL for REST API endpoints |
-| `VITE_SOCKET_URL` | Same-origin | Base URL for Socket.io WebSocket connection |
+Instant 1-click role switcher available in the Navbar:
 
----
-
-## ♿ WCAG 2.1 AA Accessibility Features
-- **No Color-Alone Statuses**: All status badges embed high-contrast text and distinct Lucide SVG icons (`role="status"`).
-- **Comprehensive States**: Loading skeletons, Empty state cards with actionable CTAs, and Error states with safe retry triggers.
-- **Focus Indicators**: Visible focus rings (`focus:ring-2 focus:ring-emerald-500`) on all interactive buttons, inputs, and tabs.
-- **Screen Reader Compatibility**: Semantic HTML5 elements (`<header>`, `<main>`, `<section>`, `<article>`, `<dialog>`) and explicit ARIA live regions.
+| Role | Username / Identifier | Password | Description |
+| :--- | :--- | :--- | :--- |
+| **Patient** | `aarav@example.com` or `9876543210` | `patient123` | Aarav Sharma (Patient Portal) |
+| **Hospital Admin** | `rubyhall@medilink.org` | `hospital123` | Ruby Hall Clinic Admin |
+| **Ambulance Driver** | `driver1@medilink.org` or `9822012345` | `ambulance123` | Santosh Shinde (MH-12-CR-1011) |
+| **Command Admin** | `admin@medilink.gov.in` | `admin123` | State Health Command Admin |
+| **System Doctor** | `dr.joshi@medilink.gov.in` | `doctor123` | Dr. Anand Joshi (Critical Care Lead) |
 
 ---
 
-## 📄 License & Hackathon Attribution
-Built for the **FIT-FEST 2026 Hackathon**. Open-sourced under the MIT License.
+## 17. Limitations
+- **Simulated GPS**: In MVP, ambulance GPS is generated via high-fidelity coordinate simulation (can connect to real OBD-II / mobile GPS).
+- **In-Memory / JSON Datastore**: Designed for hackathon zero-config portability (ready to attach PostgreSQL / MongoDB via ORM layer).
+
+---
+
+## 18. Regulatory Safety Scope
+
+> **"MediLink provides administrative and emergency coordination functionality. It does not provide medical diagnosis, treatment recommendations, or clinical decision-making."**
+
+All clinical decisions, medical diagnoses, treatment planning, and drug prescriptions remain strictly between licensed medical practitioners and their patients. MediLink strictly facilitates administrative intake, resource logistics, and communication.
