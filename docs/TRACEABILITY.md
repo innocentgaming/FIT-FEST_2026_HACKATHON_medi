@@ -26,7 +26,8 @@ This document maps every requirement from the **Product Requirements Document (P
 | **REQ-16: Nearest Ambulance Auto-Dispatch** | Calculate approximate Haversine distance, match nearest available units & create emergency request | `POST /api/requests` | `requests`, `ambulances` | `PatientDashboard.jsx`, `EmergencyModal.jsx` | `PATIENT`, `HOSPITAL`, `ADMIN` | `test/ambulance-tracking.test.js`: Test 5 |
 | **REQ-17: Emergency Ambulance Request State Lifecycle** | `PENDING` → `ASSIGNED` → `ACCEPTED` → `COMPLETED` / `REJECTED` | `PUT /api/requests/:id/status` | `requests`, `ambulances` | `AmbulanceDashboard.jsx`, `HospitalDashboard.jsx` | `AMBULANCE` (Assigned), `HOSPITAL`, `ADMIN` | `test/ambulance-tracking.test.js`: Tests 6, 9, 10 |
 | **REQ-18: Real-Time Socket.io Event Bus** | Real-time broadcast for `ambulance:status`, `ambulance:location`, `request:created`, `request:assigned`, `request:updated` | Socket.io server engine | In-Memory Socket Server | `SocketContext.jsx`, `LiveMap.jsx`, `AmbulanceDashboard.jsx` | All connected clients | `test/ambulance-tracking.test.js`: Test 8 |
-| **REQ-19: Admin Escalation & Doctor Resolution** | Triage rejected emergencies & resolve conflict | `POST /api/admin/requests/:requestId/assign`, `PUT /api/doctor/requests/:requestId/resolve` | `requests` | `AdminDashboard.jsx`, `DoctorDashboard.jsx` | `ADMIN`, `SYSTEM_DOCTOR` | `test/api.test.js`: Test 10 |
+| **REQ-19: Admin Escalation & Triage** | Macro metrics, network filters & assign rejected emergencies to System Doctor | `GET /api/admin/patient-requests`, `POST /api/admin/requests/:requestId/assign` | `requests`, `auditLogs` | `AdminDashboard.jsx` | `ADMIN` | `test/escalation.test.js`: Tests 1-4, 9 |
+| **REQ-20: System Doctor Conflict Resolution** | Doctor isolated queue, alternative facility selection & `resolutionNotes` | `GET /api/doctor/requests`, `PUT /api/doctor/requests/:requestId/resolve` | `requests`, `auditLogs` | `DoctorDashboard.jsx` | `SYSTEM_DOCTOR` (Assigned Doctor Only) | `test/escalation.test.js`: Tests 5-8 |
 | **REQ-21: Emergency Mode Command Center** | High-contrast 4 major actions: 🚑 Request Ambulance, 🩸 Find Blood, 🏥 Find Facility, 📋 Track Request | `POST /api/requests`, `POST /api/requests/search-blood`, `GET /api/hospitals` | `requests`, `ambulances`, `hospitals` | `EmergencyModal.jsx`, `Navbar.jsx`, `PatientDashboard.jsx`, `HospitalDashboard.jsx` | All Authenticated / Public Entry | `test/emergency-mode.test.js`: Tests 1-6 |
 | **REQ-22: Visual Incident Timeline (7-Step Stepper)** | Stepper progression (`REQUESTED` → `PENDING` → `ASSIGNED` → `ACCEPTED` → `ON THE WAY` → `ARRIVED` → `COMPLETED`) | `PUT /api/requests/:id/status`, Socket.io | `requests`, `ambulances` | `EmergencyModal.jsx`, `LiveMap.jsx` | `AMBULANCE`, `HOSPITAL`, `ADMIN` | `test/emergency-mode.test.js`: Test 5 |
 | **REQ-23: Facility Multi-Resource Filtering** | Filter by Type (Hospital, Clinic, Blood Bank) & Resources (Beds, ICU, Ventilator, Oxygen, Blood) | `GET /api/hospitals` | `hospitals` | `EmergencyModal.jsx` (Find Facility), `PatientDashboard.jsx` | Public / All Authenticated | `test/emergency-mode.test.js`: Test 4 |
@@ -43,8 +44,8 @@ This document maps every requirement from the **Product Requirements Document (P
 | `ASSIGNED` → `ACCEPTED` | Assigned Ambulance Driver | Backend `requests.js` | `ACCEPTED` | Ambulance status transitions to `ON_DUTY`; Driver trip state transitions to `On the Way` |
 | `ASSIGNED` → `REJECTED` | Assigned Ambulance Driver | Backend `requests.js` | `REJECTED` | Enforces mandatory `responseNotes` / `reason` (rejects empty with 400) |
 | `ACCEPTED` → `COMPLETED` | Assigned Ambulance / Hospital | Backend `requests.js` | `COMPLETED` | Ambulance status transitions back to `AVAILABLE`; request becomes immutable terminal state |
-| `REJECTED` → `ASSIGNED` | Admin (Triage to Doctor) | Backend `admin.js` | `ASSIGNED` | Escalated to System Doctor for alternative routing |
-| `ASSIGNED` → `RESOLVED` | Assigned System Doctor | Backend `doctor.js` | `RESOLVED` | Immutable terminal resolution with doctor override notes |
+| `REJECTED` → `ASSIGNED` | Admin (Triage to Doctor) | Backend `admin.js` | `ASSIGNED` | Escalated to System Doctor for alternative routing; records `assignedDoctorId`, `assignedAt`, audit trail |
+| `ASSIGNED` → `RESOLVED` | Assigned System Doctor | Backend `doctor.js` | `RESOLVED` | Immutable terminal resolution with alternative facility re-routing, `resolutionNotes`, audit trail (Wrong doctor forbidden 403) |
 
 ---
 
@@ -58,6 +59,7 @@ This document maps every requirement from the **Product Requirements Document (P
 | **Phase 4 Hospital Resources & Blood** | `backend/test/hospital-resources-blood.test.js` | 22 Passed | Resource Telemetry, Blood Bank 8 Groups Stock, Smart Blood Matcher, Clamp Guards, Atomic Decrements |
 | **Phase 5 Ambulance Tracking** | `backend/test/ambulance-tracking.test.js` | 22 Passed | Fleet Listing, Availability Toggle, Nearest Unit Auto-Dispatch, Unavailable Assignment Guard, Driver RBAC, Mandatory Rejection Reason, GPS Telemetry, Immutability |
 | **Phase 6 Emergency Mode** | `backend/test/emergency-mode.test.js` | 16 Passed | 4 Major Actions, Emergency Ambulance Auto-Dispatch, Smart Blood Matcher, Facility Filters (Hospital/Clinic/Blood Bank & ICU/Beds/Vents/O2), 7-Step Visual Timeline, Non-Diagnostic Safety Guard |
-| **Total Test Coverage** | **All Suites** | **116 Passed, 0 Failed** | **100% Comprehensive Coverage across PRD & INF Workflows** |
+| **Phase 7 Admin & Doctor Escalation** | `backend/test/escalation.test.js` | 43 Passed | Macro Metrics, Network Filters, REJECTED → ASSIGNED Escalation, Doctor Isolation, Wrong-Doctor 403, ASSIGNED → RESOLVED Alternative Facility Re-routing, Terminal Immutability, Audit Trail |
+| **Total Test Coverage** | **All 7 Suites** | **159 Passed, 0 Failed** | **100% Comprehensive Coverage across PRD & INF Workflows** |
 
 

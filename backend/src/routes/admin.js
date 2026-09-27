@@ -23,25 +23,79 @@ router.get('/system-doctors', (req, res) => {
   res.json({ doctors, count: doctors.length });
 });
 
-// Macro request overview & triage queue
+// Macro request overview & triage queue with rich filters
 router.get('/patient-requests', (req, res) => {
-  const requests = store.get('requests');
-  const rejectedRequests = requests.filter((r) => r.status === 'REJECTED');
-  const pendingRequests = requests.filter((r) => r.status === 'PENDING');
-  const escalatedRequests = requests.filter((r) => r.status === 'ASSIGNED' && r.assignedDoctorId);
-  const resolvedRequests = requests.filter((r) => r.status === 'RESOLVED');
+  const { status, priority, type, requestType, hospitalId, hospital, date } = req.query;
+  const hospitals = store.get('hospitals');
+  const ambulances = store.get('ambulances');
+  let requests = store.get('requests');
+
+  // Compute metrics across entire network
+  const totalHospitals = hospitals.length;
+  const activeAmbulances = ambulances.filter(
+    (a) => (a.status || '').toUpperCase().replace(' ', '_') === 'AVAILABLE' || (a.status || '').toUpperCase().replace(' ', '_') === 'ON_DUTY'
+  ).length;
+  const activeRequests = requests.filter((r) => ['PENDING', 'ASSIGNED', 'ACCEPTED'].includes(r.status)).length;
+  const pendingRequests = requests.filter((r) => r.status === 'PENDING').length;
+  const rejectedRequests = requests.filter((r) => r.status === 'REJECTED').length;
+  const unresolvedRequests = requests.filter(
+    (r) => r.status === 'REJECTED' || (r.status === 'ASSIGNED' && r.assignedDoctorId)
+  ).length;
+  const emergencyRequests = requests.filter(
+    (r) => r.priority === 'EMERGENCY' || r.priority === 'CRITICAL' || r.type === 'AMBULANCE'
+  ).length;
+
+  // Apply filters for the network requests table
+  if (status) {
+    requests = requests.filter((r) => r.status === status.toUpperCase());
+  }
+
+  if (priority) {
+    requests = requests.filter((r) => r.priority === priority.toUpperCase());
+  }
+
+  const reqType = type || requestType;
+  if (reqType) {
+    requests = requests.filter((r) => r.type === reqType.toUpperCase());
+  }
+
+  const hosp = hospitalId || hospital;
+  if (hosp) {
+    requests = requests.filter(
+      (r) => r.targetHospitalId === hosp || r.sourceHospitalId === hosp || r.targetHospitalName?.toLowerCase().includes(hosp.toLowerCase())
+    );
+  }
+
+  if (date) {
+    requests = requests.filter((r) => (r.createdAt || '').startsWith(date));
+  }
+
+  // Sort newest first
+  requests.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   res.json({
     summary: {
-      totalRequests: requests.length,
-      rejectedCount: rejectedRequests.length,
-      pendingCount: pendingRequests.length,
-      escalatedCount: escalatedRequests.length,
-      resolvedCount: resolvedRequests.length
+      totalHospitals,
+      activeAmbulances,
+      activeRequests,
+      pendingRequests,
+      rejectedRequests,
+      unresolvedRequests,
+      emergencyRequests,
+      totalRequests: store.get('requests').length,
+      rejectedCount: rejectedRequests,
+      pendingCount: pendingRequests,
+      escalatedCount: store.get('requests').filter((r) => r.status === 'ASSIGNED' && r.assignedDoctorId).length,
+      resolvedCount: store.get('requests').filter((r) => r.status === 'RESOLVED').length
     },
     allRequests: requests,
-    unresolvedQueue: rejectedRequests
+    unresolvedQueue: store.get('requests').filter((r) => r.status === 'REJECTED')
   });
+});
+
+// Alias for PRD route
+router.get('/network-requests', (req, res) => {
+  res.redirect(307, '/api/admin/patient-requests');
 });
 
 // Assign rejected request to System Doctor (Triage Escalation)
@@ -63,16 +117,20 @@ router.post('/requests/:requestId/assign', (req, res) => {
     return res.status(404).json({ error: 'Request not found.' });
   }
 
+  const oldStatus = request.status;
+  const assignedAt = new Date().toISOString();
+
   const updates = {
     status: 'ASSIGNED',
     assignedDoctorId: doctor.id,
     assignedDoctorName: doctor.name,
+    assignedAt,
     triageNotes: triageNotes || 'Escalated by Admin for System Doctor conflict resolution & alternative facility routing.',
     timeline: [
       ...(request.timeline || []),
       {
         status: 'ASSIGNED',
-        timestamp: new Date().toISOString(),
+        timestamp: assignedAt,
         actorRole: 'ADMIN',
         actorName: req.user.name,
         note: `Admin escalated rejected request to System Doctor ${doctor.name}. Notes: ${triageNotes || 'Priority triage'}`
@@ -91,7 +149,14 @@ router.post('/requests/:requestId/assign', (req, res) => {
     action: 'ESCALATE_TO_SYSTEM_DOCTOR',
     resourceType: request.type,
     resourceId: requestId,
-    details: { assignedDoctorId: doctor.id, doctorName: doctor.name, triageNotes }
+    details: {
+      oldStatus,
+      newStatus: 'ASSIGNED',
+      assignedDoctorId: doctor.id,
+      doctorName: doctor.name,
+      assignedAt,
+      triageNotes: updates.triageNotes
+    }
   });
 
   res.json({

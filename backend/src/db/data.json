@@ -5,7 +5,7 @@
       "name": "Aarav Sharma",
       "email": "aarav@example.com",
       "phone": "9876543210",
-      "password": "$2a$10$Xvu/ISupd256/ZYT18zd/O1wYPWByvKtGvDilpYEZA.SwwWT.3qIa",
+      "password": "$2a$10$l0aYY01a6cs8uz.7w5y2ru.aCACDHTeR60KzSJClCUK9Eg1encGW6",
       "role": "PATIENT",
       "bloodGroup": "B+",
       "emergencyContact": "Pooja Sharma (9876543211)",
@@ -17,7 +17,7 @@
       "name": "Sneha Patil",
       "email": "sneha@example.com",
       "phone": "9876543222",
-      "password": "$2a$10$3ImvyDQT2ZiXAYE6oJQ/fOXM1pKBHm771vmBNICjHR.9ssTulOF1W",
+      "password": "$2a$10$HYqnGLjakpvzBdVk3fv.MOKDtt3wTMVs2my1crOaJyur8nPb2Qdt6",
       "role": "PATIENT",
       "bloodGroup": "O-",
       "emergencyContact": "Ramesh Patil (9876543223)",
@@ -29,7 +29,7 @@
       "name": "Ruby Hall Clinic Admin",
       "email": "rubyhall@medilink.org",
       "phone": "02066455100",
-      "password": "$2a$10$veSJ1hYT.S5Gt/FP4SHfJ.wprRPPJo9/iz4i6/h.aazDOUrDyNEfe",
+      "password": "$2a$10$FzzPPq48.guWyQVx5.yxzuTiadbsqYga1ONfr4Wr2LJn475wuScve",
       "role": "HOSPITAL",
       "hospitalId": "hosp_ruby_hall",
       "address": "40 Sassoon Road, Sangamvadi, Pune 411001",
@@ -40,7 +40,7 @@
       "name": "KEM Hospital Admin",
       "email": "kem@medilink.org",
       "phone": "02066037300",
-      "password": "$2a$10$i1SlJyFVKIcexLaFHxadTuqfzWeW/6fY6iE4sJNu9WpDc8yqgJzWK",
+      "password": "$2a$10$lvzuf7ygssiDKIM3ngEGI./0tRcDgznd1xrZYKrBDeY.5HuzgEMle",
       "role": "HOSPITAL",
       "hospitalId": "hosp_kem_pune",
       "address": "489 Rasta Peth, Sardar Moodliar Road, Pune 411011",
@@ -51,7 +51,7 @@
       "name": "Sahyadri Super Speciality Admin",
       "email": "sahyadri@medilink.org",
       "phone": "02067213000",
-      "password": "$2a$10$JsJ8J/XJD8eRyAyfMpJcR.0Bw7HSYiKtXHuFrlMBTF0ye/6.zUICu",
+      "password": "$2a$10$5YAaBkIHnwn.7xNzlUdQnOoOMOCdJUY/jhcMM/ldqyGkqYcDmEkm2",
       "role": "HOSPITAL",
       "hospitalId": "hosp_sahyadri",
       "address": "Deccan Gymkhana, Karve Road, Pune 411004",
@@ -62,7 +62,7 @@
       "name": "Santosh Shinde",
       "email": "driver1@medilink.org",
       "phone": "9822012345",
-      "password": "$2a$10$l6fH5hnaGu32IqrJqVWmN.NxMwGJpNqMvhoyPW9B4aaD2.6LwrOv2",
+      "password": "$2a$10$kUKgR3L0GPZVCSeoFI2wpuqoiWucxIUuFmmBSSvvqROc7vqeAQCNe",
       "role": "AMBULANCE",
       "ambulanceId": "amb_pune_101",
       "hospitalId": "hosp_ruby_hall",
@@ -74,7 +74,7 @@
       "name": "Vijay Gaikwad",
       "email": "driver2@medilink.org",
       "phone": "9822056789",
-      "password": "$2a$10$JTo5mJ4JjFtw95ap5Ha9Seujs4.p//I.Wt/evXniURTJE9yaBvLh6",
+      "password": "$2a$10$rLx0nJt4d6MMieabPdxnF.7SByQ9OhffkuAEJnmbOVIt.YpQv34Qa",
       "role": "AMBULANCE",
       "ambulanceId": "amb_pune_102",
       "hospitalId": "hosp_kem_pune",
@@ -86,7 +86,7 @@
       "name": "State Health Command Admin",
       "email": "admin@medilink.gov.in",
       "phone": "02025550000",
-      "password": "$2a$10$AcC1re5lM8TWNGzl19FHLOWDEoj1zHtiRuDmJprSptDWHBV0g8ISO",
+      "password": "$2a$10$bZpihOhTUBv.0Tp8CXxnkeQfeMcEFP.WVjVfv7n1VIvyfmt0AfpmC",
       "role": "ADMIN",
       "createdAt": "2026-01-01T00:00:00.000Z"
     },
@@ -95,7 +95,7 @@
       "name": "Dr. Anand Joshi",
       "email": "dr.joshi@medilink.gov.in",
       "phone": "9422011223",
-      "password": "$2a$10$ffMph7sK3lnFIUBXKRJ/6u8TcaMlyLx2cldUxaiO5XcZ/95i0GAdm",
+      "password": "$2a$10$etwKEpGVQ5RDL1CoyrrXeeiQHESlPrO9A0Fe1wLsi6ht3OFM/Rgua",
       "role": "SYSTEM_DOCTOR",
       "specialty": "Emergency Medicine & Triage Specialist",
       "hospitalId": "hosp_ruby_hall",
@@ -106,7 +106,7 @@
       "name": "Dr. Meera Kulkarni",
       "email": "dr.kulkarni@medilink.gov.in",
       "phone": "9422044556",
-      "password": "$2a$10$C7Fgh0LliJybkOFOcCdrRe16TVdoLB8ZngJQA1WyNNuFedsbEXWtu",
+      "password": "$2a$10$zDw6GjS6EgQBWrjC2fKwAOOnNFn4jaxIiXlUMxtQT8PwDNskj9hiq",
       "role": "SYSTEM_DOCTOR",
       "specialty": "Critical Care & Resource Coordinator",
       "hospitalId": "hosp_sahyadri",
@@ -394,7 +394,7 @@
       },
       "isSimulatedGps": true,
       "currentRequestId": null,
-      "updatedAt": "2026-09-27T09:25:24.828Z"
+      "updatedAt": "2026-09-27T12:00:00.000Z"
     },
     {
       "id": "amb_pune_102",
@@ -542,6 +542,42 @@
   ],
   "requests": [
     {
+      "id": "req_h2h_904",
+      "type": "H2H_TRANSFER",
+      "patientId": "usr_patient_2",
+      "patientName": "Sneha Patil",
+      "patientPhone": "9876543222",
+      "sourceHospitalId": "hosp_kem_pune",
+      "sourceHospitalName": "KEM Hospital & Research Centre",
+      "targetHospitalId": "hosp_sahyadri",
+      "targetHospitalName": "Sahyadri Super Speciality Hospital",
+      "assignedAmbulanceId": null,
+      "assignedAmbulanceVehicle": null,
+      "assignedDoctorId": null,
+      "assignedDoctorName": null,
+      "status": "PENDING",
+      "ambulanceTripStatus": null,
+      "priority": "URGENT",
+      "details": {
+        "reason": "Specialized Nephrology & Dialysis transfer request",
+        "bedType": "ICU",
+        "transferNotes": "Patient stabilized. Dialysis unit required."
+      },
+      "responseNotes": "",
+      "resolutionNotes": "",
+      "timeline": [
+        {
+          "status": "PENDING",
+          "timestamp": "2026-09-27T13:10:00.000Z",
+          "actorRole": "HOSPITAL",
+          "actorName": "KEM Hospital Admin",
+          "note": "Initiated Hospital-to-Hospital transfer request to Sahyadri Super Speciality."
+        }
+      ],
+      "createdAt": "2026-09-27T13:10:00.000Z",
+      "updatedAt": "2026-09-27T13:10:00.000Z"
+    },
+    {
       "id": "req_amb_901",
       "type": "AMBULANCE",
       "patientId": "usr_patient_1",
@@ -602,49 +638,6 @@
       "updatedAt": "2026-09-27T13:02:15.000Z"
     },
     {
-      "id": "req_adm_902",
-      "type": "ADMISSION",
-      "patientId": "usr_patient_2",
-      "patientName": "Sneha Patil",
-      "patientPhone": "9876543222",
-      "sourceHospitalId": null,
-      "sourceHospitalName": null,
-      "targetHospitalId": "hosp_kem_pune",
-      "targetHospitalName": "KEM Hospital & Research Centre",
-      "assignedAmbulanceId": null,
-      "assignedAmbulanceVehicle": null,
-      "assignedDoctorId": null,
-      "assignedDoctorName": null,
-      "status": "REJECTED",
-      "ambulanceTripStatus": null,
-      "priority": "EMERGENCY",
-      "details": {
-        "bedType": "ICU",
-        "reason": "Trauma ICU bed requirement post road accident",
-        "urgency": "Immediate"
-      },
-      "responseNotes": "ICU capacity fully booked at time of request. Only general beds available.",
-      "resolutionNotes": "",
-      "timeline": [
-        {
-          "status": "PENDING",
-          "timestamp": "2026-09-27T11:00:00.000Z",
-          "actorRole": "PATIENT",
-          "actorName": "Sneha Patil",
-          "note": "Urgent ICU admission requested at KEM Hospital."
-        },
-        {
-          "status": "REJECTED",
-          "timestamp": "2026-09-27T11:15:00.000Z",
-          "actorRole": "HOSPITAL",
-          "actorName": "KEM Hospital Admin",
-          "note": "ICU capacity fully booked at time of request. Only general beds available."
-        }
-      ],
-      "createdAt": "2026-09-27T11:00:00.000Z",
-      "updatedAt": "2026-09-27T11:15:00.000Z"
-    },
-    {
       "id": "req_bld_903",
       "type": "BLOOD",
       "patientId": "usr_patient_1",
@@ -683,145 +676,67 @@
       "updatedAt": "2026-09-27T12:30:00.000Z"
     },
     {
-      "id": "req_h2h_904",
-      "type": "H2H_TRANSFER",
+      "id": "req_adm_902",
+      "type": "ADMISSION",
       "patientId": "usr_patient_2",
       "patientName": "Sneha Patil",
       "patientPhone": "9876543222",
-      "sourceHospitalId": "hosp_kem_pune",
-      "sourceHospitalName": "KEM Hospital & Research Centre",
-      "targetHospitalId": "hosp_sahyadri",
-      "targetHospitalName": "Sahyadri Super Speciality Hospital",
-      "assignedAmbulanceId": null,
-      "assignedAmbulanceVehicle": null,
-      "assignedDoctorId": null,
-      "assignedDoctorName": null,
-      "status": "PENDING",
-      "ambulanceTripStatus": null,
-      "priority": "URGENT",
-      "details": {
-        "reason": "Specialized Nephrology & Dialysis transfer request",
-        "bedType": "ICU",
-        "transferNotes": "Patient stabilized. Dialysis unit required."
-      },
-      "responseNotes": "",
-      "resolutionNotes": "",
-      "timeline": [
-        {
-          "status": "PENDING",
-          "timestamp": "2026-09-27T13:10:00.000Z",
-          "actorRole": "HOSPITAL",
-          "actorName": "KEM Hospital Admin",
-          "note": "Initiated Hospital-to-Hospital transfer request to Sahyadri Super Speciality."
-        }
-      ],
-      "createdAt": "2026-09-27T13:10:00.000Z",
-      "updatedAt": "2026-09-27T13:10:00.000Z"
-    },
-    {
-      "id": "req_ambulance_1790501124797",
-      "type": "AMBULANCE",
-      "patientId": "usr_patient_1",
-      "patientName": "Aarav Sharma",
-      "patientPhone": "9876543210",
       "sourceHospitalId": null,
       "sourceHospitalName": null,
-      "targetHospitalId": "hosp_ruby_hall",
-      "targetHospitalName": "Ruby Hall Clinic",
-      "assignedAmbulanceId": "amb_pune_101",
-      "assignedAmbulanceVehicle": "MH-12-CR-1011",
-      "assignedDoctorId": null,
-      "assignedDoctorName": null,
-      "status": "COMPLETED",
-      "ambulanceTripStatus": "Completed",
-      "priority": "CRITICAL",
-      "details": {
-        "latitude": 18.5314,
-        "longitude": 73.8765,
-        "requiresOxygen": true,
-        "administrativeNote": "Severe respiratory distress, immediate transport required",
-        "location": "Sangamvadi / Pune Station (18.5314, 73.8765)",
-        "urgency": "CRITICAL"
-      },
-      "responseNotes": "Driver confirmed emergency pickup. Moving to scene.",
-      "resolutionNotes": "",
-      "timeline": [
-        {
-          "status": "ASSIGNED",
-          "timestamp": "2026-09-27T09:25:24.797Z",
-          "actorRole": "PATIENT",
-          "actorName": "Aarav Sharma",
-          "note": "Request initiated by Aarav Sharma (PATIENT)."
-        },
-        {
-          "status": "ACCEPTED",
-          "timestamp": "2026-09-27T09:25:24.817Z",
-          "actorRole": "AMBULANCE",
-          "actorName": "Santosh Shinde",
-          "note": "Driver confirmed emergency pickup. Moving to scene."
-        },
-        {
-          "status": "ACCEPTED",
-          "timestamp": "2026-09-27T09:25:24.821Z",
-          "actorRole": "AMBULANCE",
-          "actorName": "Santosh Shinde",
-          "note": "Driver confirmed emergency pickup. Moving to scene."
-        },
-        {
-          "status": "ACCEPTED",
-          "timestamp": "2026-09-27T09:25:24.825Z",
-          "actorRole": "AMBULANCE",
-          "actorName": "Santosh Shinde",
-          "note": "Driver confirmed emergency pickup. Moving to scene."
-        },
-        {
-          "status": "COMPLETED",
-          "timestamp": "2026-09-27T09:25:24.829Z",
-          "actorRole": "AMBULANCE",
-          "actorName": "Santosh Shinde",
-          "note": "Driver confirmed emergency pickup. Moving to scene."
-        }
-      ],
-      "createdAt": "2026-09-27T09:25:24.797Z",
-      "updatedAt": "2026-09-27T09:25:24.829Z"
-    },
-    {
-      "id": "req_blood_1790501124805",
-      "type": "BLOOD",
-      "patientId": "usr_patient_1",
-      "patientName": "Aarav Sharma",
-      "patientPhone": "9876543210",
-      "sourceHospitalId": null,
-      "sourceHospitalName": null,
-      "targetHospitalId": "hosp_jehangir",
-      "targetHospitalName": "Jehangir Hospital",
+      "targetHospitalId": "hosp_kem_pune",
+      "targetHospitalName": "KEM Hospital & Research Centre",
       "assignedAmbulanceId": null,
       "assignedAmbulanceVehicle": null,
-      "assignedDoctorId": null,
-      "assignedDoctorName": null,
-      "status": "PENDING",
+      "assignedDoctorId": "usr_doc_1",
+      "assignedDoctorName": "Dr. Anand Joshi",
+      "status": "RESOLVED",
       "ambulanceTripStatus": null,
       "priority": "EMERGENCY",
       "details": {
-        "bloodGroup": "B+",
-        "unitsRequired": 3,
-        "location": "Pune Central",
-        "urgency": "CRITICAL",
-        "administrativeNote": "Direct emergency blood requisition for 3 units of B+ at Jehangir Hospital."
+        "bedType": "ICU",
+        "reason": "Trauma ICU bed requirement post road accident",
+        "urgency": "Immediate"
       },
-      "responseNotes": "",
-      "resolutionNotes": "",
+      "responseNotes": "ICU capacity fully booked at time of request. Only general beds available.",
+      "resolutionNotes": "Verified bed inventory at KEM Hospital Pune. Allocated Bed ICU-04 under Dr. Kulkarni.",
       "timeline": [
         {
           "status": "PENDING",
-          "timestamp": "2026-09-27T09:25:24.805Z",
+          "timestamp": "2026-09-27T11:00:00.000Z",
           "actorRole": "PATIENT",
-          "actorName": "Aarav Sharma",
-          "note": "Request initiated by Aarav Sharma (PATIENT)."
+          "actorName": "Sneha Patil",
+          "note": "Urgent ICU admission requested at KEM Hospital."
+        },
+        {
+          "status": "REJECTED",
+          "timestamp": "2026-09-27T11:15:00.000Z",
+          "actorRole": "HOSPITAL",
+          "actorName": "KEM Hospital Admin",
+          "note": "ICU capacity fully booked at time of request. Only general beds available."
+        },
+        {
+          "status": "ASSIGNED",
+          "timestamp": "2026-09-27T09:37:07.135Z",
+          "actorRole": "ADMIN",
+          "actorName": "State Health Command Admin",
+          "note": "Admin escalated rejected request to System Doctor Dr. Anand Joshi. Notes: Urgent ICU bed re-routing required for critical post-cardiac patient."
+        },
+        {
+          "status": "RESOLVED",
+          "timestamp": "2026-09-27T09:37:07.145Z",
+          "actorRole": "SYSTEM_DOCTOR",
+          "actorName": "Dr. Anand Joshi",
+          "note": "Resolved by System Doctor Dr. Anand Joshi: Re-routed to KEM Hospital & Research Centre. Notes: Verified bed inventory at KEM Hospital Pune. Allocated Bed ICU-04 under Dr. Kulkarni."
         }
       ],
-      "createdAt": "2026-09-27T09:25:24.805Z",
-      "updatedAt": "2026-09-27T09:25:24.805Z"
+      "createdAt": "2026-09-27T11:00:00.000Z",
+      "updatedAt": "2026-09-27T09:37:07.145Z",
+      "assignedAt": "2026-09-27T09:37:07.135Z",
+      "triageNotes": "Urgent ICU bed re-routing required for critical post-cardiac patient.",
+      "resolvedByDoctorId": "usr_doc_1",
+      "resolvedByDoctorName": "Dr. Anand Joshi",
+      "resolvedAt": "2026-09-27T09:37:07.145Z",
+      "reallocatedFacility": "KEM Hospital & Research Centre"
     }
   ],
   "auditLogs": [
@@ -859,47 +774,8 @@
       "details": "Driver accepted trip. Set trip status to ON_THE_WAY"
     },
     {
-      "id": "log_1790501124513_fytx",
-      "timestamp": "2026-09-27T09:25:24.513Z",
-      "actorId": "usr_patient_1",
-      "actorName": "Aarav Sharma",
-      "actorRole": "PATIENT",
-      "action": "USER_LOGIN",
-      "resourceType": "AUTH",
-      "resourceId": "usr_patient_1",
-      "details": "User Aarav Sharma logged in successfully as PATIENT",
-      "createdAt": "2026-09-27T09:25:24.514Z",
-      "updatedAt": "2026-09-27T09:25:24.514Z"
-    },
-    {
-      "id": "log_1790501124612_v4ys",
-      "timestamp": "2026-09-27T09:25:24.612Z",
-      "actorId": "usr_hosp_1",
-      "actorName": "Ruby Hall Clinic Admin",
-      "actorRole": "HOSPITAL",
-      "action": "USER_LOGIN",
-      "resourceType": "AUTH",
-      "resourceId": "usr_hosp_1",
-      "details": "User Ruby Hall Clinic Admin logged in successfully as HOSPITAL",
-      "createdAt": "2026-09-27T09:25:24.612Z",
-      "updatedAt": "2026-09-27T09:25:24.612Z"
-    },
-    {
-      "id": "log_1790501124694_8n79",
-      "timestamp": "2026-09-27T09:25:24.694Z",
-      "actorId": "usr_amb_1",
-      "actorName": "Santosh Shinde",
-      "actorRole": "AMBULANCE",
-      "action": "USER_LOGIN",
-      "resourceType": "AUTH",
-      "resourceId": "usr_amb_1",
-      "details": "User Santosh Shinde logged in successfully as AMBULANCE",
-      "createdAt": "2026-09-27T09:25:24.694Z",
-      "updatedAt": "2026-09-27T09:25:24.694Z"
-    },
-    {
-      "id": "log_1790501124789_kohy",
-      "timestamp": "2026-09-27T09:25:24.789Z",
+      "id": "log_1790501826692_lgzx",
+      "timestamp": "2026-09-27T09:37:06.692Z",
       "actorId": "usr_admin",
       "actorName": "State Health Command Admin",
       "actorRole": "ADMIN",
@@ -907,86 +783,112 @@
       "resourceType": "AUTH",
       "resourceId": "usr_admin",
       "details": "User State Health Command Admin logged in successfully as ADMIN",
-      "createdAt": "2026-09-27T09:25:24.789Z",
-      "updatedAt": "2026-09-27T09:25:24.789Z"
+      "createdAt": "2026-09-27T09:37:06.694Z",
+      "updatedAt": "2026-09-27T09:37:06.694Z"
     },
     {
-      "id": "log_1790501124800_q47p",
-      "timestamp": "2026-09-27T09:25:24.800Z",
+      "id": "log_1790501826826_tjic",
+      "timestamp": "2026-09-27T09:37:06.826Z",
+      "actorId": "usr_doc_1",
+      "actorName": "Dr. Anand Joshi",
+      "actorRole": "SYSTEM_DOCTOR",
+      "action": "USER_LOGIN",
+      "resourceType": "AUTH",
+      "resourceId": "usr_doc_1",
+      "details": "User Dr. Anand Joshi logged in successfully as SYSTEM_DOCTOR",
+      "createdAt": "2026-09-27T09:37:06.826Z",
+      "updatedAt": "2026-09-27T09:37:06.826Z"
+    },
+    {
+      "id": "log_1790501826917_umug",
+      "timestamp": "2026-09-27T09:37:06.917Z",
+      "actorId": "usr_doc_2",
+      "actorName": "Dr. Meera Kulkarni",
+      "actorRole": "SYSTEM_DOCTOR",
+      "action": "USER_LOGIN",
+      "resourceType": "AUTH",
+      "resourceId": "usr_doc_2",
+      "details": "User Dr. Meera Kulkarni logged in successfully as SYSTEM_DOCTOR",
+      "createdAt": "2026-09-27T09:37:06.917Z",
+      "updatedAt": "2026-09-27T09:37:06.917Z"
+    },
+    {
+      "id": "log_1790501827025_yf1e",
+      "timestamp": "2026-09-27T09:37:07.025Z",
       "actorId": "usr_patient_1",
       "actorName": "Aarav Sharma",
       "actorRole": "PATIENT",
-      "action": "CREATE_REQUEST",
-      "resourceType": "AMBULANCE",
-      "resourceId": "req_ambulance_1790501124797",
-      "details": "{\"id\":\"req_ambulance_1790501124797\",\"type\":\"AMBULANCE\",\"patientId\":\"usr_patient_1\",\"patientName\":\"Aarav Sharma\",\"patientPhone\":\"9876543210\",\"sourceHospitalId\":null,\"sourceHospitalName\":null,\"targetHospitalId\":\"hosp_ruby_hall\",\"targetHospitalName\":\"Ruby Hall Clinic\",\"assignedAmbulanceId\":\"amb_pune_101\",\"assignedAmbulanceVehicle\":\"MH-12-CR-1011\",\"assignedDoctorId\":null,\"assignedDoctorName\":null,\"status\":\"ASSIGNED\",\"ambulanceTripStatus\":\"Pending\",\"priority\":\"CRITICAL\",\"details\":{\"latitude\":18.5314,\"longitude\":73.8765,\"requiresOxygen\":true,\"administrativeNote\":\"Severe respiratory distress, immediate transport required\",\"location\":\"Sangamvadi / Pune Station (18.5314, 73.8765)\",\"urgency\":\"CRITICAL\"},\"responseNotes\":\"\",\"resolutionNotes\":\"\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T09:25:24.797Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"}],\"createdAt\":\"2026-09-27T09:25:24.797Z\",\"updatedAt\":\"2026-09-27T09:25:24.797Z\"}",
-      "createdAt": "2026-09-27T09:25:24.800Z",
-      "updatedAt": "2026-09-27T09:25:24.800Z"
+      "action": "USER_LOGIN",
+      "resourceType": "AUTH",
+      "resourceId": "usr_patient_1",
+      "details": "User Aarav Sharma logged in successfully as PATIENT",
+      "createdAt": "2026-09-27T09:37:07.025Z",
+      "updatedAt": "2026-09-27T09:37:07.025Z"
     },
     {
-      "id": "log_1790501124806_sea4",
-      "timestamp": "2026-09-27T09:25:24.806Z",
+      "id": "log_1790501827123_gixc",
+      "timestamp": "2026-09-27T09:37:07.123Z",
+      "actorId": "usr_hosp_1",
+      "actorName": "Ruby Hall Clinic Admin",
+      "actorRole": "HOSPITAL",
+      "action": "USER_LOGIN",
+      "resourceType": "AUTH",
+      "resourceId": "usr_hosp_1",
+      "details": "User Ruby Hall Clinic Admin logged in successfully as HOSPITAL",
+      "createdAt": "2026-09-27T09:37:07.123Z",
+      "updatedAt": "2026-09-27T09:37:07.123Z"
+    },
+    {
+      "id": "log_1790501827136_5gah",
+      "timestamp": "2026-09-27T09:37:07.136Z",
+      "actorId": "usr_admin",
+      "actorName": "State Health Command Admin",
+      "actorRole": "ADMIN",
+      "action": "ESCALATE_TO_SYSTEM_DOCTOR",
+      "resourceType": "ADMISSION",
+      "resourceId": "req_adm_902",
+      "details": "{\"oldStatus\":\"REJECTED\",\"newStatus\":\"ASSIGNED\",\"assignedDoctorId\":\"usr_doc_1\",\"doctorName\":\"Dr. Anand Joshi\",\"assignedAt\":\"2026-09-27T09:37:07.135Z\",\"triageNotes\":\"Urgent ICU bed re-routing required for critical post-cardiac patient.\"}",
+      "createdAt": "2026-09-27T09:37:07.136Z",
+      "updatedAt": "2026-09-27T09:37:07.136Z"
+    },
+    {
+      "id": "log_1790501827142_xk51",
+      "timestamp": "2026-09-27T09:37:07.142Z",
+      "actorId": "usr_hosp_1",
+      "actorName": "Ruby Hall Clinic Admin",
+      "actorRole": "HOSPITAL",
+      "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+      "resourceType": "API_ENDPOINT",
+      "resourceId": "/api/doctor/requests/req_adm_902/resolve",
+      "details": "Role HOSPITAL attempted to access restricted endpoint requiring [SYSTEM_DOCTOR, ADMIN]",
+      "createdAt": "2026-09-27T09:37:07.142Z",
+      "updatedAt": "2026-09-27T09:37:07.142Z"
+    },
+    {
+      "id": "log_1790501827143_2k91",
+      "timestamp": "2026-09-27T09:37:07.143Z",
       "actorId": "usr_patient_1",
       "actorName": "Aarav Sharma",
       "actorRole": "PATIENT",
-      "action": "CREATE_REQUEST",
-      "resourceType": "BLOOD",
-      "resourceId": "req_blood_1790501124805",
-      "details": "{\"id\":\"req_blood_1790501124805\",\"type\":\"BLOOD\",\"patientId\":\"usr_patient_1\",\"patientName\":\"Aarav Sharma\",\"patientPhone\":\"9876543210\",\"sourceHospitalId\":null,\"sourceHospitalName\":null,\"targetHospitalId\":\"hosp_jehangir\",\"targetHospitalName\":\"Jehangir Hospital\",\"assignedAmbulanceId\":null,\"assignedAmbulanceVehicle\":null,\"assignedDoctorId\":null,\"assignedDoctorName\":null,\"status\":\"PENDING\",\"ambulanceTripStatus\":null,\"priority\":\"EMERGENCY\",\"details\":{\"bloodGroup\":\"B+\",\"unitsRequired\":3,\"location\":\"Pune Central\",\"urgency\":\"CRITICAL\",\"administrativeNote\":\"Direct emergency blood requisition for 3 units of B+ at Jehangir Hospital.\"},\"responseNotes\":\"\",\"resolutionNotes\":\"\",\"timeline\":[{\"status\":\"PENDING\",\"timestamp\":\"2026-09-27T09:25:24.805Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"}],\"createdAt\":\"2026-09-27T09:25:24.805Z\",\"updatedAt\":\"2026-09-27T09:25:24.805Z\"}",
-      "createdAt": "2026-09-27T09:25:24.806Z",
-      "updatedAt": "2026-09-27T09:25:24.806Z"
+      "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+      "resourceType": "API_ENDPOINT",
+      "resourceId": "/api/doctor/requests",
+      "details": "Role PATIENT attempted to access restricted endpoint requiring [SYSTEM_DOCTOR, ADMIN]",
+      "createdAt": "2026-09-27T09:37:07.144Z",
+      "updatedAt": "2026-09-27T09:37:07.144Z"
     },
     {
-      "id": "log_1790501124818_3lt4",
-      "timestamp": "2026-09-27T09:25:24.818Z",
-      "actorId": "usr_amb_1",
-      "actorName": "Santosh Shinde",
-      "actorRole": "AMBULANCE",
-      "action": "UPDATE_REQUEST_STATUS",
-      "resourceType": "AMBULANCE",
-      "resourceId": "req_ambulance_1790501124797",
-      "details": "{\"from\":\"ASSIGNED\",\"to\":\"ACCEPTED\",\"updates\":{\"status\":\"ACCEPTED\",\"responseNotes\":\"Driver confirmed emergency pickup. Moving to scene.\",\"ambulanceTripStatus\":\"On the Way\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T09:25:24.797Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:25:24.817Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"Driver confirmed emergency pickup. Moving to scene.\"}]}}",
-      "createdAt": "2026-09-27T09:25:24.818Z",
-      "updatedAt": "2026-09-27T09:25:24.818Z"
-    },
-    {
-      "id": "log_1790501124822_vl6d",
-      "timestamp": "2026-09-27T09:25:24.822Z",
-      "actorId": "usr_amb_1",
-      "actorName": "Santosh Shinde",
-      "actorRole": "AMBULANCE",
-      "action": "UPDATE_REQUEST_STATUS",
-      "resourceType": "AMBULANCE",
-      "resourceId": "req_ambulance_1790501124797",
-      "details": "{\"from\":\"ACCEPTED\",\"to\":\"ACCEPTED\",\"updates\":{\"status\":\"ACCEPTED\",\"responseNotes\":\"Driver confirmed emergency pickup. Moving to scene.\",\"ambulanceTripStatus\":\"On the Way\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T09:25:24.797Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:25:24.817Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"Driver confirmed emergency pickup. Moving to scene.\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:25:24.821Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"Driver confirmed emergency pickup. Moving to scene.\"}]}}",
-      "createdAt": "2026-09-27T09:25:24.822Z",
-      "updatedAt": "2026-09-27T09:25:24.822Z"
-    },
-    {
-      "id": "log_1790501124826_1ybd",
-      "timestamp": "2026-09-27T09:25:24.826Z",
-      "actorId": "usr_amb_1",
-      "actorName": "Santosh Shinde",
-      "actorRole": "AMBULANCE",
-      "action": "UPDATE_REQUEST_STATUS",
-      "resourceType": "AMBULANCE",
-      "resourceId": "req_ambulance_1790501124797",
-      "details": "{\"from\":\"ACCEPTED\",\"to\":\"ACCEPTED\",\"updates\":{\"status\":\"ACCEPTED\",\"responseNotes\":\"Driver confirmed emergency pickup. Moving to scene.\",\"ambulanceTripStatus\":\"Arrived\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T09:25:24.797Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:25:24.817Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"Driver confirmed emergency pickup. Moving to scene.\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:25:24.821Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"Driver confirmed emergency pickup. Moving to scene.\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:25:24.825Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"Driver confirmed emergency pickup. Moving to scene.\"}]}}",
-      "createdAt": "2026-09-27T09:25:24.826Z",
-      "updatedAt": "2026-09-27T09:25:24.826Z"
-    },
-    {
-      "id": "log_1790501124829_j2nd",
-      "timestamp": "2026-09-27T09:25:24.829Z",
-      "actorId": "usr_amb_1",
-      "actorName": "Santosh Shinde",
-      "actorRole": "AMBULANCE",
-      "action": "UPDATE_REQUEST_STATUS",
-      "resourceType": "AMBULANCE",
-      "resourceId": "req_ambulance_1790501124797",
-      "details": "{\"from\":\"ACCEPTED\",\"to\":\"COMPLETED\",\"updates\":{\"status\":\"COMPLETED\",\"responseNotes\":\"Driver confirmed emergency pickup. Moving to scene.\",\"ambulanceTripStatus\":\"Completed\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T09:25:24.797Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:25:24.817Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"Driver confirmed emergency pickup. Moving to scene.\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:25:24.821Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"Driver confirmed emergency pickup. Moving to scene.\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T09:25:24.825Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"Driver confirmed emergency pickup. Moving to scene.\"},{\"status\":\"COMPLETED\",\"timestamp\":\"2026-09-27T09:25:24.829Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"Driver confirmed emergency pickup. Moving to scene.\"}]}}",
-      "createdAt": "2026-09-27T09:25:24.829Z",
-      "updatedAt": "2026-09-27T09:25:24.829Z"
+      "id": "log_1790501827147_fxix",
+      "timestamp": "2026-09-27T09:37:07.147Z",
+      "actorId": "usr_doc_1",
+      "actorName": "Dr. Anand Joshi",
+      "actorRole": "SYSTEM_DOCTOR",
+      "action": "RESOLVE_CONFLICT_REQUEST",
+      "resourceType": "ADMISSION",
+      "resourceId": "req_adm_902",
+      "details": "{\"oldStatus\":\"ASSIGNED\",\"newStatus\":\"RESOLVED\",\"alternativeHospital\":\"KEM Hospital & Research Centre\",\"resolutionNotes\":\"Verified bed inventory at KEM Hospital Pune. Allocated Bed ICU-04 under Dr. Kulkarni.\",\"resolvedAt\":\"2026-09-27T09:37:07.145Z\"}",
+      "createdAt": "2026-09-27T09:37:07.147Z",
+      "updatedAt": "2026-09-27T09:37:07.147Z"
     }
   ]
 }

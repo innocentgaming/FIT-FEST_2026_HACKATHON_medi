@@ -8,17 +8,33 @@ const { broadcastRequestStatusChange } = require('../socket');
 // All doctor routes require SYSTEM_DOCTOR or ADMIN role
 router.use(authenticateToken, requireRole('SYSTEM_DOCTOR', 'ADMIN'));
 
-// Get all requests assigned to the logged-in System Doctor (or all escalations for Admin)
+// Get all requests assigned to the logged-in System Doctor
+router.get('/requests', (req, res) => {
+  const requests = store.get('requests');
+  let assigned = [];
+
+  if (req.user.role === 'SYSTEM_DOCTOR') {
+    assigned = requests.filter(
+      (r) => r.assignedDoctorId === req.user.id
+    );
+  } else {
+    // Admin can view all doctor escalations
+    assigned = requests.filter((r) => r.assignedDoctorId);
+  }
+
+  res.json({ requests: assigned, count: assigned.length });
+});
+
 router.get('/assigned-requests', (req, res) => {
   const requests = store.get('requests');
   let assigned = [];
 
   if (req.user.role === 'SYSTEM_DOCTOR') {
     assigned = requests.filter(
-      (r) => (r.assignedDoctorId === req.user.id && r.status === 'ASSIGNED') || (r.status === 'REJECTED')
+      (r) => r.assignedDoctorId === req.user.id
     );
   } else {
-    assigned = requests.filter((r) => r.status === 'ASSIGNED' && r.assignedDoctorId);
+    assigned = requests.filter((r) => r.assignedDoctorId);
   }
 
   res.json({ requests: assigned, count: assigned.length });
@@ -38,11 +54,17 @@ router.put('/requests/:requestId/resolve', (req, res) => {
     return res.status(404).json({ error: 'Request not found.' });
   }
 
-  // Must be ASSIGNED or REJECTED to be resolved
-  if (request.status === 'RESOLVED' || request.status === 'COMPLETED') {
-    return res.status(400).json({ error: `Request #${requestId} is already in terminal state ${request.status}.` });
+  // Security Guard: Doctor cannot resolve another doctor's request
+  if (req.user.role === 'SYSTEM_DOCTOR' && request.assignedDoctorId && request.assignedDoctorId !== req.user.id) {
+    return res.status(403).json({ error: "Unauthorized: Doctor cannot resolve another doctor's assigned request." });
   }
 
+  // Must be ASSIGNED to be resolved; cannot modify terminal states
+  if (request.status === 'RESOLVED' || request.status === 'COMPLETED') {
+    return res.status(400).json({ error: `Request #${requestId} is already in terminal state '${request.status}' and cannot be modified.` });
+  }
+
+  const oldStatus = request.status;
   const altHospital = alternativeHospitalId ? store.findById('hospitals', alternativeHospitalId) : null;
 
   const updates = {
@@ -61,8 +83,8 @@ router.put('/requests/:requestId/resolve', (req, res) => {
 
   // Append timeline
   const noteDetails = altHospital
-    ? `Resolved by System Doctor ${req.user.name}: Re-routed to ${altHospital.name}. Notes: ${resolutionNotes}`
-    : `Resolved by System Doctor ${req.user.name}. Notes: ${resolutionNotes}`;
+    ? `Resolved by System Doctor ${req.user.name}: Re-routed to ${altHospital.name}. Notes: ${resolutionNotes.trim()}`
+    : `Resolved by System Doctor ${req.user.name}. Notes: ${resolutionNotes.trim()}`;
 
   updates.timeline = [
     ...(request.timeline || []),
@@ -86,7 +108,13 @@ router.put('/requests/:requestId/resolve', (req, res) => {
     action: 'RESOLVE_CONFLICT_REQUEST',
     resourceType: request.type,
     resourceId: requestId,
-    details: { alternativeHospital: altHospital ? altHospital.name : null, resolutionNotes }
+    details: {
+      oldStatus,
+      newStatus: 'RESOLVED',
+      alternativeHospital: altHospital ? altHospital.name : null,
+      resolutionNotes: resolutionNotes.trim(),
+      resolvedAt: updates.resolvedAt
+    }
   });
 
   res.json({

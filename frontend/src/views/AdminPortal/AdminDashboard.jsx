@@ -151,40 +151,61 @@ export const AdminDashboard = () => {
         </button>
       </div>
 
-      {/* Macro Metrics Bar */}
-      <div className="grid-4" style={{ marginBottom: '1.5rem' }}>
-        <div className="card" style={{ padding: '1rem', background: 'var(--bg-subtle)' }}>
-          <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Total Healthcare Facilities</span>
-          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#38bdf8', marginTop: '4px' }}>
-            {hospitals.length}
+      {/* Macro Metrics Bar - 7 Metrics */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(135px, 1fr))',
+          gap: '0.75rem',
+          marginBottom: '1.5rem'
+        }}
+      >
+        <div className="card" style={{ padding: '0.75rem', background: 'var(--bg-subtle)' }}>
+          <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Total Hospitals</span>
+          <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#38bdf8', marginTop: '2px' }}>
+            {adminRequests?.summary?.totalHospitals || hospitals.length}
           </div>
         </div>
 
-        <div className="card" style={{ padding: '1rem', background: 'var(--bg-subtle)' }}>
-          <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Active Ambulance Fleet</span>
-          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#fbbf24', marginTop: '4px' }}>
-            {ambulances.length}
+        <div className="card" style={{ padding: '0.75rem', background: 'var(--bg-subtle)' }}>
+          <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Active Ambulances</span>
+          <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#fbbf24', marginTop: '2px' }}>
+            {adminRequests?.summary?.activeAmbulances || ambulances.length}
           </div>
         </div>
 
-        <div className="card" style={{ padding: '1rem', background: 'var(--bg-subtle)' }}>
-          <span style={{ fontSize: '0.78rem', color: '#94a3b8' }}>Total Network Requests</span>
-          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#a78bfa', marginTop: '4px' }}>
-            {allRequests.length}
+        <div className="card" style={{ padding: '0.75rem', background: 'var(--bg-subtle)' }}>
+          <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Active Requests</span>
+          <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#34d399', marginTop: '2px' }}>
+            {adminRequests?.summary?.activeRequests || allRequests.filter((r) => ['PENDING', 'ASSIGNED', 'ACCEPTED'].includes(r.status)).length}
           </div>
         </div>
 
-        <div
-          className="card"
-          style={{
-            padding: '1rem',
-            background: 'rgba(239, 68, 68, 0.1)',
-            border: '1px solid rgba(239, 68, 68, 0.35)'
-          }}
-        >
-          <span style={{ fontSize: '0.78rem', color: '#fca5a5' }}>🚨 Unresolved / Rejected Queue</span>
-          <div style={{ fontSize: '1.8rem', fontWeight: 800, color: '#ef4444', marginTop: '4px' }}>
-            {rejectedQueue.length}
+        <div className="card" style={{ padding: '0.75rem', background: 'var(--bg-subtle)' }}>
+          <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Pending Requests</span>
+          <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#a78bfa', marginTop: '2px' }}>
+            {adminRequests?.summary?.pendingRequests || allRequests.filter((r) => r.status === 'PENDING').length}
+          </div>
+        </div>
+
+        <div className="card" style={{ padding: '0.75rem', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)' }}>
+          <span style={{ fontSize: '0.72rem', color: '#fca5a5' }}>Rejected Requests</span>
+          <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#ef4444', marginTop: '2px' }}>
+            {adminRequests?.summary?.rejectedRequests || rejectedQueue.length}
+          </div>
+        </div>
+
+        <div className="card" style={{ padding: '0.75rem', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.3)' }}>
+          <span style={{ fontSize: '0.72rem', color: '#fde68a' }}>Unresolved Queue</span>
+          <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#f59e0b', marginTop: '2px' }}>
+            {adminRequests?.summary?.unresolvedRequests || rejectedQueue.length}
+          </div>
+        </div>
+
+        <div className="card" style={{ padding: '0.75rem', background: 'var(--bg-subtle)' }}>
+          <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>Emergency Requests</span>
+          <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#f43f5e', marginTop: '2px' }}>
+            {adminRequests?.summary?.emergencyRequests || allRequests.filter((r) => r.priority === 'EMERGENCY' || r.type === 'AMBULANCE').length}
           </div>
         </div>
       </div>
@@ -287,9 +308,125 @@ export const AdminDashboard = () => {
             </div>
           )}
 
-          {/* All Network Requests Overview */}
+          {/* All Network Requests Overview with Filters */}
           <div style={{ marginTop: '2rem' }}>
-            <h4 style={{ fontSize: '1.1rem', marginBottom: '0.75rem' }}>All Network Requests Archive</h4>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <h4 style={{ fontSize: '1.1rem', margin: 0 }}>All Network Requests Archive</h4>
+              <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+                Showing {filteredAllRequests.length} of {allRequests.length} requests
+              </span>
+            </div>
+
+            {/* Network Table Filters */}
+            <div
+              style={{
+                background: 'var(--bg-input)',
+                padding: '0.75rem',
+                borderRadius: '8px',
+                border: '1px solid var(--border-card)',
+                marginBottom: '1rem',
+                display: 'flex',
+                gap: '0.65rem',
+                flexWrap: 'wrap',
+                alignItems: 'center'
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Status:</span>
+                <select
+                  className="form-select"
+                  value={filterStatus}
+                  onChange={(e) => setFilterStatus(e.target.value)}
+                  style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', width: 'auto' }}
+                >
+                  <option value="ALL">All Statuses</option>
+                  <option value="PENDING">PENDING</option>
+                  <option value="ASSIGNED">ASSIGNED</option>
+                  <option value="ACCEPTED">ACCEPTED</option>
+                  <option value="COMPLETED">COMPLETED</option>
+                  <option value="REJECTED">REJECTED</option>
+                  <option value="RESOLVED">RESOLVED</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Priority:</span>
+                <select
+                  className="form-select"
+                  value={filterPriority}
+                  onChange={(e) => setFilterPriority(e.target.value)}
+                  style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', width: 'auto' }}
+                >
+                  <option value="ALL">All Priorities</option>
+                  <option value="NORMAL">NORMAL</option>
+                  <option value="URGENT">URGENT</option>
+                  <option value="CRITICAL">CRITICAL</option>
+                  <option value="EMERGENCY">EMERGENCY</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Type:</span>
+                <select
+                  className="form-select"
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', width: 'auto' }}
+                >
+                  <option value="ALL">All Types</option>
+                  <option value="AMBULANCE">AMBULANCE</option>
+                  <option value="ADMISSION">ADMISSION</option>
+                  <option value="H2H_TRANSFER">H2H TRANSFER</option>
+                  <option value="BLOOD">BLOOD</option>
+                  <option value="EQUIPMENT">EQUIPMENT</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Hospital:</span>
+                <select
+                  className="form-select"
+                  value={filterHospital}
+                  onChange={(e) => setFilterHospital(e.target.value)}
+                  style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', width: 'auto' }}
+                >
+                  <option value="ALL">All Hospitals</option>
+                  {hospitals.map((h) => (
+                    <option key={h.id} value={h.id}>
+                      {h.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Date:</span>
+                <input
+                  type="date"
+                  className="form-control"
+                  value={filterDate}
+                  onChange={(e) => setFilterDate(e.target.value)}
+                  style={{ fontSize: '0.75rem', padding: '0.2rem 0.4rem', width: 'auto' }}
+                />
+              </div>
+
+              {(filterStatus !== 'ALL' || filterPriority !== 'ALL' || filterType !== 'ALL' || filterHospital !== 'ALL' || filterDate) && (
+                <button
+                  onClick={() => {
+                    setFilterStatus('ALL');
+                    setFilterPriority('ALL');
+                    setFilterType('ALL');
+                    setFilterHospital('ALL');
+                    setFilterDate('');
+                  }}
+                  className="btn btn-secondary btn-sm"
+                  style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem' }}
+                >
+                  Clear Filters
+                </button>
+              )}
+            </div>
+
             <div className="table-responsive card" style={{ padding: 0 }}>
               <table className="data-table">
                 <thead>
@@ -298,18 +435,29 @@ export const AdminDashboard = () => {
                     <th>Type</th>
                     <th>Patient</th>
                     <th>Target Facility</th>
+                    <th>Priority</th>
                     <th>Assigned Doctor/Ambulance</th>
                     <th>Status</th>
                     <th>Created</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {allRequests.slice(0, 10).map((r) => (
+                  {filteredAllRequests.map((r) => (
                     <tr key={r.id}>
                       <td>#{r.id}</td>
-                      <td>{r.type}</td>
-                      <td>{r.patientName}</td>
+                      <td>
+                        <strong>{r.type}</strong>
+                      </td>
+                      <td>
+                        <div>{r.patientName}</div>
+                        <small style={{ color: '#94a3b8' }}>{r.patientPhone}</small>
+                      </td>
                       <td>{r.targetHospitalName || 'N/A'}</td>
+                      <td>
+                        <span style={{ fontWeight: 700, fontSize: '0.75rem', color: r.priority === 'EMERGENCY' || r.priority === 'CRITICAL' ? '#ef4444' : '#f59e0b' }}>
+                          {r.priority}
+                        </span>
+                      </td>
                       <td style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>
                         {r.assignedDoctorName || r.assignedAmbulanceVehicle || 'Unassigned'}
                       </td>
