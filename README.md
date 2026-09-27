@@ -19,6 +19,35 @@
 
 ---
 
+## 📌 Project Overview
+
+**MediLink CARE** (*Coordinated Assistance & Record Engine*) is a real-time, event-driven healthcare coordination and emergency logistics platform developed for the **FIT-FEST Hackathon 2026**.
+
+The platform is designed to eliminate dangerous coordination delays across fragmented healthcare networks by establishing a single, unified digital bridge connecting **Patients, Hospitals & Clinics, Ambulance Drivers, Command Admins, and System Doctors**.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                                    MEDILINK CARE                                        │
+│                           Healthcare Coordination Engine                                │
+├──────────────────┬──────────────────┬──────────────────┬─────────────────┬──────────────┤
+│ 👤 PATIENT       │ 🏥 HOSPITAL      │ 🚑 AMBULANCE     │ ⚖️ ADMIN        │ 🩺 DOCTOR    │
+│ • Emergency Mode │ • Live Telemetry │ • GPS Telemetry  │ • Macro Triage  │ • Escalation │
+│ • OPD Bookings   │ • Blood Bank     │ • Trip Lifecycle │ • Audit Trails  │ • Re-Routing │
+│ • Blood Matcher  │ • Bed Allocation │ • Duty Switcher  │ • Demo Reset    │ • Resolution │
+└──────────────────┴──────────────────┴──────────────────┴─────────────────┴──────────────┘
+```
+
+### 🎯 Core Mission & Executive Summary
+In critical medical situations, minutes save lives. Today, patients and emergency responders struggle with:
+1. **Blind Admissions**: Hospitals turning away critical emergencies at the gate due to unannounced surge capacity.
+2. **Scattered Blood Inventories**: Frantic, uncoordinated phone calls searching for rare blood groups.
+3. **Unlinked Fleet Logistics**: Ambulances operating without real-time GPS tracking or hospital arrival coordination.
+4. **Unresolved Rejections**: Rejected transfer requests being lost in administrative voids with no human-in-the-loop fallback.
+
+**MediLink CARE** solves these systemic bottlenecks with a **non-diagnostic, coordination-first architecture** featuring sub-millisecond WebSocket synchronization, mathematical resource clamping, strict multi-tenant RBAC, and automated escalation queues.
+
+---
+
 ## 1. Problem Statement
 Healthcare coordination across urban and peri-urban medical ecosystems faces critical operational friction:
 - **Siloed Resource Visibility**: Patients and emergency responders cannot view live bed, ICU, ventilator, or oxygen cylinder capacity, causing severe admission delays.
