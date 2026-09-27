@@ -4,6 +4,7 @@ const { store } = require('../db/store');
 const { authenticateToken } = require('../middleware/auth');
 const { requireRole } = require('../middleware/rbac');
 const { broadcastRequestStatusChange } = require('../socket');
+const { notifyConflictAssignment } = require('../services/notificationService');
 
 // All admin routes require ADMIN role
 router.use(authenticateToken, requireRole('ADMIN'));
@@ -141,6 +142,7 @@ router.post('/requests/:requestId/assign', (req, res) => {
   const updated = store.update('requests', requestId, updates);
 
   broadcastRequestStatusChange(updated);
+  notifyConflictAssignment(updated, doctor.id);
 
   store.logAudit({
     actorId: req.user.id,

@@ -2,6 +2,7 @@ import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useEmergency } from '../context/EmergencyContext';
 import { Shield, AlertCircle, LogOut, User, Activity, Truck, Building2, UserCheck, Stethoscope } from 'lucide-react';
+import { NotificationDropdown } from './NotificationDropdown';
 
 export const Navbar = ({ activeView, setActiveView }) => {
   const { user, logout, quickSwitchRole, demoAccounts } = useAuth();
@@ -77,6 +78,8 @@ export const Navbar = ({ activeView, setActiveView }) => {
         {/* User Info & Logout */}
         {user && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <NotificationDropdown />
+
             <div className="demo-role-badge">
               <span className={`role-pill role-${user.role.toLowerCase()}`} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 {getRoleIcon(user.role)}

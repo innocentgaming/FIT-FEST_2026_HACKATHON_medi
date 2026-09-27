@@ -4,6 +4,7 @@ const { store } = require('../db/store');
 const { authenticateToken } = require('../middleware/auth');
 const { requireRole } = require('../middleware/rbac');
 const { broadcastRequestStatusChange } = require('../socket');
+const { notifyConflictResolution } = require('../services/notificationService');
 
 // All doctor routes require SYSTEM_DOCTOR or ADMIN role
 router.use(authenticateToken, requireRole('SYSTEM_DOCTOR', 'ADMIN'));
@@ -100,6 +101,7 @@ router.put('/requests/:requestId/resolve', (req, res) => {
   const updated = store.update('requests', requestId, updates);
 
   broadcastRequestStatusChange(updated);
+  notifyConflictResolution(updated);
 
   store.logAudit({
     actorId: req.user.id,

@@ -14,7 +14,8 @@
     "test:ambulance": "node test/ambulance-tracking.test.js",
     "test:emergency": "node test/emergency-mode.test.js",
     "test:escalation": "node test/escalation.test.js",
-    "test:all": "node test/api.test.js && node test/auth-rbac.test.js && node test/appointments.test.js && node test/hospital-resources-blood.test.js && node test/ambulance-tracking.test.js && node test/emergency-mode.test.js && node test/escalation.test.js"
+    "test:engine": "node test/unified-request-engine.test.js",
+    "test:all": "node test/api.test.js && node test/auth-rbac.test.js && node test/appointments.test.js && node test/hospital-resources-blood.test.js && node test/ambulance-tracking.test.js && node test/emergency-mode.test.js && node test/escalation.test.js && node test/unified-request-engine.test.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

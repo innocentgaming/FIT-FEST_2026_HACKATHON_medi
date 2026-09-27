@@ -31,6 +31,8 @@ This document maps every requirement from the **Product Requirements Document (P
 | **REQ-21: Emergency Mode Command Center** | High-contrast 4 major actions: 🚑 Request Ambulance, 🩸 Find Blood, 🏥 Find Facility, 📋 Track Request | `POST /api/requests`, `POST /api/requests/search-blood`, `GET /api/hospitals` | `requests`, `ambulances`, `hospitals` | `EmergencyModal.jsx`, `Navbar.jsx`, `PatientDashboard.jsx`, `HospitalDashboard.jsx` | All Authenticated / Public Entry | `test/emergency-mode.test.js`: Tests 1-6 |
 | **REQ-22: Visual Incident Timeline (7-Step Stepper)** | Stepper progression (`REQUESTED` → `PENDING` → `ASSIGNED` → `ACCEPTED` → `ON THE WAY` → `ARRIVED` → `COMPLETED`) | `PUT /api/requests/:id/status`, Socket.io | `requests`, `ambulances` | `EmergencyModal.jsx`, `LiveMap.jsx` | `AMBULANCE`, `HOSPITAL`, `ADMIN` | `test/emergency-mode.test.js`: Test 5 |
 | **REQ-23: Facility Multi-Resource Filtering** | Filter by Type (Hospital, Clinic, Blood Bank) & Resources (Beds, ICU, Ventilator, Oxygen, Blood) | `GET /api/hospitals` | `hospitals` | `EmergencyModal.jsx` (Find Facility), `PatientDashboard.jsx` | Public / All Authenticated | `test/emergency-mode.test.js`: Test 4 |
+| **REQ-24: Unified Request Engine & Centralized State Machine** | Centralized transition validator across 5 request types (`PATIENT_ADMISSION`, `HOSPITAL_TRANSFER`, `BLOOD_REQUEST`, `EQUIPMENT_REQUEST`, `AMBULANCE_REQUEST`) | `POST /api/requests`, `PUT /api/requests/:id/status` | `requests` | Backend `requestEngine.js`, all dashboards | All Stakeholders (RBAC Enforced) | `test/unified-request-engine.test.js`: Tests 1-17 |
+| **REQ-25: Multi-Channel Notification Model & Bell Center** | Notification generation across 10 workflow triggers + Socket.io realtime push + Bell dropdown | `GET /api/notifications`, `PUT /api/notifications/:id/read`, `PUT /api/notifications/read-all`, `GET /api/notifications/unread-count` | `notifications` | `NotificationDropdown.jsx`, `Navbar.jsx` | All Authenticated Users | `test/unified-request-engine.test.js`: Tests 18-23 |
 
 ---
 
@@ -38,14 +40,14 @@ This document maps every requirement from the **Product Requirements Document (P
 
 | State Transition | Permitted Actor | Validated By | Target Status | Resource & Fleet Effect |
 | :--- | :--- | :--- | :--- | :--- |
-| `PENDING` → `ASSIGNED` | System (Nearest) / Hospital / Admin | Backend `requests.js` | `ASSIGNED` | Assigned ambulance must be `AVAILABLE` (rejects `ON_DUTY`/`OFFLINE` with 400) |
-| `PENDING` → `ACCEPTED` | Target Hospital | Backend `requests.js` | `ACCEPTED` | Transactional decrement of General Bed / ICU / Ventilator / Blood units (Never `< 0`) |
-| `PENDING` → `REJECTED` | Target Hospital | Backend `requests.js` | `REJECTED` | Enforces mandatory `responseNotes` |
-| `ASSIGNED` → `ACCEPTED` | Assigned Ambulance Driver | Backend `requests.js` | `ACCEPTED` | Ambulance status transitions to `ON_DUTY`; Driver trip state transitions to `On the Way` |
-| `ASSIGNED` → `REJECTED` | Assigned Ambulance Driver | Backend `requests.js` | `REJECTED` | Enforces mandatory `responseNotes` / `reason` (rejects empty with 400) |
-| `ACCEPTED` → `COMPLETED` | Assigned Ambulance / Hospital | Backend `requests.js` | `COMPLETED` | Ambulance status transitions back to `AVAILABLE`; request becomes immutable terminal state |
-| `REJECTED` → `ASSIGNED` | Admin (Triage to Doctor) | Backend `admin.js` | `ASSIGNED` | Escalated to System Doctor for alternative routing; records `assignedDoctorId`, `assignedAt`, audit trail |
-| `ASSIGNED` → `RESOLVED` | Assigned System Doctor | Backend `doctor.js` | `RESOLVED` | Immutable terminal resolution with alternative facility re-routing, `resolutionNotes`, audit trail (Wrong doctor forbidden 403) |
+| `PENDING` → `ASSIGNED` | System (Nearest) / Hospital / Admin | Centralized `requestEngine.js` | `ASSIGNED` | Assigned ambulance must be `AVAILABLE` (rejects `ON_DUTY`/`OFFLINE` with 400) |
+| `PENDING` → `ACCEPTED` | Target Hospital | Centralized `requestEngine.js` | `ACCEPTED` | Transactional decrement of General Bed / ICU / Ventilator / Blood units (Never `< 0`) |
+| `PENDING` → `REJECTED` | Target Hospital | Centralized `requestEngine.js` | `REJECTED` | Enforces mandatory `responseNotes` |
+| `ASSIGNED` → `ACCEPTED` | Assigned Ambulance Driver | Centralized `requestEngine.js` | `ACCEPTED` | Ambulance status transitions to `ON_DUTY`; Driver trip state transitions to `On the Way` |
+| `ASSIGNED` → `REJECTED` | Assigned Ambulance Driver | Centralized `requestEngine.js` | `REJECTED` | Enforces mandatory `responseNotes` / `reason` (rejects empty with 400); resets unit to `AVAILABLE` |
+| `ACCEPTED` → `COMPLETED` | Assigned Ambulance / Hospital | Centralized `requestEngine.js` | `COMPLETED` | Ambulance status transitions back to `AVAILABLE`; request becomes immutable terminal state |
+| `REJECTED` → `ASSIGNED` | Admin (Triage to Doctor) | Centralized `requestEngine.js` | `ASSIGNED` | Escalated to System Doctor for alternative routing; records `assignedDoctorId`, `assignedAt`, audit trail |
+| `ASSIGNED` → `RESOLVED` | Assigned System Doctor | Centralized `requestEngine.js` | `RESOLVED` | Immutable terminal resolution with alternative facility re-routing, `resolutionNotes`, audit trail (Wrong doctor forbidden 403) |
 
 ---
 
@@ -60,6 +62,7 @@ This document maps every requirement from the **Product Requirements Document (P
 | **Phase 5 Ambulance Tracking** | `backend/test/ambulance-tracking.test.js` | 22 Passed | Fleet Listing, Availability Toggle, Nearest Unit Auto-Dispatch, Unavailable Assignment Guard, Driver RBAC, Mandatory Rejection Reason, GPS Telemetry, Immutability |
 | **Phase 6 Emergency Mode** | `backend/test/emergency-mode.test.js` | 16 Passed | 4 Major Actions, Emergency Ambulance Auto-Dispatch, Smart Blood Matcher, Facility Filters (Hospital/Clinic/Blood Bank & ICU/Beds/Vents/O2), 7-Step Visual Timeline, Non-Diagnostic Safety Guard |
 | **Phase 7 Admin & Doctor Escalation** | `backend/test/escalation.test.js` | 43 Passed | Macro Metrics, Network Filters, REJECTED → ASSIGNED Escalation, Doctor Isolation, Wrong-Doctor 403, ASSIGNED → RESOLVED Alternative Facility Re-routing, Terminal Immutability, Audit Trail |
-| **Total Test Coverage** | **All 7 Suites** | **159 Passed, 0 Failed** | **100% Comprehensive Coverage across PRD & INF Workflows** |
+| **Phase 8 Unified Engine & Realtime** | `backend/test/unified-request-engine.test.js` | 46 Passed | Canonical Request Types, Allowed & Forbidden Transitions, Rejection Reason Guard, Role & Ownership Checks, Notifications API & Read States, Socket Privacy Sanitization, Audit Logs |
+| **Total Test Coverage** | **All 8 Suites** | **205 Passed, 0 Failed** | **100% Comprehensive Coverage across PRD & INF Workflows** |
 
 

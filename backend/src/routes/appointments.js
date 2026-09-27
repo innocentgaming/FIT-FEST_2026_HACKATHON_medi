@@ -3,6 +3,8 @@ const router = express.Router();
 const { store } = require('../db/store');
 const { authenticateToken } = require('../middleware/auth');
 const { requireRole } = require('../middleware/rbac');
+const { broadcastAppointmentUpdate } = require('../socket');
+const { notifyAppointmentUpdate } = require('../services/notificationService');
 
 const VALID_APPOINTMENT_STATUSES = [
   'SCHEDULED',
@@ -186,6 +188,9 @@ router.post('/', authenticateToken, requireRole('PATIENT', 'HOSPITAL', 'ADMIN'),
 
   store.insert('appointments', newAppointment);
 
+  broadcastAppointmentUpdate(newAppointment);
+  notifyAppointmentUpdate(newAppointment);
+
   store.logAudit({
     actorId: req.user.id,
     actorName: req.user.name,
@@ -248,6 +253,9 @@ router.put('/:id/status', authenticateToken, (req, res) => {
   };
 
   const updated = store.update('appointments', id, updates);
+
+  broadcastAppointmentUpdate(updated);
+  notifyAppointmentUpdate(updated);
 
   store.logAudit({
     actorId: req.user.id,

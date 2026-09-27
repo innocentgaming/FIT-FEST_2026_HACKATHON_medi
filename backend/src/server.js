@@ -19,6 +19,7 @@ const requestRoutes = require('./routes/requests');
 const adminRoutes = require('./routes/admin');
 const doctorRoutes = require('./routes/doctor');
 const patientRoutes = require('./routes/patients');
+const notificationRoutes = require('./routes/notifications');
 
 const app = express();
 const server = http.createServer(app);
@@ -61,6 +62,7 @@ app.use('/api/admin', adminRoutes);
 app.use('/api/doctor', doctorRoutes);
 app.use('/api/patient', patientRoutes);
 app.use('/api/patients', patientRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Error Handling Middleware
 app.use((err, req, res, next) => {

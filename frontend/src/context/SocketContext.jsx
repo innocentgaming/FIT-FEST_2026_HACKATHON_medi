@@ -12,6 +12,7 @@ export const SocketProvider = ({ children }) => {
   const [liveResourceUpdate, setLiveResourceUpdate] = useState(null);
   const [liveBloodBankUpdate, setLiveBloodBankUpdate] = useState(null);
   const [liveRequestUpdate, setLiveRequestUpdate] = useState(null);
+  const [liveAppointmentUpdate, setLiveAppointmentUpdate] = useState(null);
 
   useEffect(() => {
     // Connect to Socket.io server
@@ -25,25 +26,43 @@ export const SocketProvider = ({ children }) => {
       console.log('⚡ Connected to MediLink Socket.io Server');
     });
 
-    newSocket.on('notification', (data) => {
+    // Standardized Phase 8 event + legacy support
+    const handleNotification = (data) => {
       addToast(data);
-    });
+    };
+    newSocket.on('notification', handleNotification);
+    newSocket.on('notification:new', handleNotification);
 
-    newSocket.on('resource_updated', (data) => {
+    const handleResource = (data) => {
       setLiveResourceUpdate(data);
-    });
+    };
+    newSocket.on('resource:update', handleResource);
+    newSocket.on('resource_updated', handleResource);
 
-    newSocket.on('bloodbank_updated', (data) => {
+    const handleBlood = (data) => {
       setLiveBloodBankUpdate(data);
-    });
+    };
+    newSocket.on('blood:update', handleBlood);
+    newSocket.on('bloodbank_updated', handleBlood);
 
-    newSocket.on('ambulance_location_updated', (data) => {
+    const handleAmbulanceLocation = (data) => {
       setLiveLocationUpdate(data);
-    });
+    };
+    newSocket.on('ambulance:location', handleAmbulanceLocation);
+    newSocket.on('ambulance_location_updated', handleAmbulanceLocation);
 
-    newSocket.on('request_updated', (data) => {
+    const handleRequest = (data) => {
       setLiveRequestUpdate(data);
-    });
+    };
+    newSocket.on('request:update', handleRequest);
+    newSocket.on('request:create', handleRequest);
+    newSocket.on('request_updated', handleRequest);
+    newSocket.on('request_created', handleRequest);
+
+    const handleAppointment = (data) => {
+      setLiveAppointmentUpdate(data);
+    };
+    newSocket.on('appointment:update', handleAppointment);
 
     return () => {
       newSocket.disconnect();
@@ -87,7 +106,8 @@ export const SocketProvider = ({ children }) => {
         liveLocationUpdate,
         liveResourceUpdate,
         liveBloodBankUpdate,
-        liveRequestUpdate
+        liveRequestUpdate,
+        liveAppointmentUpdate
       }}
     >
       {children}

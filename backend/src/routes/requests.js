@@ -3,10 +3,25 @@ const router = express.Router();
 const { store } = require('../db/store');
 const { authenticateToken } = require('../middleware/auth');
 const { requireRole } = require('../middleware/rbac');
-const { broadcastRequestStatusChange, broadcastResourceUpdate, broadcastBloodBankUpdate } = require('../socket');
-
-const VALID_REQUEST_STATUSES = ['PENDING', 'ASSIGNED', 'ACCEPTED', 'COMPLETED', 'REJECTED', 'RESOLVED'];
-const VALID_REQUEST_TYPES = ['ADMISSION', 'H2H_TRANSFER', 'BLOOD', 'EQUIPMENT', 'AMBULANCE'];
+const {
+  REQUEST_TYPES,
+  REQUEST_STATUSES,
+  normalizeRequestType,
+  validateTransition
+} = require('../engine/requestEngine');
+const {
+  notifyAdmissionRequest,
+  notifyTransferRequest,
+  notifyAmbulanceEvent,
+  notifyBloodRequest,
+  notifyConflictResolution
+} = require('../services/notificationService');
+const {
+  broadcastRequestCreated,
+  broadcastRequestStatusChange,
+  broadcastResourceUpdate,
+  broadcastBloodBankUpdate
+} = require('../socket');
 
 // Get requests (auto-filtered by role)
 router.get('/', authenticateToken, (req, res) => {
@@ -24,7 +39,7 @@ router.get('/', authenticateToken, (req, res) => {
     requests = requests.filter(
       (r) =>
         r.assignedAmbulanceId === req.user.ambulanceId ||
-        (r.type === 'AMBULANCE' && r.status === 'PENDING')
+        (normalizeRequestType(r.type) === REQUEST_TYPES.AMBULANCE_REQUEST && r.status === 'PENDING')
     );
   } else if (req.user.role === 'SYSTEM_DOCTOR') {
     requests = requests.filter((r) => r.assignedDoctorId === req.user.id || r.status === 'REJECTED');
@@ -32,7 +47,8 @@ router.get('/', authenticateToken, (req, res) => {
   // ADMIN can see all
 
   if (type) {
-    requests = requests.filter((r) => r.type === type.toUpperCase());
+    const norm = normalizeRequestType(type);
+    requests = requests.filter((r) => normalizeRequestType(r.type) === norm || r.type === type.toUpperCase());
   }
 
   if (status) {
@@ -60,16 +76,13 @@ router.post('/search-blood', (req, res) => {
   const requestedUnits = Number(unitsRequired) || 1;
   const formattedGroup = bloodGroup.trim().toUpperCase();
   const hospitals = store.get('hospitals');
-
   const locQuery = (location || '').trim().toLowerCase();
 
-  // Find matching hospitals with available stock
   const matches = hospitals
     .map((h) => {
       const stock = (h.bloodBank && h.bloodBank[formattedGroup]) || 0;
       const isSufficient = stock >= requestedUnits;
 
-      // Location match score for practical relevance
       let locationScore = 0;
       if (locQuery) {
         const cityMatch = h.city && h.city.toLowerCase().includes(locQuery);
@@ -109,15 +122,8 @@ router.post('/search-blood', (req, res) => {
       };
     })
     .sort((a, b) => {
-      // 1. Location match score (practical proximity)
-      if (b.locationScore !== a.locationScore) {
-        return b.locationScore - a.locationScore;
-      }
-      // 2. Stock sufficiency (sufficient units prioritized)
-      if (b.isSufficient !== a.isSufficient) {
-        return (b.isSufficient ? 1 : 0) - (a.isSufficient ? 1 : 0);
-      }
-      // 3. Total available units (descending)
+      if (b.locationScore !== a.locationScore) return b.locationScore - a.locationScore;
+      if (b.isSufficient !== a.isSufficient) return (b.isSufficient ? 1 : 0) - (a.isSufficient ? 1 : 0);
       return b.availableUnits - a.availableUnits;
     });
 
@@ -137,7 +143,7 @@ router.post('/search-blood', (req, res) => {
 // Distance helper (Haversine formula in KM)
 function calculateDistanceKm(lat1, lon1, lat2, lon2) {
   if (lat1 === undefined || lon1 === undefined || lat2 === undefined || lon2 === undefined) return 5.0;
-  const R = 6371; // Earth radius in km
+  const R = 6371;
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
@@ -162,13 +168,8 @@ router.post('/', authenticateToken, (req, res) => {
     details: inputDetails
   } = req.body;
 
-  if (!type || !VALID_REQUEST_TYPES.includes(type.toUpperCase())) {
-    return res.status(400).json({
-      error: `Invalid request type. Must be one of: ${VALID_REQUEST_TYPES.join(', ')}`
-    });
-  }
+  const reqType = normalizeRequestType(type);
 
-  const reqType = type.toUpperCase();
   const targetHospital = targetHospitalId ? store.findById('hospitals', targetHospitalId) : null;
   const sourceHospital = sourceHospitalId ? store.findById('hospitals', sourceHospitalId) : null;
   let details = inputDetails ? { ...inputDetails } : {};
@@ -190,8 +191,8 @@ router.post('/', authenticateToken, (req, res) => {
         error: `Cannot assign unavailable ambulance. Ambulance is currently ${assignedAmb.status || 'UNAVAILABLE'}.`
       });
     }
-  } else if (reqType === 'AMBULANCE') {
-    // Nearest suitable unit selection
+  } else if (reqType === REQUEST_TYPES.AMBULANCE_REQUEST) {
+    // Nearest available unit selection
     const pLat = Number(details.latitude || details.lat || req.body.latitude || req.body.lat || 18.5204);
     const pLng = Number(details.longitude || details.lng || req.body.longitude || req.body.lng || 73.8567);
 
@@ -214,8 +215,10 @@ router.post('/', authenticateToken, (req, res) => {
     }
   }
 
+  const initialStatus = assignedAmb ? 'ASSIGNED' : 'PENDING';
+
   const newRequest = {
-    id: `req_${reqType.toLowerCase()}_${Date.now()}`,
+    id: `req_${reqType.toLowerCase().substring(0, 3)}_${Date.now()}`,
     type: reqType,
     patientId: req.user.role === 'PATIENT' ? req.user.id : (req.body.patientId || null),
     patientName: req.user.role === 'PATIENT' ? req.user.name : (req.body.patientName || 'Emergency Patient'),
@@ -228,15 +231,15 @@ router.post('/', authenticateToken, (req, res) => {
     assignedAmbulanceVehicle: assignedAmb ? (assignedAmb.vehicleNumber || assignedAmb.vehicleNo) : null,
     assignedDoctorId: null,
     assignedDoctorName: null,
-    status: assignedAmb ? 'ASSIGNED' : 'PENDING',
-    ambulanceTripStatus: reqType === 'AMBULANCE' ? (assignedAmb ? 'Pending' : null) : null,
-    priority: priority ? priority.toUpperCase() : (urgency ? urgency.toUpperCase() : (reqType === 'AMBULANCE' ? 'EMERGENCY' : 'NORMAL')),
+    status: initialStatus,
+    ambulanceTripStatus: reqType === REQUEST_TYPES.AMBULANCE_REQUEST ? (assignedAmb ? 'Pending' : null) : null,
+    priority: priority ? priority.toUpperCase() : (urgency ? urgency.toUpperCase() : (reqType === REQUEST_TYPES.AMBULANCE_REQUEST ? 'EMERGENCY' : 'NORMAL')),
     details: details || {},
     responseNotes: '',
     resolutionNotes: '',
     timeline: [
       {
-        status: assignedAmb ? 'ASSIGNED' : 'PENDING',
+        status: initialStatus,
         timestamp: new Date().toISOString(),
         actorRole: req.user.role,
         actorName: req.user.name,
@@ -249,8 +252,18 @@ router.post('/', authenticateToken, (req, res) => {
 
   store.insert('requests', newRequest);
 
-  // Broadcast
-  broadcastRequestStatusChange(newRequest);
+  // Broadcast & Notifications
+  broadcastRequestCreated(newRequest);
+
+  if (reqType === REQUEST_TYPES.AMBULANCE_REQUEST) {
+    notifyAmbulanceEvent(newRequest, 'CREATED');
+  } else if (reqType === REQUEST_TYPES.PATIENT_ADMISSION) {
+    notifyAdmissionRequest(newRequest);
+  } else if (reqType === REQUEST_TYPES.HOSPITAL_TRANSFER) {
+    notifyTransferRequest(newRequest);
+  } else if (reqType === REQUEST_TYPES.BLOOD_REQUEST) {
+    notifyBloodRequest(newRequest);
+  }
 
   store.logAudit({
     actorId: req.user.id,
@@ -268,95 +281,58 @@ router.post('/', authenticateToken, (req, res) => {
   });
 });
 
-// Update Request Status with state machine validation
+// Update Request Status with Centralized Status Machine Validation
 router.put('/:id/status', authenticateToken, (req, res) => {
   const { id } = req.params;
-  const { status, responseNotes, reason, ambulanceTripStatus, assignedAmbulanceId, assignedDoctorId } = req.body;
+  const {
+    status,
+    responseNotes,
+    reason,
+    resolutionNotes,
+    ambulanceTripStatus,
+    assignedAmbulanceId,
+    assignedDoctorId,
+    alternativeHospitalId
+  } = req.body;
 
   const request = store.findById('requests', id);
   if (!request) {
     return res.status(404).json({ error: 'Request not found.' });
   }
 
-  // Terminal states cannot be transitioned
-  if (request.status === 'COMPLETED' || request.status === 'RESOLVED') {
-    return res.status(400).json({
-      error: `Request #${id} is in terminal state '${request.status}' and cannot be modified.`
-    });
-  }
-
   const targetStatus = status ? status.toUpperCase() : request.status;
 
-  if (!VALID_REQUEST_STATUSES.includes(targetStatus)) {
-    return res.status(400).json({
-      error: `Invalid status '${targetStatus}'. Must be one of: ${VALID_REQUEST_STATUSES.join(', ')}`
+  // Centralized Validation Engine
+  const validation = validateTransition({
+    request,
+    targetStatus,
+    user: req.user,
+    responseNotes,
+    reason,
+    resolutionNotes,
+    ambulanceTripStatus,
+    assignedDoctorId,
+    store
+  });
+
+  if (!validation.valid) {
+    return res.status(validation.statusCode || 400).json({
+      error: validation.error
     });
   }
 
-  // Validate State Transitions
   const currentStatus = request.status;
   const finalResponseNotes = (responseNotes || reason || '').trim();
+  const finalResolutionNotes = (resolutionNotes || '').trim();
 
-  // Rule 1: REJECTED requires responseNotes or reason
-  if (targetStatus === 'REJECTED' && !finalResponseNotes) {
-    return res.status(400).json({
-      error: 'Rejection requires a mandatory explanation in responseNotes.'
-    });
-  }
-
-  // Rule 2: Only assigned ambulance driver can ACCEPT an ambulance request
-  if (request.type === 'AMBULANCE' && targetStatus === 'ACCEPTED') {
-    if (req.user.role === 'AMBULANCE') {
-      if (request.assignedAmbulanceId && req.user.ambulanceId !== request.assignedAmbulanceId) {
-        return res.status(403).json({
-          error: "Driver cannot accept another driver's request."
-        });
-      }
-    } else if (req.user.role !== 'ADMIN') {
-      return res.status(403).json({
-        error: 'Only the assigned ambulance driver or admin can mark ambulance request as ACCEPTED.'
-      });
-    }
-  }
-
-  // Rule 3: Only assigned System Doctor can RESOLVE a conflict
-  if (targetStatus === 'RESOLVED') {
-    if (req.user.role !== 'SYSTEM_DOCTOR' && req.user.role !== 'ADMIN') {
-      return res.status(403).json({
-        error: 'Only an authorized System Doctor can mark an escalated request as RESOLVED.'
-      });
-    }
-  }
-
-  // State Transition validity matrix
-  let isValidTransition = false;
-
-  if (currentStatus === targetStatus && ambulanceTripStatus) {
-    // Only updating trip sub-state
-    isValidTransition = true;
-  } else if (currentStatus === 'PENDING') {
-    if (['ASSIGNED', 'ACCEPTED', 'REJECTED'].includes(targetStatus)) isValidTransition = true;
-  } else if (currentStatus === 'ASSIGNED') {
-    if (['ACCEPTED', 'REJECTED', 'RESOLVED'].includes(targetStatus)) isValidTransition = true;
-  } else if (currentStatus === 'ACCEPTED') {
-    if (['COMPLETED', 'REJECTED'].includes(targetStatus)) isValidTransition = true;
-  } else if (currentStatus === 'REJECTED') {
-    if (targetStatus === 'ASSIGNED' && (req.user.role === 'ADMIN' || req.user.role === 'SYSTEM_DOCTOR')) {
-      isValidTransition = true; // Admin escalating to doctor
-    }
-  }
-
-  if (!isValidTransition) {
-    return res.status(400).json({
-      error: `Invalid status transition from '${currentStatus}' to '${targetStatus}'.`
-    });
-  }
-
-  // Prepare updates
   const updates = {
     status: targetStatus,
     responseNotes: finalResponseNotes || request.responseNotes
   };
+
+  if (finalResolutionNotes) {
+    updates.resolutionNotes = finalResolutionNotes;
+  }
 
   if (ambulanceTripStatus) {
     updates.ambulanceTripStatus = ambulanceTripStatus;
@@ -385,17 +361,29 @@ router.put('/:id/status', authenticateToken, (req, res) => {
     }
   }
 
-  // Transactional resource decrement if ADMISSION or H2H_TRANSFER is ACCEPTED
-  if ((request.type === 'ADMISSION' || request.type === 'H2H_TRANSFER') && targetStatus === 'ACCEPTED' && currentStatus !== 'ACCEPTED') {
+  if (alternativeHospitalId) {
+    const altHosp = store.findById('hospitals', alternativeHospitalId);
+    if (altHosp) {
+      updates.targetHospitalId = altHosp.id;
+      updates.targetHospitalName = altHosp.name;
+    }
+  }
+
+  const normalizedType = normalizeRequestType(request.type);
+
+  // Resource & Stock Decrements
+  if (
+    (normalizedType === REQUEST_TYPES.PATIENT_ADMISSION || normalizedType === REQUEST_TYPES.HOSPITAL_TRANSFER) &&
+    targetStatus === 'ACCEPTED' &&
+    currentStatus !== 'ACCEPTED'
+  ) {
     const hosp = store.findById('hospitals', request.targetHospitalId);
     if (hosp) {
       const bedType = (request.details?.bedType || 'GENERAL').toUpperCase();
       let resourceKey = 'generalBedsAvailable';
-      if (bedType === 'ICU') {
-        resourceKey = 'icuBedsAvailable';
-      } else if (bedType === 'VENTILATOR') {
-        resourceKey = 'ventilatorsAvailable';
-      }
+      if (bedType === 'ICU') resourceKey = 'icuBedsAvailable';
+      else if (bedType === 'VENTILATOR') resourceKey = 'ventilatorsAvailable';
+
       const updatedHosp = store.decrementResource(hosp.id, resourceKey, 1);
       if (updatedHosp) {
         broadcastResourceUpdate(hosp.id, updatedHosp.resources);
@@ -403,8 +391,11 @@ router.put('/:id/status', authenticateToken, (req, res) => {
     }
   }
 
-  // Transactional blood stock decrement if BLOOD request is ACCEPTED
-  if (request.type === 'BLOOD' && targetStatus === 'ACCEPTED' && currentStatus !== 'ACCEPTED') {
+  if (
+    normalizedType === REQUEST_TYPES.BLOOD_REQUEST &&
+    targetStatus === 'ACCEPTED' &&
+    currentStatus !== 'ACCEPTED'
+  ) {
     const hosp = store.findById('hospitals', request.targetHospitalId);
     if (hosp && request.details?.bloodGroup) {
       const units = Number(request.details?.unitsRequired) || 1;
@@ -416,8 +407,8 @@ router.put('/:id/status', authenticateToken, (req, res) => {
     }
   }
 
-  // If ambulance accepted, update ambulance's currentRequestId and trip status
-  if (request.type === 'AMBULANCE' && targetStatus === 'ACCEPTED') {
+  // Ambulance Fleet Status Transitions
+  if (normalizedType === REQUEST_TYPES.AMBULANCE_REQUEST && targetStatus === 'ACCEPTED') {
     const ambId = updates.assignedAmbulanceId || request.assignedAmbulanceId;
     if (ambId) {
       store.update('ambulances', ambId, {
@@ -430,7 +421,7 @@ router.put('/:id/status', authenticateToken, (req, res) => {
     }
   }
 
-  if (request.type === 'AMBULANCE' && targetStatus === 'COMPLETED') {
+  if (normalizedType === REQUEST_TYPES.AMBULANCE_REQUEST && targetStatus === 'COMPLETED') {
     const ambId = request.assignedAmbulanceId;
     if (ambId) {
       store.update('ambulances', ambId, {
@@ -441,30 +432,45 @@ router.put('/:id/status', authenticateToken, (req, res) => {
     }
   }
 
-  if (request.type === 'AMBULANCE' && targetStatus === 'REJECTED') {
+  if (normalizedType === REQUEST_TYPES.AMBULANCE_REQUEST && targetStatus === 'REJECTED') {
     const ambId = request.assignedAmbulanceId;
     if (ambId) {
       store.update('ambulances', ambId, {
+        status: 'AVAILABLE',
         currentRequestId: null
       });
     }
   }
 
-  // Append timeline entry
+  // Timeline
   const newTimelineItem = {
     status: targetStatus,
     timestamp: new Date().toISOString(),
     actorRole: req.user.role,
     actorName: req.user.name,
-    note: updates.responseNotes || updates.ambulanceTripStatus || `Status transitioned to ${targetStatus}`
+    note: updates.responseNotes || updates.resolutionNotes || updates.ambulanceTripStatus || `Status transitioned to ${targetStatus}`
   };
 
   updates.timeline = [...(request.timeline || []), newTimelineItem];
 
   const updated = store.update('requests', id, updates);
 
-  // Broadcast real-time Socket event
+  // Broadcast & Generate Notifications
   broadcastRequestStatusChange(updated);
+
+  if (normalizedType === REQUEST_TYPES.AMBULANCE_REQUEST) {
+    notifyAmbulanceEvent(updated, targetStatus);
+  } else if (normalizedType === REQUEST_TYPES.PATIENT_ADMISSION) {
+    notifyAdmissionRequest(updated);
+  } else if (normalizedType === REQUEST_TYPES.HOSPITAL_TRANSFER) {
+    notifyTransferRequest(updated);
+  } else if (normalizedType === REQUEST_TYPES.BLOOD_REQUEST) {
+    notifyBloodRequest(updated);
+  }
+
+  if (targetStatus === 'RESOLVED') {
+    notifyConflictResolution(updated);
+  }
 
   store.logAudit({
     actorId: req.user.id,
