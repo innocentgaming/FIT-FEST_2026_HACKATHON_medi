@@ -1,0 +1,13 @@
+{
+  "name": "medilink-care-root",
+  "version": "1.0.0",
+  "description": "MediLink CARE - Unified Healthcare Coordination Platform",
+  "scripts": {
+    "build:all": "cd frontend && npm install && npm run build && cd ../backend && npm install",
+    "start:prod": "cd backend && node src/server.js",
+    "test:all": "cd backend && npm run test:all"
+  },
+  "keywords": ["healthcare", "hackathon", "coordination", "emergency"],
+  "author": "MediLink Team",
+  "license": "MIT"
+}
