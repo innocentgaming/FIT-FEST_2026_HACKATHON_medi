@@ -15,8 +15,9 @@ export const SocketProvider = ({ children }) => {
   const [liveAppointmentUpdate, setLiveAppointmentUpdate] = useState(null);
 
   useEffect(() => {
-    // Connect to Socket.io server
-    const newSocket = io({
+    // Connect to Socket.io server (supports custom host or same-origin)
+    const socketEndpoint = import.meta.env.VITE_SOCKET_URL || undefined;
+    const newSocket = io(socketEndpoint, {
       transports: ['websocket', 'polling']
     });
 
