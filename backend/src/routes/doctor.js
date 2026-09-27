@@ -41,10 +41,10 @@ router.get('/assigned-requests', (req, res) => {
   res.json({ requests: assigned, count: assigned.length });
 });
 
-// Resolve Conflict (Select alternative facility, add resolutionNotes, mark RESOLVED)
 router.put('/requests/:requestId/resolve', (req, res) => {
   const { requestId } = req.params;
-  const { alternativeHospitalId, resolutionNotes, assignedBedType } = req.body;
+  const { alternativeHospitalId, targetHospitalId, resolutionNotes, assignedBedType } = req.body;
+  const altHospId = alternativeHospitalId || targetHospitalId;
 
   if (!resolutionNotes || !resolutionNotes.trim()) {
     return res.status(400).json({ error: 'Comprehensive resolution notes are required to resolve the conflict.' });
@@ -66,7 +66,7 @@ router.put('/requests/:requestId/resolve', (req, res) => {
   }
 
   const oldStatus = request.status;
-  const altHospital = alternativeHospitalId ? store.findById('hospitals', alternativeHospitalId) : null;
+  const altHospital = altHospId ? store.findById('hospitals', altHospId) : null;
 
   const updates = {
     status: 'RESOLVED',

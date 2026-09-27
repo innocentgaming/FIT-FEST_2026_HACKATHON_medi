@@ -91,6 +91,22 @@ router.get('/', authenticateToken, (req, res) => {
   });
 });
 
+// Semantic Alias: GET /my (Patient's own appointments)
+router.get('/my', authenticateToken, (req, res) => {
+  const appointments = store.findWhere('appointments', (a) => a.patientId === req.user.id);
+  res.json({ appointments, count: appointments.length });
+});
+
+// Semantic Alias: GET /hospital/:id (Appointments for a specific hospital)
+router.get('/hospital/:hospitalId', authenticateToken, (req, res) => {
+  const { hospitalId } = req.params;
+  if (req.user.role === 'HOSPITAL' && req.user.hospitalId !== hospitalId) {
+    return res.status(403).json({ error: 'Unauthorized to view another hospital appointments.' });
+  }
+  const appointments = store.findWhere('appointments', (a) => a.hospitalId === hospitalId);
+  res.json({ appointments, count: appointments.length });
+});
+
 // Book appointment with duplicate & past date validation
 router.post('/', authenticateToken, requireRole('PATIENT', 'HOSPITAL', 'ADMIN'), (req, res) => {
   const {
@@ -104,13 +120,16 @@ router.post('/', authenticateToken, requireRole('PATIENT', 'HOSPITAL', 'ADMIN'),
     appointmentTime,
     date,
     time,
+    timeSlot,
     purpose,
+    reasonForVisit,
+    reason,
     administrativeNotes,
     notes
   } = req.body;
 
   const targetDate = appointmentDate || date;
-  const targetTime = appointmentTime || time;
+  const targetTime = appointmentTime || time || timeSlot;
 
   if (!hospitalId || !targetDate || !targetTime) {
     return res.status(400).json({ error: 'Hospital ID, appointment date, and time are required.' });

@@ -18,15 +18,16 @@ const MEDICAL_PROHIBITED_TERMS = [
 ];
 
 const administrativeSafetyGuard = (req, res, next) => {
-  // Check if incoming payload contains clinical advice / prescription attempts
-  const bodyString = JSON.stringify(req.body || {}).toLowerCase();
+  if (req.body && typeof req.body === 'object') {
+    const bodyString = JSON.stringify(req.body).toLowerCase();
 
-  for (const term of MEDICAL_PROHIBITED_TERMS) {
-    if (bodyString.includes(`"prescription"`) || bodyString.includes(`"diagnosis"`)) {
-      return res.status(400).json({
-        error: `Administrative Scope Violation: MediLink CARE coordinates healthcare logistics, beds, blood bank stock, ambulances, and appointments only. Clinical fields (${term}) are strictly prohibited.`,
-        disclaimer: 'MediLink is NOT a medical diagnostic or treatment platform.'
-      });
+    for (const term of MEDICAL_PROHIBITED_TERMS) {
+      if (bodyString.includes(term.toLowerCase())) {
+        return res.status(400).json({
+          error: `[SAFETY WARNING] Scope Violation: MediLink CARE coordinates healthcare logistics, beds, blood bank stock, ambulances, and appointments only. Clinical/Diagnostic terms ('${term}') are strictly prohibited.`,
+          disclaimer: 'MediLink is NOT a medical diagnostic or treatment platform.'
+        });
+      }
     }
   }
 

@@ -89,6 +89,7 @@ router.get('/patient-requests', (req, res) => {
       escalatedCount: store.get('requests').filter((r) => r.status === 'ASSIGNED' && r.assignedDoctorId).length,
       resolvedCount: store.get('requests').filter((r) => r.status === 'RESOLVED').length
     },
+    requests,
     allRequests: requests,
     unresolvedQueue: store.get('requests').filter((r) => r.status === 'REJECTED')
   });
