@@ -681,13 +681,48 @@ class Store {
     return list.find((item) => item.id === id);
   }
 
+  findByIndex(collection, field, value) {
+    const list = this.get(collection);
+    const v = typeof value === 'string' ? value.toLowerCase() : value;
+    return list.find((item) => {
+      const itemVal = item[field];
+      return typeof itemVal === 'string' ? itemVal.toLowerCase() === v : itemVal === v;
+    });
+  }
+
+  findManyByIndex(collection, field, value) {
+    const list = this.get(collection);
+    const v = typeof value === 'string' ? value.toLowerCase() : value;
+    return list.filter((item) => {
+      const itemVal = item[field];
+      return typeof itemVal === 'string' ? itemVal.toLowerCase() === v : itemVal === v;
+    });
+  }
+
+  findWhere(collection, predicate) {
+    const list = this.get(collection);
+    return list.filter(predicate);
+  }
+
+  validateForeignKey(targetCollection, id) {
+    if (!id) return true; // Optional FK
+    const target = this.findById(targetCollection, id);
+    return !!target;
+  }
+
   insert(collection, item) {
     if (!this.data[collection]) {
       this.data[collection] = [];
     }
-    this.data[collection].push(item);
+    const now = new Date().toISOString();
+    const entity = {
+      ...item,
+      createdAt: item.createdAt || now,
+      updatedAt: item.updatedAt || now
+    };
+    this.data[collection].push(entity);
     this.save();
-    return item;
+    return entity;
   }
 
   update(collection, id, updates) {

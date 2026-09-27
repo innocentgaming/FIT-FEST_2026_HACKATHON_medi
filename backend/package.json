@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
-    "test": "node test/api.test.js"
+    "test": "node test/api.test.js",
+    "test:auth": "node test/auth-rbac.test.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
