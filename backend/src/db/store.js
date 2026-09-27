@@ -1,0 +1,734 @@
+const fs = require('fs');
+const path = require('path');
+const bcrypt = require('bcryptjs');
+
+const DB_FILE = path.join(__dirname, 'data.json');
+
+// Helper to hash password synchronously during seed
+const hash = (pwd) => bcrypt.hashSync(pwd, 10);
+
+const INITIAL_SEED_DATA = {
+  users: [
+    {
+      id: 'usr_patient_1',
+      name: 'Aarav Sharma',
+      email: 'aarav@example.com',
+      phone: '9876543210',
+      password: hash('patient123'),
+      role: 'PATIENT',
+      bloodGroup: 'B+',
+      emergencyContact: 'Pooja Sharma (9876543211)',
+      address: 'Kothrud, Pune, Maharashtra 411038',
+      createdAt: '2026-01-10T08:00:00.000Z'
+    },
+    {
+      id: 'usr_patient_2',
+      name: 'Sneha Patil',
+      email: 'sneha@example.com',
+      phone: '9876543222',
+      password: hash('patient123'),
+      role: 'PATIENT',
+      bloodGroup: 'O-',
+      emergencyContact: 'Ramesh Patil (9876543223)',
+      address: 'Viman Nagar, Pune, Maharashtra 411014',
+      createdAt: '2026-02-15T09:30:00.000Z'
+    },
+    {
+      id: 'usr_hosp_1',
+      name: 'Ruby Hall Clinic Admin',
+      email: 'rubyhall@medilink.org',
+      phone: '02066455100',
+      password: hash('hospital123'),
+      role: 'HOSPITAL',
+      hospitalId: 'hosp_ruby_hall',
+      address: '40 Sassoon Road, Sangamvadi, Pune 411001',
+      createdAt: '2026-01-01T00:00:00.000Z'
+    },
+    {
+      id: 'usr_hosp_2',
+      name: 'KEM Hospital Admin',
+      email: 'kem@medilink.org',
+      phone: '02066037300',
+      password: hash('hospital123'),
+      role: 'HOSPITAL',
+      hospitalId: 'hosp_kem_pune',
+      address: '489 Rasta Peth, Sardar Moodliar Road, Pune 411011',
+      createdAt: '2026-01-01T00:00:00.000Z'
+    },
+    {
+      id: 'usr_hosp_3',
+      name: 'Sahyadri Super Speciality Admin',
+      email: 'sahyadri@medilink.org',
+      phone: '02067213000',
+      password: hash('hospital123'),
+      role: 'HOSPITAL',
+      hospitalId: 'hosp_sahyadri',
+      address: 'Deccan Gymkhana, Karve Road, Pune 411004',
+      createdAt: '2026-01-01T00:00:00.000Z'
+    },
+    {
+      id: 'usr_amb_1',
+      name: 'Santosh Shinde',
+      email: 'driver1@medilink.org',
+      phone: '9822012345',
+      password: hash('ambulance123'),
+      role: 'AMBULANCE',
+      ambulanceId: 'amb_pune_101',
+      hospitalId: 'hosp_ruby_hall',
+      vehicleNo: 'MH-12-CR-1011',
+      createdAt: '2026-01-05T00:00:00.000Z'
+    },
+    {
+      id: 'usr_amb_2',
+      name: 'Vijay Gaikwad',
+      email: 'driver2@medilink.org',
+      phone: '9822056789',
+      password: hash('ambulance123'),
+      role: 'AMBULANCE',
+      ambulanceId: 'amb_pune_102',
+      hospitalId: 'hosp_kem_pune',
+      vehicleNo: 'MH-12-EM-2022',
+      createdAt: '2026-01-05T00:00:00.000Z'
+    },
+    {
+      id: 'usr_admin',
+      name: 'State Health Command Admin',
+      email: 'admin@medilink.gov.in',
+      phone: '02025550000',
+      password: hash('admin123'),
+      role: 'ADMIN',
+      createdAt: '2026-01-01T00:00:00.000Z'
+    },
+    {
+      id: 'usr_doc_1',
+      name: 'Dr. Anand Joshi',
+      email: 'dr.joshi@medilink.gov.in',
+      phone: '9422011223',
+      password: hash('doctor123'),
+      role: 'SYSTEM_DOCTOR',
+      specialty: 'Emergency Medicine & Triage Specialist',
+      hospitalId: 'hosp_ruby_hall',
+      createdAt: '2026-01-01T00:00:00.000Z'
+    },
+    {
+      id: 'usr_doc_2',
+      name: 'Dr. Meera Kulkarni',
+      email: 'dr.kulkarni@medilink.gov.in',
+      phone: '9422044556',
+      password: hash('doctor123'),
+      role: 'SYSTEM_DOCTOR',
+      specialty: 'Critical Care & Resource Coordinator',
+      hospitalId: 'hosp_sahyadri',
+      createdAt: '2026-01-01T00:00:00.000Z'
+    }
+  ],
+
+  hospitals: [
+    {
+      id: 'hosp_ruby_hall',
+      name: 'Ruby Hall Clinic (Multi-Speciality)',
+      type: 'Multi-Speciality Tertiary Care',
+      address: '40 Sassoon Road, Sangamvadi, Pune 411001',
+      city: 'Pune',
+      area: 'Sangamvadi / Station',
+      lat: 18.5314,
+      lng: 73.8765,
+      phone: '020-66455100',
+      emergencyHelpline: '1066 / 020-66455666',
+      email: 'emergency@rubyhall.com',
+      resources: {
+        generalBedsTotal: 350,
+        generalBedsAvailable: 42,
+        icuBedsTotal: 60,
+        icuBedsAvailable: 8,
+        ventilatorsTotal: 30,
+        ventilatorsAvailable: 5,
+        oxygenCylindersTotal: 120,
+        oxygenCylindersAvailable: 34
+      },
+      bloodBank: {
+        'A+': 18,
+        'A-': 5,
+        'B+': 24,
+        'B-': 6,
+        'AB+': 9,
+        'AB-': 3,
+        'O+': 32,
+        'O-': 8
+      },
+      specialists: [
+        { id: 'spec_1', name: 'Dr. A. Deshmukh', specialty: 'Cardiology', timing: '10:00 AM - 02:00 PM', status: 'Available' },
+        { id: 'spec_2', name: 'Dr. V. Nambiar', specialty: 'Neurology & Stroke', timing: '02:00 PM - 06:00 PM', status: 'Available' },
+        { id: 'spec_3', name: 'Dr. R. Kulkarni', specialty: 'Orthopedics & Trauma', timing: '09:00 AM - 01:00 PM', status: 'In Surgery' }
+      ],
+      ambulances: ['amb_pune_101', 'amb_pune_103']
+    },
+    {
+      id: 'hosp_kem_pune',
+      name: 'KEM Hospital & Research Centre',
+      type: 'Tertiary Care & Research Center',
+      address: '489 Rasta Peth, Sardar Moodliar Road, Pune 411011',
+      city: 'Pune',
+      area: 'Rasta Peth / Camp',
+      lat: 18.5204,
+      lng: 73.8698,
+      phone: '020-66037300',
+      emergencyHelpline: '020-66037333',
+      email: 'info@kempune.org',
+      resources: {
+        generalBedsTotal: 280,
+        generalBedsAvailable: 25,
+        icuBedsTotal: 45,
+        icuBedsAvailable: 4,
+        ventilatorsTotal: 22,
+        ventilatorsAvailable: 2,
+        oxygenCylindersTotal: 90,
+        oxygenCylindersAvailable: 19
+      },
+      bloodBank: {
+        'A+': 14,
+        'A-': 3,
+        'B+': 19,
+        'B-': 4,
+        'AB+': 7,
+        'AB-': 1,
+        'O+': 28,
+        'O-': 4
+      },
+      specialists: [
+        { id: 'spec_4', name: 'Dr. S. Bapat', specialty: 'General Medicine & OPD', timing: '09:00 AM - 05:00 PM', status: 'Available' },
+        { id: 'spec_5', name: 'Dr. P. Agarwal', specialty: 'Pediatrics & Neonatal ICU', timing: '11:00 AM - 04:00 PM', status: 'Available' }
+      ],
+      ambulances: ['amb_pune_102']
+    },
+    {
+      id: 'hosp_sahyadri',
+      name: 'Sahyadri Super Speciality Hospital',
+      type: 'Super Speciality Hospital',
+      address: 'Plot No. 30 C, Erandwane, Karve Road, Pune 411004',
+      city: 'Pune',
+      area: 'Deccan / Erandwane',
+      lat: 18.5089,
+      lng: 73.8346,
+      phone: '020-67213000',
+      emergencyHelpline: '020-67213100',
+      email: 'contact@sahyadrihospitals.com',
+      resources: {
+        generalBedsTotal: 200,
+        generalBedsAvailable: 18,
+        icuBedsTotal: 40,
+        icuBedsAvailable: 6,
+        ventilatorsTotal: 20,
+        ventilatorsAvailable: 4,
+        oxygenCylindersTotal: 80,
+        oxygenCylindersAvailable: 22
+      },
+      bloodBank: {
+        'A+': 10,
+        'A-': 2,
+        'B+': 15,
+        'B-': 3,
+        'AB+': 5,
+        'AB-': 2,
+        'O+': 20,
+        'O-': 3
+      },
+      specialists: [
+        { id: 'spec_6', name: 'Dr. N. Shah', specialty: 'Nephrology & Dialysis', timing: '10:00 AM - 03:00 PM', status: 'Available' },
+        { id: 'spec_7', name: 'Dr. T. Gokhale', specialty: 'Critical Care Triage', timing: '08:00 AM - 08:00 PM', status: 'Available' }
+      ],
+      ambulances: ['amb_pune_104']
+    },
+    {
+      id: 'hosp_jehangir',
+      name: 'Jehangir Hospital',
+      type: 'Multi-Speciality Hospital',
+      address: '32 Sassoon Road, Opp. Pune Railway Station, Pune 411001',
+      city: 'Pune',
+      area: 'Pune Station',
+      lat: 18.5298,
+      lng: 73.8741,
+      phone: '020-66819999',
+      emergencyHelpline: '020-66819900',
+      email: 'emergency@jehangirhospital.com',
+      resources: {
+        generalBedsTotal: 300,
+        generalBedsAvailable: 35,
+        icuBedsTotal: 50,
+        icuBedsAvailable: 9,
+        ventilatorsTotal: 25,
+        ventilatorsAvailable: 7,
+        oxygenCylindersTotal: 100,
+        oxygenCylindersAvailable: 40
+      },
+      bloodBank: {
+        'A+': 22,
+        'A-': 6,
+        'B+': 30,
+        'B-': 7,
+        'AB+': 12,
+        'AB-': 4,
+        'O+': 35,
+        'O-': 9
+      },
+      specialists: [
+        { id: 'spec_8', name: 'Dr. S. Mehta', specialty: 'Cardiothoracic Surgery', timing: '11:00 AM - 03:00 PM', status: 'Available' },
+        { id: 'spec_9', name: 'Dr. K. Iyer', specialty: 'Pulmonology & Respiratory Care', timing: '01:00 PM - 05:00 PM', status: 'Available' }
+      ],
+      ambulances: []
+    }
+  ],
+
+  ambulances: [
+    {
+      id: 'amb_pune_101',
+      vehicleNo: 'MH-12-CR-1011',
+      driverName: 'Santosh Shinde',
+      driverPhone: '9822012345',
+      driverUserId: 'usr_amb_1',
+      hospitalId: 'hosp_ruby_hall',
+      hospitalName: 'Ruby Hall Clinic',
+      type: 'Advanced Cardiac Life Support (ACLS)',
+      equipment: ['Defibrillator', 'Transport Ventilator', 'Oxygen Flowmeter', 'Emergency Kit'],
+      status: 'Available', // Available, On Duty, Offline
+      currentLocation: {
+        lat: 18.5314,
+        lng: 73.8765,
+        address: 'Sangamvadi Hub, Ruby Hall Clinic, Pune',
+        heading: 90,
+        speedKmph: 0
+      },
+      isSimulatedGps: true,
+      currentRequestId: null,
+      updatedAt: '2026-09-27T12:00:00.000Z'
+    },
+    {
+      id: 'amb_pune_102',
+      vehicleNo: 'MH-12-EM-2022',
+      driverName: 'Vijay Gaikwad',
+      driverPhone: '9822056789',
+      driverUserId: 'usr_amb_2',
+      hospitalId: 'hosp_kem_pune',
+      hospitalName: 'KEM Hospital',
+      type: 'Basic Life Support (BLS)',
+      equipment: ['Oxygen Setup', 'Stretcher', 'Basic Trauma Kit'],
+      status: 'Available',
+      currentLocation: {
+        lat: 18.5204,
+        lng: 73.8698,
+        address: 'Rasta Peth Base, KEM Hospital, Pune',
+        heading: 180,
+        speedKmph: 0
+      },
+      isSimulatedGps: true,
+      currentRequestId: null,
+      updatedAt: '2026-09-27T12:00:00.000Z'
+    },
+    {
+      id: 'amb_pune_103',
+      vehicleNo: 'MH-12-NL-3033',
+      driverName: 'Prakash More',
+      driverPhone: '9822077889',
+      driverUserId: null,
+      hospitalId: 'hosp_ruby_hall',
+      hospitalName: 'Ruby Hall Clinic',
+      type: 'Neonatal & Pediatric Care Ambulance',
+      equipment: ['Incubator', 'Pediatric Ventilator', 'Infusion Pumps'],
+      status: 'Available',
+      currentLocation: {
+        lat: 18.5345,
+        lng: 73.8810,
+        address: 'Pune Station Circle, Pune',
+        heading: 45,
+        speedKmph: 0
+      },
+      isSimulatedGps: true,
+      currentRequestId: null,
+      updatedAt: '2026-09-27T12:00:00.000Z'
+    },
+    {
+      id: 'amb_pune_104',
+      vehicleNo: 'MH-12-TX-4044',
+      driverName: 'Anil Jadhav',
+      driverPhone: '9822099112',
+      driverUserId: null,
+      hospitalId: 'hosp_sahyadri',
+      hospitalName: 'Sahyadri Super Speciality Hospital',
+      type: 'Advanced Life Support (ALS)',
+      equipment: ['Oxygen Generator', 'ECG Monitor', 'Emergency Drugs'],
+      status: 'Available',
+      currentLocation: {
+        lat: 18.5089,
+        lng: 73.8346,
+        address: 'Karve Road Station, Erandwane, Pune',
+        heading: 270,
+        speedKmph: 0
+      },
+      isSimulatedGps: true,
+      currentRequestId: null,
+      updatedAt: '2026-09-27T12:00:00.000Z'
+    }
+  ],
+
+  appointments: [
+    {
+      id: 'apt_1001',
+      patientId: 'usr_patient_1',
+      patientName: 'Aarav Sharma',
+      patientPhone: '9876543210',
+      hospitalId: 'hosp_ruby_hall',
+      hospitalName: 'Ruby Hall Clinic (Multi-Speciality)',
+      specialistName: 'Dr. A. Deshmukh',
+      specialty: 'Cardiology',
+      date: '2026-09-28',
+      time: '11:00 AM',
+      purpose: 'Routine Follow-up & Blood Pressure Check', // Administrative purpose only
+      status: 'CONFIRMED', // SCHEDULED, CONFIRMED, COMPLETED, CANCELLED, NO_SHOW
+      notes: 'Patient requested morning slot. Registration desk notified.',
+      createdAt: '2026-09-26T10:00:00.000Z',
+      updatedAt: '2026-09-26T11:00:00.000Z'
+    },
+    {
+      id: 'apt_1002',
+      patientId: 'usr_patient_2',
+      patientName: 'Sneha Patil',
+      patientPhone: '9876543222',
+      hospitalId: 'hosp_kem_pune',
+      hospitalName: 'KEM Hospital & Research Centre',
+      specialistName: 'Dr. S. Bapat',
+      specialty: 'General Medicine & OPD',
+      date: '2026-09-29',
+      time: '02:30 PM',
+      purpose: 'General OPD Administrative Consultation',
+      status: 'SCHEDULED',
+      notes: 'Desk check-in required 15 minutes prior to appointment.',
+      createdAt: '2026-09-27T08:30:00.000Z',
+      updatedAt: '2026-09-27T08:30:00.000Z'
+    },
+    {
+      id: 'apt_1003',
+      patientId: 'usr_patient_1',
+      patientName: 'Aarav Sharma',
+      patientPhone: '9876543210',
+      hospitalId: 'hosp_sahyadri',
+      hospitalName: 'Sahyadri Super Speciality Hospital',
+      specialistName: 'Dr. N. Shah',
+      specialty: 'Nephrology & Dialysis',
+      date: '2026-09-20',
+      time: '10:00 AM',
+      purpose: 'Preventive Health Assessment Registration',
+      status: 'COMPLETED',
+      notes: 'Administrative intake completed. Patient checked out at reception.',
+      createdAt: '2026-09-19T09:00:00.000Z',
+      updatedAt: '2026-09-20T11:00:00.000Z'
+    }
+  ],
+
+  // Requests lifecycle: PENDING -> ASSIGNED -> ACCEPTED -> COMPLETED / REJECTED -> (Escalated to Doctor) ASSIGNED -> RESOLVED
+  requests: [
+    {
+      id: 'req_amb_901',
+      type: 'AMBULANCE',
+      patientId: 'usr_patient_1',
+      patientName: 'Aarav Sharma',
+      patientPhone: '9876543210',
+      sourceHospitalId: null,
+      sourceHospitalName: null,
+      targetHospitalId: 'hosp_ruby_hall',
+      targetHospitalName: 'Ruby Hall Clinic (Multi-Speciality)',
+      assignedAmbulanceId: 'amb_pune_101',
+      assignedAmbulanceVehicle: 'MH-12-CR-1011',
+      assignedDoctorId: null,
+      assignedDoctorName: null,
+      status: 'ACCEPTED', // PENDING, ASSIGNED, ACCEPTED, COMPLETED, REJECTED, RESOLVED
+      ambulanceTripStatus: 'ON_THE_WAY', // null, ON_THE_WAY, ARRIVED, COMPLETED
+      priority: 'EMERGENCY',
+      details: {
+        pickupLocation: 'Flat 402, Rohan Corner, Kothrud, Pune',
+        pickupCoords: { lat: 18.5074, lng: 73.8077 },
+        dropLocation: 'Ruby Hall Clinic Emergency Gate 2, Sangamvadi, Pune',
+        dropCoords: { lat: 18.5314, lng: 73.8765 },
+        emergencyType: 'Severe Respiratory Distress & Low SpO2',
+        additionalContact: '9876543211',
+        requiresOxygen: true
+      },
+      responseNotes: 'Dispatched ACLS unit MH-12-CR-1011. Driver Santosh En-Route.',
+      resolutionNotes: '',
+      timeline: [
+        {
+          status: 'PENDING',
+          timestamp: '2026-09-27T13:00:00.000Z',
+          actorRole: 'PATIENT',
+          actorName: 'Aarav Sharma',
+          note: 'Emergency ambulance request submitted via Emergency Mode.'
+        },
+        {
+          status: 'ASSIGNED',
+          timestamp: '2026-09-27T13:01:30.000Z',
+          actorRole: 'HOSPITAL',
+          actorName: 'Ruby Hall Clinic Admin',
+          note: 'Assigned Ambulance Unit MH-12-CR-1011.'
+        },
+        {
+          status: 'ACCEPTED',
+          timestamp: '2026-09-27T13:02:15.000Z',
+          actorRole: 'AMBULANCE',
+          actorName: 'Santosh Shinde',
+          note: 'Driver accepted dispatch. Ambulance is ON THE WAY (ETA 12 mins).'
+        }
+      ],
+      createdAt: '2026-09-27T13:00:00.000Z',
+      updatedAt: '2026-09-27T13:02:15.000Z'
+    },
+    {
+      id: 'req_adm_902',
+      type: 'ADMISSION',
+      patientId: 'usr_patient_2',
+      patientName: 'Sneha Patil',
+      patientPhone: '9876543222',
+      sourceHospitalId: null,
+      sourceHospitalName: null,
+      targetHospitalId: 'hosp_kem_pune',
+      targetHospitalName: 'KEM Hospital & Research Centre',
+      assignedAmbulanceId: null,
+      assignedAmbulanceVehicle: null,
+      assignedDoctorId: null,
+      assignedDoctorName: null,
+      status: 'REJECTED', // Rejected so we can showcase Admin escalation to System Doctor
+      ambulanceTripStatus: null,
+      priority: 'EMERGENCY',
+      details: {
+        bedType: 'ICU',
+        reason: 'Trauma ICU bed requirement post road accident',
+        urgency: 'Immediate'
+      },
+      responseNotes: 'ICU capacity fully booked at time of request. Only general beds available.',
+      resolutionNotes: '',
+      timeline: [
+        {
+          status: 'PENDING',
+          timestamp: '2026-09-27T11:00:00.000Z',
+          actorRole: 'PATIENT',
+          actorName: 'Sneha Patil',
+          note: 'Urgent ICU admission requested at KEM Hospital.'
+        },
+        {
+          status: 'REJECTED',
+          timestamp: '2026-09-27T11:15:00.000Z',
+          actorRole: 'HOSPITAL',
+          actorName: 'KEM Hospital Admin',
+          note: 'ICU capacity fully booked at time of request. Only general beds available.'
+        }
+      ],
+      createdAt: '2026-09-27T11:00:00.000Z',
+      updatedAt: '2026-09-27T11:15:00.000Z'
+    },
+    {
+      id: 'req_bld_903',
+      type: 'BLOOD',
+      patientId: 'usr_patient_1',
+      patientName: 'Aarav Sharma',
+      patientPhone: '9876543210',
+      sourceHospitalId: null,
+      sourceHospitalName: null,
+      targetHospitalId: 'hosp_ruby_hall',
+      targetHospitalName: 'Ruby Hall Clinic',
+      assignedAmbulanceId: null,
+      assignedAmbulanceVehicle: null,
+      assignedDoctorId: null,
+      assignedDoctorName: null,
+      status: 'PENDING',
+      ambulanceTripStatus: null,
+      priority: 'URGENT',
+      details: {
+        bloodGroup: 'B+',
+        unitsRequired: 2,
+        urgency: 'Urgent',
+        location: 'Pune',
+        patientConditionNote: 'Administrative blood requirement requisition for elective surgery preparation.'
+      },
+      responseNotes: '',
+      resolutionNotes: '',
+      timeline: [
+        {
+          status: 'PENDING',
+          timestamp: '2026-09-27T12:30:00.000Z',
+          actorRole: 'PATIENT',
+          actorName: 'Aarav Sharma',
+          note: 'Submitted blood bank requisition for 2 units of B+.'
+        }
+      ],
+      createdAt: '2026-09-27T12:30:00.000Z',
+      updatedAt: '2026-09-27T12:30:00.000Z'
+    },
+    {
+      id: 'req_h2h_904',
+      type: 'H2H_TRANSFER',
+      patientId: 'usr_patient_2',
+      patientName: 'Sneha Patil',
+      patientPhone: '9876543222',
+      sourceHospitalId: 'hosp_kem_pune',
+      sourceHospitalName: 'KEM Hospital & Research Centre',
+      targetHospitalId: 'hosp_sahyadri',
+      targetHospitalName: 'Sahyadri Super Speciality Hospital',
+      assignedAmbulanceId: null,
+      assignedAmbulanceVehicle: null,
+      assignedDoctorId: null,
+      assignedDoctorName: null,
+      status: 'PENDING',
+      ambulanceTripStatus: null,
+      priority: 'URGENT',
+      details: {
+        reason: 'Specialized Nephrology & Dialysis transfer request',
+        bedType: 'ICU',
+        transferNotes: 'Patient stabilized. Dialysis unit required.'
+      },
+      responseNotes: '',
+      resolutionNotes: '',
+      timeline: [
+        {
+          status: 'PENDING',
+          timestamp: '2026-09-27T13:10:00.000Z',
+          actorRole: 'HOSPITAL',
+          actorName: 'KEM Hospital Admin',
+          note: 'Initiated Hospital-to-Hospital transfer request to Sahyadri Super Speciality.'
+        }
+      ],
+      createdAt: '2026-09-27T13:10:00.000Z',
+      updatedAt: '2026-09-27T13:10:00.000Z'
+    }
+  ],
+
+  auditLogs: [
+    {
+      id: 'log_001',
+      timestamp: '2026-09-27T13:00:00.000Z',
+      actorId: 'usr_patient_1',
+      actorName: 'Aarav Sharma',
+      actorRole: 'PATIENT',
+      action: 'CREATE_REQUEST',
+      resourceType: 'AMBULANCE_REQUEST',
+      resourceId: 'req_amb_901',
+      details: 'Emergency ambulance request initiated for Kothrud pickup'
+    },
+    {
+      id: 'log_002',
+      timestamp: '2026-09-27T13:01:30.000Z',
+      actorId: 'usr_hosp_1',
+      actorName: 'Ruby Hall Clinic Admin',
+      actorRole: 'HOSPITAL',
+      action: 'ASSIGN_AMBULANCE',
+      resourceType: 'AMBULANCE_REQUEST',
+      resourceId: 'req_amb_901',
+      details: 'Assigned ambulance MH-12-CR-1011 (Driver: Santosh Shinde)'
+    },
+    {
+      id: 'log_003',
+      timestamp: '2026-09-27T13:02:15.000Z',
+      actorId: 'usr_amb_1',
+      actorName: 'Santosh Shinde',
+      actorRole: 'AMBULANCE',
+      action: 'ACCEPT_REQUEST',
+      resourceType: 'AMBULANCE_REQUEST',
+      resourceId: 'req_amb_901',
+      details: 'Driver accepted trip. Set trip status to ON_THE_WAY'
+    }
+  ]
+};
+
+class Store {
+  constructor() {
+    this.data = null;
+    this.init();
+  }
+
+  init() {
+    try {
+      if (fs.existsSync(DB_FILE)) {
+        const raw = fs.readFileSync(DB_FILE, 'utf-8');
+        this.data = JSON.parse(raw);
+      } else {
+        this.data = JSON.parse(JSON.stringify(INITIAL_SEED_DATA));
+        this.save();
+      }
+    } catch (err) {
+      console.error('Error loading db file, resetting to seed data:', err);
+      this.data = JSON.parse(JSON.stringify(INITIAL_SEED_DATA));
+      this.save();
+    }
+  }
+
+  save() {
+    try {
+      fs.writeFileSync(DB_FILE, JSON.stringify(this.data, null, 2), 'utf-8');
+    } catch (err) {
+      console.error('Error saving db file:', err);
+    }
+  }
+
+  resetToSeed() {
+    this.data = JSON.parse(JSON.stringify(INITIAL_SEED_DATA));
+    this.save();
+    return this.data;
+  }
+
+  get(collection) {
+    return this.data[collection] || [];
+  }
+
+  findById(collection, id) {
+    const list = this.get(collection);
+    return list.find((item) => item.id === id);
+  }
+
+  insert(collection, item) {
+    if (!this.data[collection]) {
+      this.data[collection] = [];
+    }
+    this.data[collection].push(item);
+    this.save();
+    return item;
+  }
+
+  update(collection, id, updates) {
+    const list = this.get(collection);
+    const index = list.findIndex((item) => item.id === id);
+    if (index === -1) return null;
+    this.data[collection][index] = {
+      ...this.data[collection][index],
+      ...updates,
+      updatedAt: new Date().toISOString()
+    };
+    this.save();
+    return this.data[collection][index];
+  }
+
+  delete(collection, id) {
+    const list = this.get(collection);
+    const index = list.findIndex((item) => item.id === id);
+    if (index === -1) return false;
+    this.data[collection].splice(index, 1);
+    this.save();
+    return true;
+  }
+
+  logAudit({ actorId, actorName, actorRole, action, resourceType, resourceId, details }) {
+    const log = {
+      id: `log_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      timestamp: new Date().toISOString(),
+      actorId: actorId || 'SYSTEM',
+      actorName: actorName || 'System Process',
+      actorRole: actorRole || 'SYSTEM',
+      action,
+      resourceType,
+      resourceId,
+      details: typeof details === 'object' ? JSON.stringify(details) : details
+    };
+    this.insert('auditLogs', log);
+    return log;
+  }
+}
+
+const store = new Store();
+
+module.exports = { store, INITIAL_SEED_DATA };
