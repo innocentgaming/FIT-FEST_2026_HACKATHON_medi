@@ -296,15 +296,18 @@ router.get('/me', authenticateToken, (req, res) => {
   res.json({ user: safeUser, ...extra });
 });
 
-// Seeded quick demo accounts helper for hackathon judges & testers
+// Seeded quick demo accounts helper for testing individual patient and doctor logins
 router.get('/demo-accounts', (req, res) => {
   res.json({
     accounts: [
-      { role: 'PATIENT', label: 'Patient (Aarav Sharma)', identifier: '9876543210', password: 'patient123' },
-      { role: 'HOSPITAL', label: 'Hospital Admin (Ruby Hall Clinic)', identifier: 'rubyhall@medilink.org', password: 'hospital123' },
-      { role: 'AMBULANCE', label: 'Ambulance Driver (Santosh Shinde)', identifier: '9822012345', password: 'ambulance123' },
-      { role: 'ADMIN', label: 'State Command Admin', identifier: 'admin@medilink.gov.in', password: 'admin123' },
-      { role: 'SYSTEM_DOCTOR', label: 'System Doctor (Dr. Anand Joshi)', identifier: 'dr.joshi@medilink.gov.in', password: 'doctor123' }
+      { role: 'PATIENT', label: 'Patient: Aarav Sharma (B+)', identifier: '9876543210', password: 'patient123', sub: 'Blood Group B+ • Pune' },
+      { role: 'PATIENT', label: 'Patient: Sneha Patil (O-)', identifier: '9876543222', password: 'patient123', sub: 'Blood Group O- • Pune' },
+      { role: 'SYSTEM_DOCTOR', label: 'Doctor: Dr. Anand Joshi', identifier: 'dr.joshi@medilink.gov.in', password: 'doctor123', sub: 'Emergency Triage Specialist' },
+      { role: 'SYSTEM_DOCTOR', label: 'Doctor: Dr. Meera Kulkarni', identifier: 'dr.kulkarni@medilink.gov.in', password: 'doctor123', sub: 'Critical Care & Coordinator' },
+      { role: 'HOSPITAL', label: 'Hospital: Ruby Hall Clinic', identifier: 'rubyhall@medilink.org', password: 'hospital123', sub: 'Multi-Speciality Facility' },
+      { role: 'HOSPITAL', label: 'Hospital: KEM Hospital', identifier: 'kem@medilink.org', password: 'hospital123', sub: 'Tertiary Care Facility' },
+      { role: 'AMBULANCE', label: 'Ambulance: Santosh Shinde', identifier: '9822012345', password: 'ambulance123', sub: 'ALS Unit MH-12-CR-1011' },
+      { role: 'ADMIN', label: 'Command: Central Admin', identifier: 'admin@medilink.gov.in', password: 'admin123', sub: 'State Health Authority' }
     ]
   });
 });

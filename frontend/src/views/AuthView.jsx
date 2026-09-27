@@ -127,21 +127,21 @@ export const AuthView = () => {
         </p>
       </div>
 
-      {/* 1-Click Demo Accounts Quick Access */}
+      {/* 1-Click Role Logins for Testing Individual Patients & Doctors */}
       <div className="card" style={{ marginBottom: '2rem', background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.7) 100%)', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
           <ShieldCheck size={20} color="var(--primary-light)" />
           <h3 style={{ fontSize: '1.1rem', color: 'var(--text-primary)' }}>
-            Instant 1-Click Demo Access (5 Pre-Seeded Roles)
+            Select Account to Login (Individual Patients, Doctors & Providers)
           </h3>
         </div>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-          Click any role below to test its specialized dashboard, real-time sync, and permissions:
+          Each patient and doctor has their own isolated data and separate dashboard. Click below to login as that specific user:
         </p>
-        <div className="grid-3" style={{ gap: '0.75rem' }}>
-          {demoAccounts.map((acc) => (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
+          {demoAccounts.map((acc, idx) => (
             <button
-              key={acc.role}
+              key={`${acc.role}-${idx}`}
               onClick={() => handleQuickDemoLogin(acc)}
               disabled={loading}
               className="btn btn-secondary"
@@ -151,16 +151,22 @@ export const AuthView = () => {
                 justifyContent: 'space-between',
                 padding: '0.75rem 1rem',
                 textAlign: 'left',
-                border: '1px solid var(--border-card)'
+                border: '1px solid var(--border-card)',
+                background: 'var(--bg-subtle)'
               }}
             >
               <div>
                 <span className={`role-pill role-${acc.role.toLowerCase()}`}>
                   {acc.role.replace('_', ' ')}
                 </span>
-                <div style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)', marginTop: '4px' }}>
+                <div style={{ fontSize: '0.84rem', fontWeight: 700, color: 'var(--text-primary)', marginTop: '4px' }}>
                   {acc.label}
                 </div>
+                {acc.sub && (
+                  <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: '2px' }}>
+                    {acc.sub}
+                  </div>
+                )}
               </div>
               <ArrowRight size={16} color="var(--text-muted)" />
             </button>
