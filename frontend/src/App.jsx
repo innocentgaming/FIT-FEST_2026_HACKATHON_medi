@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense } from 'react';
 import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
@@ -8,12 +8,21 @@ import { Navbar } from './components/Navbar';
 import { EmergencyModal } from './components/EmergencyModal';
 import { ToastContainer } from './components/ToastContainer';
 
-import { AuthView } from './views/AuthView';
-import { PatientDashboard } from './views/PatientPortal/PatientDashboard';
-import { HospitalDashboard } from './views/HospitalPortal/HospitalDashboard';
-import { AmbulanceDashboard } from './views/AmbulancePortal/AmbulanceDashboard';
-import { AdminDashboard } from './views/AdminPortal/AdminDashboard';
-import { DoctorDashboard } from './views/DoctorPortal/DoctorDashboard';
+const AuthView = lazy(() => import('./views/AuthView').then(m => ({ default: m.AuthView })));
+const PatientDashboard = lazy(() => import('./views/PatientPortal/PatientDashboard').then(m => ({ default: m.PatientDashboard })));
+const HospitalDashboard = lazy(() => import('./views/HospitalPortal/HospitalDashboard').then(m => ({ default: m.HospitalDashboard })));
+const AmbulanceDashboard = lazy(() => import('./views/AmbulancePortal/AmbulanceDashboard').then(m => ({ default: m.AmbulanceDashboard })));
+const AdminDashboard = lazy(() => import('./views/AdminPortal/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const DoctorDashboard = lazy(() => import('./views/DoctorPortal/DoctorDashboard').then(m => ({ default: m.DoctorDashboard })));
+
+const ViewLoadingFallback = () => (
+  <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ textAlign: 'center' }}>
+      <div className="status-dot" style={{ width: '16px', height: '16px', background: '#38bdf8', margin: '0 auto 0.75rem', animation: 'pulseBeacon 1s infinite' }} />
+      <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Loading workspace...</p>
+    </div>
+  </div>
+);
 
 const MainApp = () => {
   const { user, loading } = useAuth();
@@ -55,7 +64,9 @@ const MainApp = () => {
       <Navbar activeView={activeView} setActiveView={setActiveView} />
 
       <main className="main-content" role="main">
-        {renderRoleDashboard()}
+        <Suspense fallback={<ViewLoadingFallback />}>
+          {renderRoleDashboard()}
+        </Suspense>
       </main>
 
       {/* Global Emergency Modal & Toasts */}
