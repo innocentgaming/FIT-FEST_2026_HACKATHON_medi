@@ -55,8 +55,27 @@ router.get('/', optionalAuth, (req, res) => {
         (h.specialists || []).some(
           (s) => s.specialty?.toLowerCase().includes(q) || s.name?.toLowerCase().includes(q)
         ) ||
-        (h.equipment || []).some((e) => e.toLowerCase().includes(q))
+        (h.equipment || []).some((e) => e.toLowerCase().includes(e))
     );
+  }
+
+  // Facility Type filter (Hospital, Clinic, Blood Bank)
+  const fType = (req.query.type || req.query.facilityType || '').trim().toLowerCase();
+  if (fType && fType !== 'all') {
+    hospitals = hospitals.filter((h) => {
+      const hType = (h.type || '').toLowerCase();
+      const hName = (h.name || '').toLowerCase();
+      if (fType.includes('blood')) {
+        return hType.includes('blood') || hName.includes('blood') || Object.values(h.bloodBank || {}).some((v) => v > 0);
+      }
+      if (fType.includes('clinic')) {
+        return hType.includes('clinic') || hName.includes('clinic');
+      }
+      if (fType.includes('hospital')) {
+        return hType.includes('hospital') || hName.includes('hospital');
+      }
+      return hType.includes(fType);
+    });
   }
 
   // Bed type category filter

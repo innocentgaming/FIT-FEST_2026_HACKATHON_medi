@@ -164,7 +164,7 @@ async function runAuthRbacTests() {
 
     // Driver 1 modifies own ambulance -> 200
     const ambOwnStatus = await request('PUT', '/api/ambulance/amb_pune_101/status', { status: 'Available' }, ambulanceToken);
-    assert(ambOwnStatus.status === 200 && ambOwnStatus.body.ambulance.status === 'Available', 'Driver 1 successfully updates own ambulance status (200)');
+    assert(ambOwnStatus.status === 200 && (ambOwnStatus.body.ambulance.status === 'Available' || ambOwnStatus.body.ambulance.status === 'AVAILABLE'), 'Driver 1 successfully updates own ambulance status (200)');
 
     // -------------------------------------------------------------
     // TEST 10: Admin Privileges & System-Wide Access

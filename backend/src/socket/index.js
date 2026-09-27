@@ -34,27 +34,46 @@ const getIO = () => {
 const broadcastResourceUpdate = (hospitalId, resources) => {
   if (!ioInstance) return;
   ioInstance.emit('resource_updated', { hospitalId, resources, timestamp: new Date().toISOString() });
+  ioInstance.emit('resource:updated', { hospitalId, resources, timestamp: new Date().toISOString() });
 };
 
 const broadcastBloodBankUpdate = (hospitalId, bloodBank) => {
   if (!ioInstance) return;
   ioInstance.emit('bloodbank_updated', { hospitalId, bloodBank, timestamp: new Date().toISOString() });
+  ioInstance.emit('bloodbank:updated', { hospitalId, bloodBank, timestamp: new Date().toISOString() });
 };
 
 const broadcastAmbulanceStatus = (ambulance) => {
   if (!ioInstance) return;
   ioInstance.emit('ambulance_status_updated', ambulance);
+  ioInstance.emit('ambulance:status', ambulance);
 };
 
 const broadcastAmbulanceLocation = (locationData) => {
   if (!ioInstance) return;
   ioInstance.emit('ambulance_location_updated', locationData);
+  ioInstance.emit('ambulance:location', locationData);
+};
+
+const broadcastRequestCreated = (request) => {
+  if (!ioInstance) return;
+  ioInstance.emit('request_created', request);
+  ioInstance.emit('request:created', request);
+  if (request.status === 'ASSIGNED' || request.assignedAmbulanceId) {
+    ioInstance.emit('request_assigned', request);
+    ioInstance.emit('request:assigned', request);
+  }
 };
 
 const broadcastRequestStatusChange = (request) => {
   if (!ioInstance) return;
   // Emit to all listeners & targeted rooms
   ioInstance.emit('request_updated', request);
+  ioInstance.emit('request:updated', request);
+  if (request.status === 'ASSIGNED') {
+    ioInstance.emit('request_assigned', request);
+    ioInstance.emit('request:assigned', request);
+  }
   if (request.patientId) {
     ioInstance.to(`user_${request.patientId}`).emit('notification', {
       type: 'REQUEST_UPDATE',
@@ -102,6 +121,7 @@ const broadcastRequestStatusChange = (request) => {
 const broadcastEmergencyAlert = (emergencyData) => {
   if (!ioInstance) return;
   ioInstance.emit('emergency_alert_created', emergencyData);
+  ioInstance.emit('emergency:alert', emergencyData);
 };
 
 module.exports = {
@@ -111,6 +131,7 @@ module.exports = {
   broadcastBloodBankUpdate,
   broadcastAmbulanceStatus,
   broadcastAmbulanceLocation,
+  broadcastRequestCreated,
   broadcastRequestStatusChange,
   broadcastEmergencyAlert
 };

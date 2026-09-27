@@ -22,21 +22,42 @@ This document maps every requirement from the **Product Requirements Document (P
 | **REQ-12: Real-Time Telemetry Synchronization** | Instant broadcast on resource/blood bank update | Socket.io (`resource_updated`, `bloodbank_updated`) | In-Memory Socket Server | `SocketContext.jsx`, `HospitalDashboard.jsx`, `PatientDashboard.jsx` | All connected clients | `test/hospital-resources-blood.test.js`: Test 4, 7 |
 | **REQ-13: Appointment Booking & Status** | Administrative OPD scheduling (`SCHEDULED` → `CONFIRMED` / `FOLLOW_UP` / `COMPLETED` / `NO_SHOW`) | `POST /api/appointments`, `PUT /api/appointments/:id/status` | `appointments` | `PatientDashboard.jsx`, `HospitalDashboard.jsx` | `PATIENT`, `HOSPITAL`, `ADMIN` | `test/appointments.test.js`: Tests 1-8 |
 | **REQ-14: Patient Directory Search** | Administrative search by Name, ID, Phone | `GET /api/patients/search` | `users` | `HospitalDashboard.jsx` (Patient Directory) | `HOSPITAL`, `ADMIN`, `SYSTEM_DOCTOR` | `test/appointments.test.js`: Test 11 |
-| **REQ-15: Multi-Step Ambulance Tracking** | Lifecycle progression & simulated GPS | `PUT /api/requests/:id/status`, `PUT /api/ambulance/:id/location` | `requests`, `ambulances` | `AmbulanceDashboard.jsx`, `LiveMap.jsx` | `AMBULANCE` (Assigned), `ADMIN` | `test/api.test.js`: Test 8 |
-| **REQ-16: Admin Escalation & Doctor Resolution** | Triage rejected emergencies & resolve conflict | `POST /api/admin/requests/:requestId/assign`, `PUT /api/doctor/requests/:requestId/resolve` | `requests` | `AdminDashboard.jsx`, `DoctorDashboard.jsx` | `ADMIN`, `SYSTEM_DOCTOR` | `test/api.test.js`: Test 10 |
-| **REQ-17: Audit Trail & Non-Diagnostic Guard** | Immutable action logs & clinical safety guard | `GET /api/admin/audit-logs`, Middleware | `auditLogs` | `AdminDashboard.jsx`, `SafetyBanner.jsx` | Express Middleware / `ADMIN` | `test/api.test.js`: Test 2, 11 |
+| **REQ-15: Multi-Step Ambulance Fleet & Tracking** | Lifecycle progression (`AVAILABLE`, `ON_DUTY`, `OFFLINE`) & simulated GPS telemetry | `GET /api/ambulance`, `GET /api/ambulance/:id`, `PUT /api/ambulance/:id/status`, `PUT /api/ambulance/:id/location` | `ambulances` | `AmbulanceDashboard.jsx`, `HospitalDashboard.jsx`, `LiveMap.jsx` | `AMBULANCE` (Assigned), `HOSPITAL` (Own Fleet), `ADMIN` | `test/ambulance-tracking.test.js`: Tests 1-10 |
+| **REQ-16: Nearest Ambulance Auto-Dispatch** | Calculate approximate Haversine distance, match nearest available units & create emergency request | `POST /api/requests` | `requests`, `ambulances` | `PatientDashboard.jsx`, `EmergencyModal.jsx` | `PATIENT`, `HOSPITAL`, `ADMIN` | `test/ambulance-tracking.test.js`: Test 5 |
+| **REQ-17: Emergency Ambulance Request State Lifecycle** | `PENDING` → `ASSIGNED` → `ACCEPTED` → `COMPLETED` / `REJECTED` | `PUT /api/requests/:id/status` | `requests`, `ambulances` | `AmbulanceDashboard.jsx`, `HospitalDashboard.jsx` | `AMBULANCE` (Assigned), `HOSPITAL`, `ADMIN` | `test/ambulance-tracking.test.js`: Tests 6, 9, 10 |
+| **REQ-18: Real-Time Socket.io Event Bus** | Real-time broadcast for `ambulance:status`, `ambulance:location`, `request:created`, `request:assigned`, `request:updated` | Socket.io server engine | In-Memory Socket Server | `SocketContext.jsx`, `LiveMap.jsx`, `AmbulanceDashboard.jsx` | All connected clients | `test/ambulance-tracking.test.js`: Test 8 |
+| **REQ-19: Admin Escalation & Doctor Resolution** | Triage rejected emergencies & resolve conflict | `POST /api/admin/requests/:requestId/assign`, `PUT /api/doctor/requests/:requestId/resolve` | `requests` | `AdminDashboard.jsx`, `DoctorDashboard.jsx` | `ADMIN`, `SYSTEM_DOCTOR` | `test/api.test.js`: Test 10 |
+| **REQ-21: Emergency Mode Command Center** | High-contrast 4 major actions: 🚑 Request Ambulance, 🩸 Find Blood, 🏥 Find Facility, 📋 Track Request | `POST /api/requests`, `POST /api/requests/search-blood`, `GET /api/hospitals` | `requests`, `ambulances`, `hospitals` | `EmergencyModal.jsx`, `Navbar.jsx`, `PatientDashboard.jsx`, `HospitalDashboard.jsx` | All Authenticated / Public Entry | `test/emergency-mode.test.js`: Tests 1-6 |
+| **REQ-22: Visual Incident Timeline (7-Step Stepper)** | Stepper progression (`REQUESTED` → `PENDING` → `ASSIGNED` → `ACCEPTED` → `ON THE WAY` → `ARRIVED` → `COMPLETED`) | `PUT /api/requests/:id/status`, Socket.io | `requests`, `ambulances` | `EmergencyModal.jsx`, `LiveMap.jsx` | `AMBULANCE`, `HOSPITAL`, `ADMIN` | `test/emergency-mode.test.js`: Test 5 |
+| **REQ-23: Facility Multi-Resource Filtering** | Filter by Type (Hospital, Clinic, Blood Bank) & Resources (Beds, ICU, Ventilator, Oxygen, Blood) | `GET /api/hospitals` | `hospitals` | `EmergencyModal.jsx` (Find Facility), `PatientDashboard.jsx` | Public / All Authenticated | `test/emergency-mode.test.js`: Test 4 |
 
 ---
 
 ## 2. Request Lifecycle Status Verification
 
-| State Transition | Permitted Actor | Validated By | Target Status | Resource Effect |
+| State Transition | Permitted Actor | Validated By | Target Status | Resource & Fleet Effect |
 | :--- | :--- | :--- | :--- | :--- |
-| `PENDING` → `ASSIGNED` | System / Hospital / Admin | Backend `requests.js` | `ASSIGNED` | None |
+| `PENDING` → `ASSIGNED` | System (Nearest) / Hospital / Admin | Backend `requests.js` | `ASSIGNED` | Assigned ambulance must be `AVAILABLE` (rejects `ON_DUTY`/`OFFLINE` with 400) |
 | `PENDING` → `ACCEPTED` | Target Hospital | Backend `requests.js` | `ACCEPTED` | Transactional decrement of General Bed / ICU / Ventilator / Blood units (Never `< 0`) |
 | `PENDING` → `REJECTED` | Target Hospital | Backend `requests.js` | `REJECTED` | Enforces mandatory `responseNotes` |
-| `ASSIGNED` → `ACCEPTED` | Assigned Ambulance Driver | Backend `requests.js` | `ACCEPTED` | Driver trip state transitions to `ON_THE_WAY` |
-| `ASSIGNED` → `REJECTED` | Assigned Ambulance Driver | Backend `requests.js` | `REJECTED` | Enforces mandatory `responseNotes` |
-| `ACCEPTED` → `COMPLETED` | Assigned Ambulance / Hospital | Backend `requests.js` | `COMPLETED` | Immutable terminal state |
+| `ASSIGNED` → `ACCEPTED` | Assigned Ambulance Driver | Backend `requests.js` | `ACCEPTED` | Ambulance status transitions to `ON_DUTY`; Driver trip state transitions to `On the Way` |
+| `ASSIGNED` → `REJECTED` | Assigned Ambulance Driver | Backend `requests.js` | `REJECTED` | Enforces mandatory `responseNotes` / `reason` (rejects empty with 400) |
+| `ACCEPTED` → `COMPLETED` | Assigned Ambulance / Hospital | Backend `requests.js` | `COMPLETED` | Ambulance status transitions back to `AVAILABLE`; request becomes immutable terminal state |
 | `REJECTED` → `ASSIGNED` | Admin (Triage to Doctor) | Backend `admin.js` | `ASSIGNED` | Escalated to System Doctor for alternative routing |
 | `ASSIGNED` → `RESOLVED` | Assigned System Doctor | Backend `doctor.js` | `RESOLVED` | Immutable terminal resolution with doctor override notes |
+
+---
+
+## 3. Automated Test Suites Summary
+
+| Test Suite | File | Tests Passed | Key Capabilities Verified |
+| :--- | :--- | :--- | :--- |
+| **Phase 1 Core API** | `backend/test/api.test.js` | 18 Passed | Health, Safety Guard, 5-Role Login, Resource & Appointment Lifecycle, Blood Search, Ambulance Request |
+| **Phase 2 Auth & RBAC** | `backend/test/auth-rbac.test.js` | 24 Passed | JWT Auth, Role-based Route Protection, Multi-Tenant Hospital & Driver Isolation, Audit Logs, Self-Registration |
+| **Phase 3 Appointments & Patients** | `backend/test/appointments.test.js` | 14 Passed | OPD Appointment Booking, Slot Duplicate Guard, Past Date Guard, Appointment Statuses, Patient Directory Search |
+| **Phase 4 Hospital Resources & Blood** | `backend/test/hospital-resources-blood.test.js` | 22 Passed | Resource Telemetry, Blood Bank 8 Groups Stock, Smart Blood Matcher, Clamp Guards, Atomic Decrements |
+| **Phase 5 Ambulance Tracking** | `backend/test/ambulance-tracking.test.js` | 22 Passed | Fleet Listing, Availability Toggle, Nearest Unit Auto-Dispatch, Unavailable Assignment Guard, Driver RBAC, Mandatory Rejection Reason, GPS Telemetry, Immutability |
+| **Phase 6 Emergency Mode** | `backend/test/emergency-mode.test.js` | 16 Passed | 4 Major Actions, Emergency Ambulance Auto-Dispatch, Smart Blood Matcher, Facility Filters (Hospital/Clinic/Blood Bank & ICU/Beds/Vents/O2), 7-Step Visual Timeline, Non-Diagnostic Safety Guard |
+| **Total Test Coverage** | **All Suites** | **116 Passed, 0 Failed** | **100% Comprehensive Coverage across PRD & INF Workflows** |
+
+

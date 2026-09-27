@@ -134,6 +134,20 @@ router.post('/search-blood', (req, res) => {
   });
 });
 
+// Distance helper (Haversine formula in KM)
+function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+  if (lat1 === undefined || lon1 === undefined || lat2 === undefined || lon2 === undefined) return 5.0;
+  const R = 6371; // Earth radius in km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return Math.round(R * c * 10) / 10;
+}
+
 // Create new Request
 router.post('/', authenticateToken, (req, res) => {
   const {
@@ -142,7 +156,10 @@ router.post('/', authenticateToken, (req, res) => {
     sourceHospitalId,
     assignedAmbulanceId,
     priority,
-    details
+    location,
+    urgency,
+    administrativeNote,
+    details: inputDetails
   } = req.body;
 
   if (!type || !VALID_REQUEST_TYPES.includes(type.toUpperCase())) {
@@ -154,7 +171,48 @@ router.post('/', authenticateToken, (req, res) => {
   const reqType = type.toUpperCase();
   const targetHospital = targetHospitalId ? store.findById('hospitals', targetHospitalId) : null;
   const sourceHospital = sourceHospitalId ? store.findById('hospitals', sourceHospitalId) : null;
-  const ambulance = assignedAmbulanceId ? store.findById('ambulances', assignedAmbulanceId) : null;
+  let details = inputDetails ? { ...inputDetails } : {};
+
+  if (location && !details.location) details.location = location;
+  if (administrativeNote && !details.administrativeNote) details.administrativeNote = administrativeNote;
+  if (urgency && !details.urgency) details.urgency = urgency;
+
+  let assignedAmb = null;
+
+  if (assignedAmbulanceId) {
+    assignedAmb = store.findById('ambulances', assignedAmbulanceId);
+    if (!assignedAmb) {
+      return res.status(404).json({ error: 'Assigned ambulance not found.' });
+    }
+    const ambStatus = (assignedAmb.status || '').toUpperCase().replace(' ', '_');
+    if (ambStatus !== 'AVAILABLE') {
+      return res.status(400).json({
+        error: `Cannot assign unavailable ambulance. Ambulance is currently ${assignedAmb.status || 'UNAVAILABLE'}.`
+      });
+    }
+  } else if (reqType === 'AMBULANCE') {
+    // Nearest suitable unit selection
+    const pLat = Number(details.latitude || details.lat || req.body.latitude || req.body.lat || 18.5204);
+    const pLng = Number(details.longitude || details.lng || req.body.longitude || req.body.lng || 73.8567);
+
+    const availableAmbulances = store.get('ambulances').filter((a) => {
+      const st = (a.status || '').toUpperCase().replace(' ', '_');
+      return st === 'AVAILABLE';
+    });
+
+    if (availableAmbulances.length > 0) {
+      const scored = availableAmbulances.map((a) => {
+        const aLat = a.latitude !== undefined ? a.latitude : (a.currentLocation?.lat || 18.5204);
+        const aLng = a.longitude !== undefined ? a.longitude : (a.currentLocation?.lng || 73.8567);
+        const dist = calculateDistanceKm(pLat, pLng, aLat, aLng);
+        return { ambulance: a, distance: dist };
+      }).sort((a, b) => a.distance - b.distance);
+
+      assignedAmb = scored[0].ambulance;
+      details.calculatedDistanceKm = scored[0].distance;
+      details.estimatedEtaMinutes = Math.max(3, Math.round(scored[0].distance * 3));
+    }
+  }
 
   const newRequest = {
     id: `req_${reqType.toLowerCase()}_${Date.now()}`,
@@ -164,21 +222,21 @@ router.post('/', authenticateToken, (req, res) => {
     patientPhone: req.user.role === 'PATIENT' ? req.user.phone : (req.body.patientPhone || ''),
     sourceHospitalId: sourceHospital ? sourceHospital.id : null,
     sourceHospitalName: sourceHospital ? sourceHospital.name : null,
-    targetHospitalId: targetHospital ? targetHospital.id : null,
-    targetHospitalName: targetHospital ? targetHospital.name : null,
-    assignedAmbulanceId: ambulance ? ambulance.id : null,
-    assignedAmbulanceVehicle: ambulance ? ambulance.vehicleNo : null,
+    targetHospitalId: targetHospital ? targetHospital.id : (assignedAmb ? assignedAmb.hospitalId : null),
+    targetHospitalName: targetHospital ? targetHospital.name : (assignedAmb ? assignedAmb.hospitalName : null),
+    assignedAmbulanceId: assignedAmb ? assignedAmb.id : null,
+    assignedAmbulanceVehicle: assignedAmb ? (assignedAmb.vehicleNumber || assignedAmb.vehicleNo) : null,
     assignedDoctorId: null,
     assignedDoctorName: null,
-    status: ambulance ? 'ASSIGNED' : 'PENDING',
-    ambulanceTripStatus: reqType === 'AMBULANCE' ? null : null,
-    priority: priority ? priority.toUpperCase() : (reqType === 'AMBULANCE' ? 'EMERGENCY' : 'NORMAL'),
+    status: assignedAmb ? 'ASSIGNED' : 'PENDING',
+    ambulanceTripStatus: reqType === 'AMBULANCE' ? (assignedAmb ? 'Pending' : null) : null,
+    priority: priority ? priority.toUpperCase() : (urgency ? urgency.toUpperCase() : (reqType === 'AMBULANCE' ? 'EMERGENCY' : 'NORMAL')),
     details: details || {},
     responseNotes: '',
     resolutionNotes: '',
     timeline: [
       {
-        status: ambulance ? 'ASSIGNED' : 'PENDING',
+        status: assignedAmb ? 'ASSIGNED' : 'PENDING',
         timestamp: new Date().toISOString(),
         actorRole: req.user.role,
         actorName: req.user.name,
@@ -213,7 +271,7 @@ router.post('/', authenticateToken, (req, res) => {
 // Update Request Status with state machine validation
 router.put('/:id/status', authenticateToken, (req, res) => {
   const { id } = req.params;
-  const { status, responseNotes, ambulanceTripStatus, assignedAmbulanceId, assignedDoctorId } = req.body;
+  const { status, responseNotes, reason, ambulanceTripStatus, assignedAmbulanceId, assignedDoctorId } = req.body;
 
   const request = store.findById('requests', id);
   if (!request) {
@@ -237,9 +295,10 @@ router.put('/:id/status', authenticateToken, (req, res) => {
 
   // Validate State Transitions
   const currentStatus = request.status;
+  const finalResponseNotes = (responseNotes || reason || '').trim();
 
-  // Rule 1: REJECTED requires responseNotes
-  if (targetStatus === 'REJECTED' && (!responseNotes || !responseNotes.trim())) {
+  // Rule 1: REJECTED requires responseNotes or reason
+  if (targetStatus === 'REJECTED' && !finalResponseNotes) {
     return res.status(400).json({
       error: 'Rejection requires a mandatory explanation in responseNotes.'
     });
@@ -247,7 +306,13 @@ router.put('/:id/status', authenticateToken, (req, res) => {
 
   // Rule 2: Only assigned ambulance driver can ACCEPT an ambulance request
   if (request.type === 'AMBULANCE' && targetStatus === 'ACCEPTED') {
-    if (req.user.role !== 'AMBULANCE' && req.user.role !== 'ADMIN') {
+    if (req.user.role === 'AMBULANCE') {
+      if (request.assignedAmbulanceId && req.user.ambulanceId !== request.assignedAmbulanceId) {
+        return res.status(403).json({
+          error: "Driver cannot accept another driver's request."
+        });
+      }
+    } else if (req.user.role !== 'ADMIN') {
       return res.status(403).json({
         error: 'Only the assigned ambulance driver or admin can mark ambulance request as ACCEPTED.'
       });
@@ -290,7 +355,7 @@ router.put('/:id/status', authenticateToken, (req, res) => {
   // Prepare updates
   const updates = {
     status: targetStatus,
-    responseNotes: responseNotes !== undefined ? responseNotes : request.responseNotes
+    responseNotes: finalResponseNotes || request.responseNotes
   };
 
   if (ambulanceTripStatus) {
@@ -299,10 +364,17 @@ router.put('/:id/status', authenticateToken, (req, res) => {
 
   if (assignedAmbulanceId) {
     const amb = store.findById('ambulances', assignedAmbulanceId);
-    if (amb) {
-      updates.assignedAmbulanceId = amb.id;
-      updates.assignedAmbulanceVehicle = amb.vehicleNo;
+    if (!amb) {
+      return res.status(404).json({ error: 'Assigned ambulance not found.' });
     }
+    const ambStatus = (amb.status || '').toUpperCase().replace(' ', '_');
+    if (ambStatus !== 'AVAILABLE') {
+      return res.status(400).json({
+        error: `Cannot assign unavailable ambulance. Ambulance is currently ${amb.status || 'UNAVAILABLE'}.`
+      });
+    }
+    updates.assignedAmbulanceId = amb.id;
+    updates.assignedAmbulanceVehicle = amb.vehicleNumber || amb.vehicleNo;
   }
 
   if (assignedDoctorId) {
@@ -349,11 +421,11 @@ router.put('/:id/status', authenticateToken, (req, res) => {
     const ambId = updates.assignedAmbulanceId || request.assignedAmbulanceId;
     if (ambId) {
       store.update('ambulances', ambId, {
-        status: 'On Duty',
+        status: 'ON_DUTY',
         currentRequestId: request.id
       });
       if (!updates.ambulanceTripStatus) {
-        updates.ambulanceTripStatus = 'ON_THE_WAY';
+        updates.ambulanceTripStatus = 'On the Way';
       }
     }
   }
@@ -362,10 +434,19 @@ router.put('/:id/status', authenticateToken, (req, res) => {
     const ambId = request.assignedAmbulanceId;
     if (ambId) {
       store.update('ambulances', ambId, {
-        status: 'Available',
+        status: 'AVAILABLE',
         currentRequestId: null
       });
-      updates.ambulanceTripStatus = 'COMPLETED';
+      updates.ambulanceTripStatus = 'Completed';
+    }
+  }
+
+  if (request.type === 'AMBULANCE' && targetStatus === 'REJECTED') {
+    const ambId = request.assignedAmbulanceId;
+    if (ambId) {
+      store.update('ambulances', ambId, {
+        currentRequestId: null
+      });
     }
   }
 

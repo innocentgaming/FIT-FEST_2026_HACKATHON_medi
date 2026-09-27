@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useSocket } from '../../context/SocketContext';
 import { api } from '../../services/api';
@@ -14,7 +14,9 @@ import {
   Phone,
   Clock,
   Shield,
-  AlertCircle
+  AlertCircle,
+  Play,
+  Square
 } from 'lucide-react';
 
 export const AmbulanceDashboard = () => {
@@ -25,12 +27,19 @@ export const AmbulanceDashboard = () => {
   const [assignedRequest, setAssignedRequest] = useState(null);
   const [hospitals, setHospitals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [simulatingGps, setSimulatingGps] = useState(false);
+  const [isSharingLocation, setIsSharingLocation] = useState(false);
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [submittingReject, setSubmittingReject] = useState(false);
 
+  const sharingIntervalRef = useRef(null);
   const ambulanceId = user?.ambulanceId || 'amb_pune_101';
 
   useEffect(() => {
     loadAmbulanceData();
+    return () => {
+      if (sharingIntervalRef.current) clearInterval(sharingIntervalRef.current);
+    };
   }, [ambulanceId]);
 
   useEffect(() => {
@@ -72,7 +81,7 @@ export const AmbulanceDashboard = () => {
       const res = await api.updateAmbulanceStatus(ambulance.id, newStatus);
       setAmbulance(res.ambulance);
     } catch (err) {
-      alert('Error updating status: ' + err.message);
+      alert('Error updating status: ' + (err.response?.data?.error || err.message));
     }
   };
 
@@ -81,60 +90,99 @@ export const AmbulanceDashboard = () => {
     try {
       await api.updateRequestStatus(assignedRequest.id, {
         status: 'ACCEPTED',
-        ambulanceTripStatus: 'ON_THE_WAY',
-        responseNotes: `Driver ${user.name} accepted pickup. En route to patient.`
+        ambulanceTripStatus: 'On the Way',
+        responseNotes: `Driver ${user.name} accepted dispatch. En route to emergency scene.`
       });
       loadAmbulanceData();
     } catch (err) {
-      alert('Error accepting trip: ' + err.message);
+      alert('Error accepting trip: ' + (err.response?.data?.error || err.message));
+    }
+  };
+
+  const handleRejectTrip = async (e) => {
+    e.preventDefault();
+    if (!assignedRequest) return;
+    if (!rejectionReason.trim()) {
+      alert('A rejection reason is strictly mandatory.');
+      return;
+    }
+
+    try {
+      setSubmittingReject(true);
+      await api.updateRequestStatus(assignedRequest.id, {
+        status: 'REJECTED',
+        responseNotes: rejectionReason.trim(),
+        reason: rejectionReason.trim()
+      });
+      setShowRejectModal(false);
+      setRejectionReason('');
+      loadAmbulanceData();
+    } catch (err) {
+      alert('Error rejecting trip: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setSubmittingReject(false);
     }
   };
 
   const handleUpdateTripStep = async (stepName) => {
     if (!assignedRequest) return;
     try {
-      if (stepName === 'COMPLETED') {
+      if (stepName === 'Completed') {
         await api.updateRequestStatus(assignedRequest.id, {
           status: 'COMPLETED',
-          ambulanceTripStatus: 'COMPLETED',
-          responseNotes: `Patient delivered safely to ${assignedRequest.targetHospitalName}. Trip completed.`
+          ambulanceTripStatus: 'Completed',
+          responseNotes: `Patient delivered safely to ${assignedRequest.targetHospitalName || 'Hospital ER'}. Trip completed.`
         });
       } else {
         await api.updateRequestStatus(assignedRequest.id, {
           ambulanceTripStatus: stepName,
-          responseNotes: `Ambulance status updated to: ${stepName.replace('_', ' ')}`
+          responseNotes: `Trip status updated to: ${stepName}`
         });
       }
       loadAmbulanceData();
     } catch (err) {
-      alert('Error updating trip step: ' + err.message);
+      alert('Error updating trip step: ' + (err.response?.data?.error || err.message));
     }
   };
 
-  // Simulate GPS coordinates moving towards destination
-  const handleSimulateMovement = async () => {
+  // Toggle periodic live simulated GPS sharing
+  const toggleLocationSharing = () => {
+    if (isSharingLocation) {
+      if (sharingIntervalRef.current) clearInterval(sharingIntervalRef.current);
+      setIsSharingLocation(false);
+    } else {
+      setIsSharingLocation(true);
+      // Run immediately
+      sendLocationPulse();
+      // Periodically update every 4 seconds
+      sharingIntervalRef.current = setInterval(() => {
+        sendLocationPulse();
+      }, 4000);
+    }
+  };
+
+  const sendLocationPulse = async () => {
     if (!ambulance) return;
-    setSimulatingGps(true);
+    const currentLat = ambulance.latitude || ambulance.currentLocation?.lat || 18.5204;
+    const currentLng = ambulance.longitude || ambulance.currentLocation?.lng || 73.8567;
 
-    const targetCoords = assignedRequest?.details?.pickupCoords || { lat: 18.5314, lng: 73.8765 };
-    const current = ambulance.currentLocation || { lat: 18.5204, lng: 73.8567 };
-
-    // Interpolate slight shift
-    const nextLat = current.lat + (targetCoords.lat - current.lat) * 0.3;
-    const nextLng = current.lng + (targetCoords.lng - current.lng) * 0.3;
+    // Small jitter/shift towards Pune center or destination
+    const targetLat = 18.5314;
+    const targetLng = 73.8765;
+    const nextLat = currentLat + (targetLat - currentLat) * 0.15 + (Math.random() - 0.5) * 0.002;
+    const nextLng = currentLng + (targetLng - currentLng) * 0.15 + (Math.random() - 0.5) * 0.002;
 
     try {
       const res = await api.updateAmbulanceLocation(ambulance.id, {
-        lat: nextLat,
-        lng: nextLng,
-        speedKmph: 45,
-        address: 'Live In-Transit Location (Simulated GPS Stream)'
+        lat: Number(nextLat.toFixed(5)),
+        lng: Number(nextLng.toFixed(5)),
+        speedKmph: Math.floor(35 + Math.random() * 20),
+        heading: Math.floor(Math.random() * 360),
+        address: 'Pune Emergency Transit Corridor (Live Simulated GPS Stream)'
       });
       setAmbulance(res.ambulance);
     } catch (err) {
-      console.error('Error simulating GPS:', err);
-    } finally {
-      setTimeout(() => setSimulatingGps(false), 800);
+      console.error('Error streaming simulated GPS:', err);
     }
   };
 
@@ -157,7 +205,7 @@ export const AmbulanceDashboard = () => {
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <span className="role-pill role-ambulance">AMBULANCE DRIVER PORTAL</span>
-            <span style={{ color: '#fde68a', fontSize: '0.8rem' }}>Vehicle: {ambulance?.vehicleNo}</span>
+            <span style={{ color: '#fde68a', fontSize: '0.8rem' }}>Vehicle: {ambulance?.vehicleNumber || ambulance?.vehicleNo}</span>
           </div>
           <h2 style={{ fontSize: '1.5rem', marginTop: '0.35rem' }}>
             {user?.name} (Driver ID: {user?.id})
@@ -170,8 +218,8 @@ export const AmbulanceDashboard = () => {
         {/* Availability Switcher */}
         <div style={{ background: 'rgba(0,0,0,0.4)', padding: '0.75rem', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
           <span style={{ fontSize: '0.8rem', color: '#fde68a', fontWeight: 600 }}>Duty Status:</span>
-          {['Available', 'On Duty', 'Offline'].map((st) => {
-            const isActive = ambulance?.status === st;
+          {['AVAILABLE', 'ON_DUTY', 'OFFLINE'].map((st) => {
+            const isActive = ambulance?.status?.toUpperCase() === st;
             return (
               <button
                 key={st}
@@ -183,7 +231,7 @@ export const AmbulanceDashboard = () => {
                   border: isActive ? '1px solid #fbbf24' : '1px solid rgba(255,255,255,0.1)'
                 }}
               >
-                {st}
+                {st.replace('_', ' ')}
               </button>
             );
           })}
@@ -215,25 +263,31 @@ export const AmbulanceDashboard = () => {
                     Patient: {assignedRequest.patientName} ({assignedRequest.patientPhone})
                   </div>
                   <div style={{ fontSize: '0.88rem', color: '#fca5a5', marginTop: '4px' }}>
-                    ⚠️ Condition: {assignedRequest.details?.emergencyType || 'Urgent Medical Transfer'}
+                    ⚠️ Priority: <strong>{assignedRequest.priority}</strong> • Urgency: {assignedRequest.details?.urgency || 'CRITICAL'}
                   </div>
 
                   <div style={{ marginTop: '0.75rem', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.75rem', fontSize: '0.85rem' }}>
-                    <div>📍 <strong>Pickup:</strong> {assignedRequest.details?.pickupLocation}</div>
-                    <div style={{ marginTop: '4px' }}>🏥 <strong>Destination Hospital:</strong> {assignedRequest.targetHospitalName}</div>
+                    <div>📍 <strong>Pickup Location:</strong> {assignedRequest.details?.pickupLocation || assignedRequest.details?.location || 'Emergency Site'}</div>
+                    <div style={{ marginTop: '4px' }}>🏥 <strong>Target Hospital:</strong> {assignedRequest.targetHospitalName || 'Designated Facility'}</div>
+                    {assignedRequest.details?.administrativeNote && (
+                      <div style={{ marginTop: '4px', color: '#cbd5e1' }}>📝 <strong>Notes:</strong> {assignedRequest.details.administrativeNote}</div>
+                    )}
                   </div>
                 </div>
 
                 {/* TRIP LIFECYCLE PROGRESSION CONTROLS */}
                 <div style={{ marginTop: '1rem' }}>
                   <div style={{ fontSize: '0.85rem', fontWeight: 700, color: '#fbbf24', marginBottom: '0.5rem' }}>
-                    Multi-Step Dispatch Lifecycle Progression:
+                    Dispatch Response & Trip Progress:
                   </div>
 
                   {assignedRequest.status === 'ASSIGNED' && (
                     <div style={{ display: 'flex', gap: '0.75rem' }}>
-                      <button onClick={handleAcceptTrip} className="btn btn-success" style={{ flex: 1 }}>
-                        <CheckCircle size={16} /> Accept Dispatch (Start Trip)
+                      <button onClick={handleAcceptTrip} className="btn btn-success" style={{ flex: 2 }}>
+                        <CheckCircle size={16} /> Accept Request
+                      </button>
+                      <button onClick={() => setShowRejectModal(true)} className="btn btn-danger" style={{ flex: 1 }}>
+                        <XCircle size={16} /> Reject
                       </button>
                     </div>
                   )}
@@ -242,27 +296,27 @@ export const AmbulanceDashboard = () => {
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
                       <div style={{ display: 'flex', gap: '0.5rem' }}>
                         <button
-                          onClick={() => handleUpdateTripStep('ON_THE_WAY')}
-                          className={`btn btn-sm ${assignedRequest.ambulanceTripStatus === 'ON_THE_WAY' ? 'btn-primary' : 'btn-secondary'}`}
+                          onClick={() => handleUpdateTripStep('On the Way')}
+                          className={`btn btn-sm ${assignedRequest.ambulanceTripStatus === 'On the Way' ? 'btn-primary' : 'btn-secondary'}`}
                           style={{ flex: 1 }}
                         >
-                          1. En Route / On The Way
+                          1. On the Way
                         </button>
                         <button
-                          onClick={() => handleUpdateTripStep('ARRIVED')}
-                          className={`btn btn-sm ${assignedRequest.ambulanceTripStatus === 'ARRIVED' ? 'btn-primary' : 'btn-secondary'}`}
+                          onClick={() => handleUpdateTripStep('Arrived')}
+                          className={`btn btn-sm ${assignedRequest.ambulanceTripStatus === 'Arrived' ? 'btn-primary' : 'btn-secondary'}`}
                           style={{ flex: 1 }}
                         >
-                          2. Arrived at Scene
+                          2. Arrived
                         </button>
                       </div>
 
                       <button
-                        onClick={() => handleUpdateTripStep('COMPLETED')}
+                        onClick={() => handleUpdateTripStep('Completed')}
                         className="btn btn-success"
                         style={{ width: '100%', marginTop: '0.5rem' }}
                       >
-                        <CheckCircle size={16} /> Mark Trip Completed (Delivered to ER)
+                        <CheckCircle size={16} /> 3. Complete Trip (Delivered to ER)
                       </button>
                     </div>
                   )}
@@ -286,27 +340,35 @@ export const AmbulanceDashboard = () => {
                 <Radio size={18} color="#38bdf8" />
                 <span>Simulated GPS Telemetry Streamer</span>
               </div>
-              <span className="role-pill role-ambulance">SIMULATED GPS ACTIVE</span>
+              <span className="role-pill role-ambulance">
+                {isSharingLocation ? '🟢 BROADCASTING DEMO GPS' : '⚪ DEMO GPS IDLE'}
+              </span>
             </div>
 
-            <p style={{ fontSize: '0.82rem', color: '#94a3b8', marginBottom: '1rem' }}>
-              For FIT FEST hackathon demonstration, click below to stream simulated telemetry pulses to active patient & admin maps:
-            </p>
+            <div style={{ background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.25)', padding: '0.75rem', borderRadius: '6px', fontSize: '0.82rem', color: '#fde68a', marginBottom: '1rem' }}>
+              ℹ️ <strong>Demo / Simulated GPS:</strong> Real-time coordinates are streamed over WebSockets to hospitals and patients for testing & demonstration.
+            </div>
 
             <div style={{ background: 'var(--bg-input)', padding: '0.75rem', borderRadius: '6px', fontSize: '0.82rem', marginBottom: '1rem' }}>
-              <div>Current Coords: <strong>{ambulance?.currentLocation?.lat?.toFixed(4)}, {ambulance?.currentLocation?.lng?.toFixed(4)}</strong></div>
+              <div>Current Coords: <strong>{(ambulance?.latitude || ambulance?.currentLocation?.lat || 18.5204)?.toFixed(4)}, {(ambulance?.longitude || ambulance?.currentLocation?.lng || 73.8567)?.toFixed(4)}</strong></div>
               <div>Estimated Speed: <strong>{ambulance?.currentLocation?.speedKmph || 40} km/h</strong></div>
               <div>Heading: <strong>{ambulance?.currentLocation?.heading || 90}°</strong></div>
             </div>
 
             <button
-              onClick={handleSimulateMovement}
-              disabled={simulatingGps}
-              className="btn btn-primary"
+              onClick={toggleLocationSharing}
+              className={`btn ${isSharingLocation ? 'btn-danger' : 'btn-primary'}`}
               style={{ width: '100%' }}
             >
-              <Navigation size={16} />
-              {simulatingGps ? 'Broadcasting Coordinates...' : 'Stream Simulated GPS Pulse'}
+              {isSharingLocation ? (
+                <>
+                  <Square size={16} /> STOP LOCATION SHARING
+                </>
+              ) : (
+                <>
+                  <Play size={16} /> START LOCATION SHARING
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -316,7 +378,7 @@ export const AmbulanceDashboard = () => {
           <div className="card" style={{ padding: '1rem' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
               <h3 style={{ fontSize: '1.1rem' }}>Live Dispatch Radar & Route View</h3>
-              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Pune Dispatch Network</span>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>Pune Dispatch Network (Demo GPS)</span>
             </div>
 
             <LiveMap
@@ -328,6 +390,79 @@ export const AmbulanceDashboard = () => {
           </div>
         </div>
       </div>
+
+      {/* Reject Modal */}
+      {showRejectModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.75)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            padding: '1rem'
+          }}
+        >
+          <div
+            className="card"
+            style={{
+              maxWidth: '500px',
+              width: '100%',
+              background: '#0f172a',
+              border: '1px solid #ef4444'
+            }}
+          >
+            <div className="card-header">
+              <div className="card-title" style={{ color: '#ef4444' }}>
+                <AlertCircle size={20} />
+                <span>Reject Dispatch Request</span>
+              </div>
+            </div>
+
+            <p style={{ fontSize: '0.88rem', color: '#cbd5e1', marginBottom: '1rem' }}>
+              System policy requires a mandatory reason for rejecting an emergency ambulance request.
+            </p>
+
+            <form onSubmit={handleRejectTrip}>
+              <div className="form-group" style={{ marginBottom: '1.25rem' }}>
+                <label className="form-label" style={{ fontWeight: 600 }}>
+                  Mandatory Rejection Reason:
+                </label>
+                <textarea
+                  className="form-control"
+                  rows={3}
+                  required
+                  placeholder="e.g. Unit undergoing emergency refuel / patient transfer in progress / mechanical inspection"
+                  value={rejectionReason}
+                  onChange={(e) => setRejectionReason(e.target.value)}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowRejectModal(false)}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="btn btn-danger"
+                  disabled={submittingReject || !rejectionReason.trim()}
+                >
+                  {submittingReject ? 'Submitting...' : 'Confirm Rejection'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

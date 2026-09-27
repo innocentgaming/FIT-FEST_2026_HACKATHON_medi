@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useEmergency } from '../../context/EmergencyContext';
 import { useSocket } from '../../context/SocketContext';
 import { api } from '../../services/api';
 import { StatusBadge } from '../../components/StatusBadge';
@@ -20,11 +21,13 @@ import {
   AlertTriangle,
   Search,
   User,
-  RotateCcw
+  RotateCcw,
+  AlertCircle
 } from 'lucide-react';
 
 export const HospitalDashboard = () => {
   const { user } = useAuth();
+  const { openEmergencyMode } = useEmergency();
   const { liveResourceUpdate, liveBloodBankUpdate, liveRequestUpdate } = useSocket();
 
   const [activeTab, setActiveTab] = useState('RESOURCES'); // RESOURCES, APPOINTMENTS, REQUESTS, PATIENTS_SEARCH, SPECIALISTS
@@ -38,6 +41,7 @@ export const HospitalDashboard = () => {
   const [appointmentSummary, setAppointmentSummary] = useState({});
   const [appointmentFilter, setAppointmentFilter] = useState('ALL'); // ALL, TODAY, UPCOMING, COMPLETED, CANCELLED, NO_SHOW, FOLLOW_UP
   const [specialists, setSpecialists] = useState([]);
+  const [ambulances, setAmbulances] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Patient Search State
@@ -84,10 +88,11 @@ export const HospitalDashboard = () => {
   const loadHospitalData = async () => {
     try {
       setLoading(true);
-      const [sum, apts, reqs] = await Promise.all([
+      const [sum, apts, reqs, ambRes] = await Promise.all([
         api.getHospitalSummary(hospitalId),
         api.getAppointments({ hospitalId }),
-        api.getRequests()
+        api.getRequests(),
+        api.getAmbulances({ hospitalId })
       ]);
 
       setSummary(sum);
@@ -98,10 +103,20 @@ export const HospitalDashboard = () => {
       setAppointments(apts.appointments || []);
       setAppointmentSummary(apts.summary || {});
       setRequests(reqs.requests || []);
+      setAmbulances(ambRes.ambulances?.filter((a) => a.hospitalId === hospitalId) || []);
     } catch (err) {
       console.error('Error loading hospital portal data:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleAmbulanceStatusChange = async (ambId, newStatus) => {
+    try {
+      const res = await api.updateAmbulanceStatus(ambId, newStatus);
+      setAmbulances((prev) => prev.map((a) => (a.id === ambId ? res.ambulance : a)));
+    } catch (err) {
+      alert('Error updating ambulance status: ' + (err.response?.data?.error || err.message));
     }
   };
 
@@ -282,7 +297,16 @@ export const HospitalDashboard = () => {
           </p>
         </div>
 
-        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', alignItems: 'center' }}>
+          <button
+            onClick={() => openEmergencyMode('AMBULANCE')}
+            className="emergency-mode-btn"
+            style={{ padding: '0.65rem 1.15rem', fontSize: '0.88rem' }}
+          >
+            <AlertCircle size={18} />
+            <span>EMERGENCY COORDINATION</span>
+          </button>
+
           <div style={{ background: 'rgba(0,0,0,0.3)', padding: '0.5rem 0.85rem', borderRadius: '8px', textAlign: 'center' }}>
             <div style={{ fontSize: '0.72rem', color: '#a7f3d0' }}>Today's Appts</div>
             <strong style={{ fontSize: '1.3rem', color: '#f8fafc' }}>{appointmentSummary.today ?? 0}</strong>
@@ -329,6 +353,13 @@ export const HospitalDashboard = () => {
           onClick={() => setActiveTab('SPECIALISTS')}
         >
           <UserCheck size={16} /> Specialists Roster ({specialists.length})
+        </button>
+
+        <button
+          className={`tab-btn ${activeTab === 'AMBULANCES' ? 'active' : ''}`}
+          onClick={() => setActiveTab('AMBULANCES')}
+        >
+          <Truck size={16} /> Facility Ambulances ({ambulances.length})
         </button>
       </div>
 
@@ -928,6 +959,91 @@ export const HospitalDashboard = () => {
               </div>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* TAB 6: FACILITY AMBULANCES */}
+      {activeTab === 'AMBULANCES' && (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
+            <div>
+              <h3 style={{ fontSize: '1.2rem' }}>Facility Ambulances Fleet & Real-Time Availability</h3>
+              <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
+                Manage emergency response units attached to {summary?.hospital?.name || 'this hospital'}
+              </p>
+            </div>
+          </div>
+
+          {ambulances.length === 0 ? (
+            <div className="card" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
+              <Truck size={40} color="#64748b" style={{ margin: '0 auto 0.75rem' }} />
+              <h4>No ambulances assigned to this hospital</h4>
+              <p style={{ color: '#94a3b8', fontSize: '0.85rem' }}>
+                Register ambulances via the administrative console to associate them with this facility.
+              </p>
+            </div>
+          ) : (
+            <div className="grid-2">
+              {ambulances.map((amb) => (
+                <div key={amb.id} className="card" style={{ padding: '1.25rem' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <Truck size={20} color="#fbbf24" />
+                        <h4 style={{ color: '#f8fafc', fontSize: '1.15rem' }}>{amb.vehicleNumber || amb.vehicleNo}</h4>
+                      </div>
+                      <div style={{ color: '#a78bfa', fontSize: '0.85rem', marginTop: '2px' }}>
+                        {amb.type || 'Advanced Life Support (ALS)'}
+                      </div>
+                    </div>
+                    <span
+                      className={`status-badge ${
+                        amb.status === 'AVAILABLE' ? 'status-accepted' : amb.status === 'ON_DUTY' ? 'status-scheduled' : 'status-cancelled'
+                      }`}
+                    >
+                      {amb.status}
+                    </span>
+                  </div>
+
+                  <div style={{ background: 'var(--bg-input)', padding: '0.85rem', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '1rem' }}>
+                    <div>👤 <strong>Driver:</strong> {amb.driverName}</div>
+                    <div style={{ marginTop: '4px' }}>📞 <strong>Contact:</strong> {amb.phone || amb.driverPhone}</div>
+                    <div style={{ marginTop: '4px' }}>📍 <strong>Live GPS:</strong> {(amb.latitude || amb.currentLocation?.lat)?.toFixed(4)}, {(amb.longitude || amb.currentLocation?.lng)?.toFixed(4)}</div>
+                    <div style={{ marginTop: '4px', color: '#94a3b8' }}>🏢 <strong>Base Hub:</strong> {amb.currentLocation?.address || amb.hospitalName}</div>
+                  </div>
+
+                  {amb.equipment && amb.equipment.length > 0 && (
+                    <div style={{ marginBottom: '1rem' }}>
+                      <div style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '4px' }}>Equipped With:</div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                        {amb.equipment.map((eq, i) => (
+                          <span key={i} style={{ background: 'rgba(56, 189, 248, 0.1)', color: '#38bdf8', padding: '2px 6px', borderRadius: '4px', fontSize: '0.72rem' }}>
+                            {eq}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '0.75rem' }}>
+                    <span style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>Set Availability:</span>
+                    <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      {['AVAILABLE', 'ON_DUTY', 'OFFLINE'].map((st) => (
+                        <button
+                          key={st}
+                          onClick={() => handleAmbulanceStatusChange(amb.id, st)}
+                          className={`btn btn-sm ${amb.status === st ? 'btn-primary' : 'btn-secondary'}`}
+                          style={{ fontSize: '0.72rem', padding: '0.25rem 0.5rem' }}
+                        >
+                          {st.replace('_', ' ')}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
