@@ -91,7 +91,7 @@ MediLink is built around the **C.A.R.E.** paradigm:
 
 ```mermaid
 graph TD
-    subgraph Client Layer (React 18 + Vite)
+    subgraph Client_Layer ["Client Layer (React 18 + Vite)"]
         P["👤 Patient Portal"]
         H["🏥 Hospital Portal"]
         A["🚑 Ambulance Portal"]
@@ -99,27 +99,40 @@ graph TD
         D["🩺 Doctor Portal"]
     end
 
-    subgraph Security & API Gateway
+    subgraph Security_Gateway ["Security & API Gateway"]
         AUTH["🔒 JWT Auth & RBAC Middleware"]
         PIN["🔑 Staff Inventory PIN Safeguard"]
         SG["🛡️ Non-Diagnostic Safety Guard"]
     end
 
-    subgraph Core Engine
-        RE["⚙️ Unified Request Engine<br/>(State Machine Validator)"]
+    subgraph Core_Engine ["Core Engine"]
+        RE["⚙️ Unified Request Engine"]
         NS["🔔 Notification Service"]
         SE["⚡ Socket.io Real-Time Event Bus"]
     end
 
-    subgraph Persistence Layer
-        DB[("💾 In-Memory Transactional Store<br/>(Thread-Safe & Audited)")]
+    subgraph Persistence_Layer ["Persistence Layer"]
+        DB[("💾 In-Memory Transactional Store")]
     end
 
-    Client Layer --> AUTH --> PIN --> SG --> RE
+    P --> AUTH
+    H --> AUTH
+    A --> AUTH
+    AD --> AUTH
+    D --> AUTH
+
+    AUTH --> PIN
+    PIN --> SG
+    SG --> RE
+
     RE --> DB
     RE --> NS
     RE --> SE
-    SE -.->|Live Telemetry Broadcast| Client Layer
+    SE -.->|Live Broadcast| P
+    SE -.->|Live Broadcast| H
+    SE -.->|Live Broadcast| A
+    SE -.->|Live Broadcast| AD
+    SE -.->|Live Broadcast| D
 ```
 
 ---
