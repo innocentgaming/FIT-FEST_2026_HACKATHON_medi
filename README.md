@@ -124,7 +124,26 @@ graph TD
 
 ---
 
-## 6. Stakeholder Roles & Access Control (RBAC)
+## 6. Technologies Used
+
+| Domain | Technology / Library | Version / Details | Purpose in MediLink CARE |
+| :--- | :--- | :--- | :--- |
+| **Frontend Framework** | **React** | `v18.3.1` | Component-based interactive UI across all 5 stakeholder portals. |
+| **Build Tool & Bundler** | **Vite** | `v6.4.3` | Ultra-fast HMR and Rollup-optimized production bundling with `manualChunks`. |
+| **Styling & Design System**| **Vanilla CSS Tokens** | `Custom Glassmorphic` | 3 High-contrast themes (*Deep Slate*, *OLED Midnight*, *Clinical Light*), WCAG 2.1 AA. |
+| **Icons & Visual Language**| **Lucide React** | `v0.469.0` | Accessible semantic SVG icons embedded with status indicators. |
+| **Backend Runtime** | **Node.js** | `v20 LTS` | High-throughput asynchronous event-driven runtime. |
+| **API Framework** | **Express.js** | `v4.19.2` | RESTful routing, middleware pipelines, and security headers. |
+| **Realtime Engine** | **Socket.io** | `v4.7.5` | Sub-millisecond bidirectional WebSocket event bus for live telemetry & radar. |
+| **Authentication & RBAC** | **JSON Web Tokens (JWT)** | `v9.0.2` | Stateless, cryptographically signed bearer tokens for multi-tenant sessions. |
+| **Password Hashing** | **Bcrypt.js** | `v2.4.3` | Salted credential hashing (10 rounds) protecting all user accounts. |
+| **Persistence Engine** | **Transactional File Store**| `JSON Engine` | Thread-safe, atomic disk persistence with auto-seeding and zero external bloat. |
+| **Containerization** | **Docker** | `Multi-Stage Alpine` | Cloud Run-compatible production container packaging frontend + backend. |
+| **Testing Harness** | **Node.js Native Assert** | `node:assert/strict` | Repeatable CI/CD automated test runner (258 tests across 9 test suites). |
+
+---
+
+## 7. Stakeholder Roles & Access Control (RBAC)
 
 | Role | Default Demo Identifier | Password | Key Permissions & Portal Features |
 | :--- | :--- | :--- | :--- |
@@ -136,7 +155,7 @@ graph TD
 
 ---
 
-## 7. Canonical Request State Machine
+## 8. Canonical Request State Machine
 
 MediLink enforces single-source-of-truth state machine transitions via [`backend/src/engine/requestEngine.js`](file:///d:/medi/backend/src/engine/requestEngine.js):
 
