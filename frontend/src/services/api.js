@@ -1,4 +1,7 @@
-const API_BASE = import.meta.env.VITE_API_URL || '/api';
+const API_BASE = import.meta.env.VITE_API_URL || 
+  (typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || window.location.hostname !== 'localhost')
+    ? 'https://medilink-backend-q2rh.onrender.com/api' 
+    : '/api');
 
 const getHeaders = () => {
   const token = localStorage.getItem('medilink_token');

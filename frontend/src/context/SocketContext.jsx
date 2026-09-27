@@ -16,7 +16,10 @@ export const SocketProvider = ({ children }) => {
 
   useEffect(() => {
     // Connect to Socket.io server (supports custom host or same-origin)
-    const socketEndpoint = import.meta.env.VITE_SOCKET_URL || undefined;
+    const socketEndpoint = import.meta.env.VITE_SOCKET_URL || 
+      (typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || window.location.hostname !== 'localhost')
+        ? 'https://medilink-backend-q2rh.onrender.com' 
+        : undefined);
     const newSocket = io(socketEndpoint, {
       transports: ['websocket', 'polling']
     });
