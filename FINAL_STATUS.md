@@ -7,8 +7,10 @@
  Project Name:       MediLink — CARE (Coordinated Assistance & Record Engine)
  Hackathon:          FIT-FEST 2026 Hackathon (Flora Institute of Technology)
  GitHub Repository:  https://github.com/innocentgaming/FIT-FEST_2026_HACKATHON_medi
- Deployment:         Google Cloud Run Ready (Containerized 0.0.0.0:8080)
- Overall Status:     100% COMPLETE — ALL 12 PHASES IMPLEMENTED & PASSING
+ Live Frontend URL:  https://fit-fest-2026-hackathon-medi.vercel.app/
+ Live Backend API:   https://medilink-backend-q2rh.onrender.com
+ Live Health Check:  https://medilink-backend-q2rh.onrender.com/health
+ Overall Status:     100% COMPLETE & LIVE — ALL 12 PHASES DEPLOYED & PASSING
 ========================================================================================
 ```
 

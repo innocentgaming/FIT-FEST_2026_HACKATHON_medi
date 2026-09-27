@@ -6,8 +6,13 @@
 [![Docker](https://img.shields.io/badge/docker-ready-blue.svg)](file:///d:/medi/Dockerfile)
 [![WCAG 2.1 AA](https://img.shields.io/badge/accessibility-WCAG%202.1%20AA-emerald.svg)](file:///d:/medi/frontend)
 [![FIT-FEST 2026](https://img.shields.io/badge/Hackathon-FIT--FEST%202026-orange.svg)](https://github.com/innocentgaming/FIT-FEST_2026_HACKATHON_medi)
+[![Live Frontend](https://img.shields.io/badge/Vercel-Live%20App-black.svg)](https://fit-fest-2026-hackathon-medi.vercel.app/)
+[![Live Backend](https://img.shields.io/badge/Render-Live%20API-46E3B7.svg)](https://medilink-backend-q2rh.onrender.com/health)
 
----
+### 🌐 Live Deployment Links
+- **🚀 Live Application (Frontend)**: [https://fit-fest-2026-hackathon-medi.vercel.app/](https://fit-fest-2026-hackathon-medi.vercel.app/)
+- **⚡ Live REST & WebSocket Server (Backend)**: [https://medilink-backend-q2rh.onrender.com](https://medilink-backend-q2rh.onrender.com)
+- **🩺 Live Health Check**: [https://medilink-backend-q2rh.onrender.com/health](https://medilink-backend-q2rh.onrender.com/health)
 
 ## 1. Problem
 Healthcare coordination in urban and peri-urban centers is crippled by severe fragmentation:
