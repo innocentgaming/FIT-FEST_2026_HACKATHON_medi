@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import { EmergencyProvider } from './context/EmergencyContext';
@@ -62,7 +63,7 @@ const MainApp = () => {
       <ToastContainer />
 
       {/* Footer */}
-      <footer style={{ borderTop: '1px solid var(--border-card)', padding: '1.25rem', textAlign: 'center', fontSize: '0.8rem', color: '#64748b' }}>
+      <footer style={{ borderTop: '1px solid var(--border-card)', padding: '1.25rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
         MediLink CARE • FIT FEST 2026 Hackathon • Healthcare Administrative & Logistics Engine (Non-Diagnostic)
       </footer>
     </div>
@@ -71,12 +72,14 @@ const MainApp = () => {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <SocketProvider>
-        <EmergencyProvider>
-          <MainApp />
-        </EmergencyProvider>
-      </SocketProvider>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <SocketProvider>
+          <EmergencyProvider>
+            <MainApp />
+          </EmergencyProvider>
+        </SocketProvider>
+      </AuthProvider>
+    </ThemeProvider>
   );
 }

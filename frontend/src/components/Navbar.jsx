@@ -1,12 +1,14 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useEmergency } from '../context/EmergencyContext';
-import { Shield, AlertCircle, LogOut, User, Activity, Truck, Building2, UserCheck, Stethoscope } from 'lucide-react';
+import { useTheme, THEMES } from '../context/ThemeContext';
+import { Shield, AlertCircle, LogOut, User, Activity, Truck, Building2, UserCheck, Stethoscope, Sun, Moon, Sparkles } from 'lucide-react';
 import { NotificationDropdown } from './NotificationDropdown';
 
 export const Navbar = ({ activeView, setActiveView }) => {
   const { user, logout, quickSwitchRole, demoAccounts } = useAuth();
   const { openEmergencyMode } = useEmergency();
+  const { theme, toggleTheme } = useTheme();
 
   const getRoleIcon = (role) => {
     switch (role) {
@@ -23,6 +25,18 @@ export const Navbar = ({ activeView, setActiveView }) => {
       default:
         return <Activity size={14} />;
     }
+  };
+
+  const getThemeIcon = () => {
+    if (theme === THEMES.LIGHT) return <Sun size={16} />;
+    if (theme === THEMES.NIGHT) return <Sparkles size={16} />;
+    return <Moon size={16} />;
+  };
+
+  const getThemeLabel = () => {
+    if (theme === THEMES.LIGHT) return 'Light Mode';
+    if (theme === THEMES.NIGHT) return 'Midnight Mode';
+    return 'Dark Slate Mode';
   };
 
   return (
@@ -51,7 +65,7 @@ export const Navbar = ({ activeView, setActiveView }) => {
         {/* 1-Click Role Switcher for Hackathon Testing */}
         {user && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Role Switcher:</span>
+            <span style={{ fontSize: '0.75rem', color: 'var(--text-secondary)', fontWeight: 600 }}>Role Switcher:</span>
             <div style={{ display: 'flex', gap: '0.25rem' }}>
               {demoAccounts.map((acc) => {
                 const isActive = user.role === acc.role;
@@ -63,7 +77,7 @@ export const Navbar = ({ activeView, setActiveView }) => {
                     style={{
                       fontSize: '0.72rem',
                       padding: '0.25rem 0.5rem',
-                      border: isActive ? '1px solid #38bdf8' : '1px solid rgba(255,255,255,0.1)'
+                      border: isActive ? '1px solid var(--primary-light)' : '1px solid var(--border-card)'
                     }}
                     title={`Switch to ${acc.label}`}
                   >
@@ -75,6 +89,24 @@ export const Navbar = ({ activeView, setActiveView }) => {
           </div>
         )}
 
+        {/* Theme Switcher Button (Dark / Night / Light) */}
+        <button
+          onClick={toggleTheme}
+          className="btn btn-secondary btn-sm theme-toggle-btn"
+          title={`Switch Theme (Current: ${getThemeLabel()})`}
+          aria-label={`Toggle Theme. Current: ${getThemeLabel()}`}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            padding: '0.35rem 0.6rem',
+            borderRadius: 'var(--radius-md)'
+          }}
+        >
+          {getThemeIcon()}
+          <span style={{ fontSize: '0.72rem', textTransform: 'capitalize', fontWeight: 600 }}>{theme}</span>
+        </button>
+
         {/* User Info & Logout */}
         {user && (
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -85,7 +117,7 @@ export const Navbar = ({ activeView, setActiveView }) => {
                 {getRoleIcon(user.role)}
                 {user.role}
               </span>
-              <span style={{ fontWeight: 600, color: '#f8fafc' }}>{user.name.split(' ')[0]}</span>
+              <span style={{ fontWeight: 600, color: 'var(--text-primary)' }}>{user.name.split(' ')[0]}</span>
             </div>
 
             <button
