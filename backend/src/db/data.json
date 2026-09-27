@@ -5,7 +5,7 @@
       "name": "Aarav Sharma",
       "email": "aarav@example.com",
       "phone": "9876543210",
-      "password": "$2a$10$LEDovV4lqYq6zTBwo0CoIutqs5WeFXeuu/nJAv5Y/whQyCH5pHslu",
+      "password": "$2a$10$HygdXxDEspEGVHNk7e5Yb.pWdq3xhk3zRS8xdLTx.7iy78RwDFwn6",
       "role": "PATIENT",
       "bloodGroup": "B+",
       "emergencyContact": "Pooja Sharma (9876543211)",
@@ -17,7 +17,7 @@
       "name": "Sneha Patil",
       "email": "sneha@example.com",
       "phone": "9876543222",
-      "password": "$2a$10$35Q9iIzIwqoyeW60XkMi.uFb4ZumTVZQoACOZ/TM3rmy3yTKO6Mpi",
+      "password": "$2a$10$8K2dUYcKDUBGUX0ChvaEtu0MZFmzg5Xdn7cPbNH8oea0MAC06nDa.",
       "role": "PATIENT",
       "bloodGroup": "O-",
       "emergencyContact": "Ramesh Patil (9876543223)",
@@ -29,7 +29,7 @@
       "name": "Ruby Hall Clinic Admin",
       "email": "rubyhall@medilink.org",
       "phone": "02066455100",
-      "password": "$2a$10$Qk97Fab2RSlvbfG/fpCvnu1ZU0oudtTLLasivrB1U5Us9hLp8mNcm",
+      "password": "$2a$10$Gn1kB.uHdIM8to3w2fuKZOz/MMYkUda5TgMWQf/96e3EeEYIG4Spy",
       "role": "HOSPITAL",
       "hospitalId": "hosp_ruby_hall",
       "address": "40 Sassoon Road, Sangamvadi, Pune 411001",
@@ -40,7 +40,7 @@
       "name": "KEM Hospital Admin",
       "email": "kem@medilink.org",
       "phone": "02066037300",
-      "password": "$2a$10$PFwHC9lfOqKV0zFUckqOw.d8tviziAngVwfw/0/vBUvpvTs86XjTW",
+      "password": "$2a$10$3bhITKKsmG7y9WKVkTyI8eFNTB0Mo9VMUo6glJ0je4eGMt/CHVjdy",
       "role": "HOSPITAL",
       "hospitalId": "hosp_kem_pune",
       "address": "489 Rasta Peth, Sardar Moodliar Road, Pune 411011",
@@ -51,7 +51,7 @@
       "name": "Sahyadri Super Speciality Admin",
       "email": "sahyadri@medilink.org",
       "phone": "02067213000",
-      "password": "$2a$10$S0s9LiBrqZVDWBV1SaWO1.5vdfmHrzmSOnCbAwgO.bFGpytvH2vIG",
+      "password": "$2a$10$YSW/kGnG8M.YCvzEEsmePu22jUYSgbwkn2V5et3ZmLDf7OqSAam32",
       "role": "HOSPITAL",
       "hospitalId": "hosp_sahyadri",
       "address": "Deccan Gymkhana, Karve Road, Pune 411004",
@@ -62,7 +62,7 @@
       "name": "Santosh Shinde",
       "email": "driver1@medilink.org",
       "phone": "9822012345",
-      "password": "$2a$10$ntAgSVR6loyDqgjYowoyZeNi5EI6sETkOF6BNJ9UyJ8yBLkx2wFoS",
+      "password": "$2a$10$/ktI0k4kG3Ub7.Cf53ofBe7Ob1T9TxYvYkOiz476n9vFZdO451Dhm",
       "role": "AMBULANCE",
       "ambulanceId": "amb_pune_101",
       "hospitalId": "hosp_ruby_hall",
@@ -74,7 +74,7 @@
       "name": "Vijay Gaikwad",
       "email": "driver2@medilink.org",
       "phone": "9822056789",
-      "password": "$2a$10$FsJvJsdzPnkb5dFrw.26i.6Vz24HkK84QbuLKDqzllgGFXcYvAeh2",
+      "password": "$2a$10$7ctr6FUbyFBM/M3XLsyyyunqDI.vRfGJuODRZ9RSlIjA0580/0QiG",
       "role": "AMBULANCE",
       "ambulanceId": "amb_pune_102",
       "hospitalId": "hosp_kem_pune",
@@ -86,7 +86,7 @@
       "name": "State Health Command Admin",
       "email": "admin@medilink.gov.in",
       "phone": "02025550000",
-      "password": "$2a$10$kv7hlMPPtBiNYrHiFi6YC.HG6QcxpdeFXRLkbG60Yjo2ZOgL4rs52",
+      "password": "$2a$10$ddC3YfTDwYFiKlstci2J8u7OKrMx1Jx0e0tN24.iWJ2eFHveHTL8W",
       "role": "ADMIN",
       "createdAt": "2026-01-01T00:00:00.000Z"
     },
@@ -95,7 +95,7 @@
       "name": "Dr. Anand Joshi",
       "email": "dr.joshi@medilink.gov.in",
       "phone": "9422011223",
-      "password": "$2a$10$RakQSJdnS2d4BTc6eYx09Ov8pEckNkZjvVmJ8O7HiMHX2cHHSGooS",
+      "password": "$2a$10$zdns.57Ch/WwNfZ7V5ztguyCfSaXLODpPvYUJTD54q9WzZdMxCsvu",
       "role": "SYSTEM_DOCTOR",
       "specialty": "Emergency Medicine & Triage Specialist",
       "hospitalId": "hosp_ruby_hall",
@@ -106,7 +106,7 @@
       "name": "Dr. Meera Kulkarni",
       "email": "dr.kulkarni@medilink.gov.in",
       "phone": "9422044556",
-      "password": "$2a$10$kd9bgJRYImH6uvoMRQA9e.KsYE7QejDRq5iQMmaQ9uHM2eVuNIRZe",
+      "password": "$2a$10$PjFInaDVC.nNfhOEH3b1U.ZCmQ6DKUa1sY4Db3Lh6N1IUnW/rV/z2",
       "role": "SYSTEM_DOCTOR",
       "specialty": "Critical Care & Resource Coordinator",
       "hospitalId": "hosp_sahyadri",
@@ -173,7 +173,7 @@
         "amb_pune_101",
         "amb_pune_103"
       ],
-      "updatedAt": "2026-09-27T08:34:47.513Z"
+      "updatedAt": "2026-09-27T08:47:27.785Z"
     },
     {
       "id": "hosp_kem_pune",
@@ -356,7 +356,7 @@
       },
       "isSimulatedGps": true,
       "currentRequestId": null,
-      "updatedAt": "2026-09-27T08:34:47.531Z"
+      "updatedAt": "2026-09-27T08:47:27.817Z"
     },
     {
       "id": "amb_pune_102",
@@ -490,7 +490,7 @@
       "updatedAt": "2026-09-20T11:00:00.000Z"
     },
     {
-      "id": "apt_1790498087517",
+      "id": "apt_1790498847793",
       "patientId": "usr_patient_1",
       "patientName": "Aarav Sharma",
       "patientPhone": "9876543210",
@@ -503,8 +503,8 @@
       "purpose": "Cardiology OPD Consultation Desk",
       "status": "CONFIRMED",
       "notes": "Administrative scheduling entry.",
-      "createdAt": "2026-09-27T08:34:47.517Z",
-      "updatedAt": "2026-09-27T08:34:47.519Z"
+      "createdAt": "2026-09-27T08:47:27.793Z",
+      "updatedAt": "2026-09-27T08:47:27.797Z"
     }
   ],
   "requests": [
@@ -609,25 +609,25 @@
         },
         {
           "status": "ASSIGNED",
-          "timestamp": "2026-09-27T08:34:47.536Z",
+          "timestamp": "2026-09-27T08:47:27.827Z",
           "actorRole": "ADMIN",
           "actorName": "State Health Command Admin",
           "note": "Admin escalated rejected request to System Doctor Dr. Anand Joshi. Notes: Re-routing patient from KEM to Ruby Hall ICU"
         },
         {
           "status": "RESOLVED",
-          "timestamp": "2026-09-27T08:34:47.539Z",
+          "timestamp": "2026-09-27T08:47:27.835Z",
           "actorRole": "SYSTEM_DOCTOR",
           "actorName": "Dr. Anand Joshi",
           "note": "Resolved by System Doctor Dr. Anand Joshi: Re-routed to Ruby Hall Clinic (Multi-Speciality). Notes: Reserved ICU Bed 04 at Ruby Hall Clinic. Patient transferred smoothly."
         }
       ],
       "createdAt": "2026-09-27T11:00:00.000Z",
-      "updatedAt": "2026-09-27T08:34:47.539Z",
+      "updatedAt": "2026-09-27T08:47:27.835Z",
       "triageNotes": "Re-routing patient from KEM to Ruby Hall ICU",
       "resolvedByDoctorId": "usr_doc_1",
       "resolvedByDoctorName": "Dr. Anand Joshi",
-      "resolvedAt": "2026-09-27T08:34:47.539Z",
+      "resolvedAt": "2026-09-27T08:47:27.835Z",
       "reallocatedFacility": "Ruby Hall Clinic (Multi-Speciality)"
     },
     {
@@ -705,7 +705,7 @@
       "updatedAt": "2026-09-27T13:10:00.000Z"
     },
     {
-      "id": "req_ambulance_1790498087525",
+      "id": "req_ambulance_1790498847805",
       "type": "AMBULANCE",
       "patientId": "usr_patient_1",
       "patientName": "Aarav Sharma",
@@ -730,28 +730,28 @@
       "timeline": [
         {
           "status": "ASSIGNED",
-          "timestamp": "2026-09-27T08:34:47.525Z",
+          "timestamp": "2026-09-27T08:47:27.805Z",
           "actorRole": "PATIENT",
           "actorName": "Aarav Sharma",
           "note": "Request initiated by Aarav Sharma (PATIENT)."
         },
         {
           "status": "ACCEPTED",
-          "timestamp": "2026-09-27T08:34:47.529Z",
+          "timestamp": "2026-09-27T08:47:27.811Z",
           "actorRole": "AMBULANCE",
           "actorName": "Santosh Shinde",
           "note": "ON_THE_WAY"
         },
         {
           "status": "COMPLETED",
-          "timestamp": "2026-09-27T08:34:47.532Z",
+          "timestamp": "2026-09-27T08:47:27.818Z",
           "actorRole": "AMBULANCE",
           "actorName": "Santosh Shinde",
           "note": "COMPLETED"
         }
       ],
-      "createdAt": "2026-09-27T08:34:47.525Z",
-      "updatedAt": "2026-09-27T08:34:47.532Z"
+      "createdAt": "2026-09-27T08:47:27.805Z",
+      "updatedAt": "2026-09-27T08:47:27.818Z"
     }
   ],
   "auditLogs": [
@@ -789,8 +789,8 @@
       "details": "Driver accepted trip. Set trip status to ON_THE_WAY"
     },
     {
-      "id": "log_1790498087156_d1oc",
-      "timestamp": "2026-09-27T08:34:47.156Z",
+      "id": "log_1790498847388_nars",
+      "timestamp": "2026-09-27T08:47:27.388Z",
       "actorId": "usr_patient_1",
       "actorName": "Aarav Sharma",
       "actorRole": "PATIENT",
@@ -800,8 +800,8 @@
       "details": "User Aarav Sharma logged in successfully as PATIENT"
     },
     {
-      "id": "log_1790498087237_2kem",
-      "timestamp": "2026-09-27T08:34:47.237Z",
+      "id": "log_1790498847508_fhfl",
+      "timestamp": "2026-09-27T08:47:27.508Z",
       "actorId": "usr_hosp_1",
       "actorName": "Ruby Hall Clinic Admin",
       "actorRole": "HOSPITAL",
@@ -811,8 +811,8 @@
       "details": "User Ruby Hall Clinic Admin logged in successfully as HOSPITAL"
     },
     {
-      "id": "log_1790498087338_gdrz",
-      "timestamp": "2026-09-27T08:34:47.338Z",
+      "id": "log_1790498847595_16g9",
+      "timestamp": "2026-09-27T08:47:27.595Z",
       "actorId": "usr_amb_1",
       "actorName": "Santosh Shinde",
       "actorRole": "AMBULANCE",
@@ -822,8 +822,8 @@
       "details": "User Santosh Shinde logged in successfully as AMBULANCE"
     },
     {
-      "id": "log_1790498087425_mnaw",
-      "timestamp": "2026-09-27T08:34:47.425Z",
+      "id": "log_1790498847669_qn16",
+      "timestamp": "2026-09-27T08:47:27.669Z",
       "actorId": "usr_admin",
       "actorName": "State Health Command Admin",
       "actorRole": "ADMIN",
@@ -833,8 +833,8 @@
       "details": "User State Health Command Admin logged in successfully as ADMIN"
     },
     {
-      "id": "log_1790498087507_moer",
-      "timestamp": "2026-09-27T08:34:47.507Z",
+      "id": "log_1790498847770_psjd",
+      "timestamp": "2026-09-27T08:47:27.770Z",
       "actorId": "usr_doc_1",
       "actorName": "Dr. Anand Joshi",
       "actorRole": "SYSTEM_DOCTOR",
@@ -844,8 +844,8 @@
       "details": "User Dr. Anand Joshi logged in successfully as SYSTEM_DOCTOR"
     },
     {
-      "id": "log_1790498087514_tj05",
-      "timestamp": "2026-09-27T08:34:47.514Z",
+      "id": "log_1790498847788_hlhg",
+      "timestamp": "2026-09-27T08:47:27.788Z",
       "actorId": "usr_hosp_1",
       "actorName": "Ruby Hall Clinic Admin",
       "actorRole": "HOSPITAL",
@@ -855,63 +855,63 @@
       "details": "{\"generalBedsTotal\":350,\"generalBedsAvailable\":42,\"icuBedsTotal\":60,\"icuBedsAvailable\":15,\"ventilatorsTotal\":30,\"ventilatorsAvailable\":5,\"oxygenCylindersTotal\":120,\"oxygenCylindersAvailable\":34}"
     },
     {
-      "id": "log_1790498087517_1ziu",
-      "timestamp": "2026-09-27T08:34:47.517Z",
+      "id": "log_1790498847793_lgu4",
+      "timestamp": "2026-09-27T08:47:27.793Z",
       "actorId": "usr_patient_1",
       "actorName": "Aarav Sharma",
       "actorRole": "PATIENT",
       "action": "BOOK_APPOINTMENT",
       "resourceType": "APPOINTMENT",
-      "resourceId": "apt_1790498087517",
+      "resourceId": "apt_1790498847793",
       "details": "Booked appointment with Ruby Hall Clinic (Multi-Speciality) on 2026-10-01 at 10:00 AM"
     },
     {
-      "id": "log_1790498087520_spn5",
-      "timestamp": "2026-09-27T08:34:47.520Z",
+      "id": "log_1790498847798_zzob",
+      "timestamp": "2026-09-27T08:47:27.798Z",
       "actorId": "usr_hosp_1",
       "actorName": "Ruby Hall Clinic Admin",
       "actorRole": "HOSPITAL",
       "action": "UPDATE_APPOINTMENT_STATUS",
       "resourceType": "APPOINTMENT",
-      "resourceId": "apt_1790498087517",
+      "resourceId": "apt_1790498847793",
       "details": "Status changed to CONFIRMED"
     },
     {
-      "id": "log_1790498087526_ki16",
-      "timestamp": "2026-09-27T08:34:47.526Z",
+      "id": "log_1790498847806_3mx4",
+      "timestamp": "2026-09-27T08:47:27.806Z",
       "actorId": "usr_patient_1",
       "actorName": "Aarav Sharma",
       "actorRole": "PATIENT",
       "action": "CREATE_REQUEST",
       "resourceType": "AMBULANCE",
-      "resourceId": "req_ambulance_1790498087525",
-      "details": "{\"id\":\"req_ambulance_1790498087525\",\"type\":\"AMBULANCE\",\"patientId\":\"usr_patient_1\",\"patientName\":\"Aarav Sharma\",\"patientPhone\":\"9876543210\",\"sourceHospitalId\":null,\"sourceHospitalName\":null,\"targetHospitalId\":\"hosp_ruby_hall\",\"targetHospitalName\":\"Ruby Hall Clinic (Multi-Speciality)\",\"assignedAmbulanceId\":\"amb_pune_101\",\"assignedAmbulanceVehicle\":\"MH-12-CR-1011\",\"assignedDoctorId\":null,\"assignedDoctorName\":null,\"status\":\"ASSIGNED\",\"ambulanceTripStatus\":null,\"priority\":\"EMERGENCY\",\"details\":{\"pickupLocation\":\"Kothrud, Pune\",\"dropLocation\":\"Ruby Hall Clinic\"},\"responseNotes\":\"\",\"resolutionNotes\":\"\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T08:34:47.525Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"}],\"createdAt\":\"2026-09-27T08:34:47.525Z\",\"updatedAt\":\"2026-09-27T08:34:47.525Z\"}"
+      "resourceId": "req_ambulance_1790498847805",
+      "details": "{\"id\":\"req_ambulance_1790498847805\",\"type\":\"AMBULANCE\",\"patientId\":\"usr_patient_1\",\"patientName\":\"Aarav Sharma\",\"patientPhone\":\"9876543210\",\"sourceHospitalId\":null,\"sourceHospitalName\":null,\"targetHospitalId\":\"hosp_ruby_hall\",\"targetHospitalName\":\"Ruby Hall Clinic (Multi-Speciality)\",\"assignedAmbulanceId\":\"amb_pune_101\",\"assignedAmbulanceVehicle\":\"MH-12-CR-1011\",\"assignedDoctorId\":null,\"assignedDoctorName\":null,\"status\":\"ASSIGNED\",\"ambulanceTripStatus\":null,\"priority\":\"EMERGENCY\",\"details\":{\"pickupLocation\":\"Kothrud, Pune\",\"dropLocation\":\"Ruby Hall Clinic\"},\"responseNotes\":\"\",\"resolutionNotes\":\"\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T08:47:27.805Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"}],\"createdAt\":\"2026-09-27T08:47:27.805Z\",\"updatedAt\":\"2026-09-27T08:47:27.805Z\"}"
     },
     {
-      "id": "log_1790498087529_ayev",
-      "timestamp": "2026-09-27T08:34:47.529Z",
+      "id": "log_1790498847813_4a1k",
+      "timestamp": "2026-09-27T08:47:27.813Z",
       "actorId": "usr_amb_1",
       "actorName": "Santosh Shinde",
       "actorRole": "AMBULANCE",
       "action": "UPDATE_REQUEST_STATUS",
       "resourceType": "AMBULANCE",
-      "resourceId": "req_ambulance_1790498087525",
-      "details": "{\"from\":\"ASSIGNED\",\"to\":\"ACCEPTED\",\"updates\":{\"status\":\"ACCEPTED\",\"responseNotes\":\"\",\"ambulanceTripStatus\":\"ON_THE_WAY\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T08:34:47.525Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T08:34:47.529Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"ON_THE_WAY\"}]}}"
+      "resourceId": "req_ambulance_1790498847805",
+      "details": "{\"from\":\"ASSIGNED\",\"to\":\"ACCEPTED\",\"updates\":{\"status\":\"ACCEPTED\",\"responseNotes\":\"\",\"ambulanceTripStatus\":\"ON_THE_WAY\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T08:47:27.805Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T08:47:27.811Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"ON_THE_WAY\"}]}}"
     },
     {
-      "id": "log_1790498087532_vap0",
-      "timestamp": "2026-09-27T08:34:47.532Z",
+      "id": "log_1790498847820_eivu",
+      "timestamp": "2026-09-27T08:47:27.820Z",
       "actorId": "usr_amb_1",
       "actorName": "Santosh Shinde",
       "actorRole": "AMBULANCE",
       "action": "UPDATE_REQUEST_STATUS",
       "resourceType": "AMBULANCE",
-      "resourceId": "req_ambulance_1790498087525",
-      "details": "{\"from\":\"ACCEPTED\",\"to\":\"COMPLETED\",\"updates\":{\"status\":\"COMPLETED\",\"responseNotes\":\"\",\"ambulanceTripStatus\":\"COMPLETED\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T08:34:47.525Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T08:34:47.529Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"ON_THE_WAY\"},{\"status\":\"COMPLETED\",\"timestamp\":\"2026-09-27T08:34:47.532Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"COMPLETED\"}]}}"
+      "resourceId": "req_ambulance_1790498847805",
+      "details": "{\"from\":\"ACCEPTED\",\"to\":\"COMPLETED\",\"updates\":{\"status\":\"COMPLETED\",\"responseNotes\":\"\",\"ambulanceTripStatus\":\"COMPLETED\",\"timeline\":[{\"status\":\"ASSIGNED\",\"timestamp\":\"2026-09-27T08:47:27.805Z\",\"actorRole\":\"PATIENT\",\"actorName\":\"Aarav Sharma\",\"note\":\"Request initiated by Aarav Sharma (PATIENT).\"},{\"status\":\"ACCEPTED\",\"timestamp\":\"2026-09-27T08:47:27.811Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"ON_THE_WAY\"},{\"status\":\"COMPLETED\",\"timestamp\":\"2026-09-27T08:47:27.818Z\",\"actorRole\":\"AMBULANCE\",\"actorName\":\"Santosh Shinde\",\"note\":\"COMPLETED\"}]}}"
     },
     {
-      "id": "log_1790498087537_mzsp",
-      "timestamp": "2026-09-27T08:34:47.537Z",
+      "id": "log_1790498847829_ah70",
+      "timestamp": "2026-09-27T08:47:27.829Z",
       "actorId": "usr_admin",
       "actorName": "State Health Command Admin",
       "actorRole": "ADMIN",
@@ -921,8 +921,8 @@
       "details": "{\"assignedDoctorId\":\"usr_doc_1\",\"doctorName\":\"Dr. Anand Joshi\",\"triageNotes\":\"Re-routing patient from KEM to Ruby Hall ICU\"}"
     },
     {
-      "id": "log_1790498087540_eazv",
-      "timestamp": "2026-09-27T08:34:47.540Z",
+      "id": "log_1790498847836_jjry",
+      "timestamp": "2026-09-27T08:47:27.836Z",
       "actorId": "usr_doc_1",
       "actorName": "Dr. Anand Joshi",
       "actorRole": "SYSTEM_DOCTOR",
