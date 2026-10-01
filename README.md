@@ -84,6 +84,7 @@ MediLink is built around the **C.A.R.E.** paradigm:
 8. **🎨 3 High-Fidelity UI Themes**: Quick toggle between **Deep Slate**, **OLED Midnight**, and **Clinical Light Mode** with WCAG 2.2 AA compliant contrast.
 9. **⚡ React.lazy Code-Splitting**: Optimized initial production bundle down to ~203 kB with Rollup manual vendor chunking.
 10. **🛡️ Non-Diagnostic Safety Compliance**: Embedded safety guard middleware filtering clinical diagnosis/prescription generation attempts.
+11. **👴 Senior Citizen Care & Easy-Dial Suite**: High-accessibility elderly mode featuring 1-tap National Helplines (108 Ambulance, 14567 Elder Line, 112 Emergency, 1075 Tele-Doctor), Web Audio DTMF tone dialpad with Web Speech voice narration, customizable family/caregiver speed-dial contacts, 1-touch Emergency SOS ambulance rescue, and daily medicine/vital checklists.
 
 ---
 

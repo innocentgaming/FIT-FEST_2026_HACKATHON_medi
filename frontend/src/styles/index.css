@@ -1093,3 +1093,65 @@ a:focus-visible {
     max-width: calc(100vw - 2rem);
   }
 }
+
+/* ==========================================================================
+   👴 SENIOR CITIZEN ACCESSIBILITY & SPEED DIAL STYLING
+   ========================================================================== */
+
+.senior-mode-active {
+  font-size: 112% !important;
+}
+
+.senior-mode-active button,
+.senior-mode-active input,
+.senior-mode-active select,
+.senior-mode-active textarea {
+  font-size: 1.05rem !important;
+  min-height: 48px;
+}
+
+.senior-mode-active .btn {
+  font-weight: 800 !important;
+  letter-spacing: 0.02em;
+}
+
+.senior-keypad-btn:hover {
+  background: var(--primary-glow) !important;
+  border-color: var(--primary-light) !important;
+  transform: translateY(-2px);
+}
+
+.senior-keypad-btn:active {
+  transform: scale(0.95);
+  background: var(--primary) !important;
+}
+
+.senior-sos-master-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 60px rgba(239, 68, 68, 0.9), inset 0 0 30px rgba(0,0,0,0.5) !important;
+}
+
+.senior-sos-master-btn:active {
+  transform: scale(0.96);
+}
+
+.senior-floating-btn:hover {
+  transform: translateY(-3px) scale(1.03);
+  box-shadow: 0 14px 28px -4px rgba(2, 132, 199, 0.7), 0 0 30px rgba(56, 189, 248, 0.6) !important;
+}
+
+@keyframes pulseBeacon {
+  0% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+}
+

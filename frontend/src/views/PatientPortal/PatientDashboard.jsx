@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useEmergency } from '../../context/EmergencyContext';
+import { useSenior } from '../../context/SeniorContext';
 import { useSocket } from '../../context/SocketContext';
 import { api } from '../../services/api';
 import { StatusBadge } from '../../components/StatusBadge';
@@ -20,6 +21,7 @@ import {
   CheckCircle2,
   XCircle,
   Phone,
+  PhoneCall,
   User,
   Activity,
   Layers,
@@ -28,15 +30,30 @@ import {
   FileText,
   ExternalLink,
   ChevronRight,
-  ArrowRight
+  ArrowRight,
+  Pill,
+  Heart,
+  Volume2,
+  Sparkles
 } from 'lucide-react';
 
 export const PatientDashboard = () => {
   const { user } = useAuth();
   const { openEmergencyMode } = useEmergency();
+  const {
+    openSeniorModal,
+    isSeniorModeActive,
+    toggleSeniorMode,
+    contacts,
+    reminders,
+    toggleReminder,
+    triggerSeniorSOS,
+    sosStatus,
+    speak
+  } = useSenior();
   const { liveResourceUpdate, liveBloodBankUpdate, liveRequestUpdate, liveLocationUpdate } = useSocket();
 
-  // Navigation Tabs: DASHBOARD, APPOINTMENTS, HOSPITALS, BLOOD, REQUESTS, PROFILE
+  // Navigation Tabs: DASHBOARD, APPOINTMENTS, HOSPITALS, BLOOD, SENIOR_CARE, REQUESTS, PROFILE
   const [activeTab, setActiveTab] = useState('DASHBOARD');
   const [appointments, setAppointments] = useState([]);
   const [hospitals, setHospitals] = useState([]);
@@ -280,6 +297,14 @@ export const PatientDashboard = () => {
         </button>
 
         <button
+          className={`tab-btn ${activeTab === 'SENIOR_CARE' ? 'active' : ''}`}
+          style={{ color: '#38bdf8', fontWeight: 700 }}
+          onClick={() => setActiveTab('SENIOR_CARE')}
+        >
+          <PhoneCall size={16} aria-hidden="true" /> 👴 Senior Care & Dial
+        </button>
+
+        <button
           className={`tab-btn ${activeTab === 'REQUESTS' ? 'active' : ''}`}
           onClick={() => setActiveTab('REQUESTS')}
         >
@@ -303,6 +328,77 @@ export const PatientDashboard = () => {
           {/* TAB 1: DASHBOARD (10-Second 5 Pillar Overview) */}
           {activeTab === 'DASHBOARD' && (
             <div className="tab-pane">
+              {/* Senior Citizen Quick Help Banner */}
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.15) 0%, rgba(56, 189, 248, 0.1) 100%)',
+                  border: '2px solid rgba(56, 189, 248, 0.35)',
+                  borderRadius: 'var(--radius-lg)',
+                  padding: '1.25rem 1.5rem',
+                  marginBottom: '1.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '1rem',
+                  boxShadow: '0 4px 20px rgba(2, 132, 199, 0.15)'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                  <div
+                    style={{
+                      width: '50px',
+                      height: '50px',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '1.6rem',
+                      flexShrink: 0
+                    }}
+                  >
+                    👴
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800 }}>Senior Citizen Emergency & Dial Assistance</h3>
+                      <span style={{ fontSize: '0.7rem', background: '#0284c7', color: '#fff', padding: '0.15rem 0.5rem', borderRadius: '4px', fontWeight: 700 }}>EASY-USE</span>
+                    </div>
+                    <p style={{ margin: '0.2rem 0 0', color: 'var(--text-secondary)', fontSize: '0.85rem' }}>
+                      One-touch 108/14567 helplines, high-contrast big dialpad, voice guidance, and family emergency contacts.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                  <button
+                    onClick={() => openSeniorModal('DIAL')}
+                    className="btn btn-primary"
+                    style={{
+                      padding: '0.65rem 1.25rem',
+                      fontWeight: 800,
+                      fontSize: '0.9rem',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.4rem',
+                      boxShadow: '0 0 15px rgba(56, 189, 248, 0.3)'
+                    }}
+                  >
+                    <PhoneCall size={16} />
+                    <span>Open Senior Dialpad</span>
+                  </button>
+
+                  <button
+                    onClick={() => setActiveTab('SENIOR_CARE')}
+                    className="btn btn-secondary"
+                    style={{ padding: '0.65rem 1rem', fontSize: '0.88rem', fontWeight: 700 }}
+                  >
+                    View Senior Suite
+                  </button>
+                </div>
+              </div>
+
               {/* 5-Pillar Feature Cards Grid */}
               <div
                 style={{
@@ -937,6 +1033,283 @@ export const PatientDashboard = () => {
                   ))}
                 </div>
               )}
+            </div>
+          )}
+
+          {/* TAB: SENIOR CARE & SPEED DIAL */}
+          {activeTab === 'SENIOR_CARE' && (
+            <div className="tab-pane">
+              {/* Senior Suite Header */}
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.2) 0%, rgba(56, 189, 248, 0.1) 100%)',
+                  border: '2px solid rgba(56, 189, 248, 0.4)',
+                  borderRadius: 'var(--radius-xl)',
+                  padding: '1.5rem',
+                  marginBottom: '1.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  flexWrap: 'wrap',
+                  gap: '1rem'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '1.25rem' }}>
+                  <div
+                    style={{
+                      width: '64px',
+                      height: '64px',
+                      borderRadius: '50%',
+                      background: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '2rem',
+                      boxShadow: '0 0 25px rgba(56, 189, 248, 0.4)'
+                    }}
+                  >
+                    👴
+                  </div>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                      <h2 style={{ fontSize: '1.5rem', fontWeight: 900, margin: 0 }}>Senior Citizen Emergency & Daily Care</h2>
+                      <span className="role-pill role-patient">ASSISTIVE MODE</span>
+                    </div>
+                    <p style={{ margin: '0.25rem 0 0', color: 'var(--text-secondary)', fontSize: '0.92rem' }}>
+                      Direct national emergency speed-dialers (108, 14567, 112), family calling cards, and daily medicine tracker.
+                    </p>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                  <button
+                    onClick={() => openSeniorModal('DIAL')}
+                    className="btn btn-primary"
+                    style={{
+                      padding: '0.8rem 1.4rem',
+                      fontSize: '0.95rem',
+                      fontWeight: 800,
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.5rem',
+                      boxShadow: '0 0 20px rgba(56, 189, 248, 0.4)'
+                    }}
+                  >
+                    <PhoneCall size={18} />
+                    <span>Open Full Dialpad & SOS</span>
+                  </button>
+
+                  <button
+                    onClick={toggleSeniorMode}
+                    className={`btn ${isSeniorModeActive ? 'btn-success' : 'btn-secondary'}`}
+                    style={{ padding: '0.8rem 1.2rem', fontSize: '0.92rem', fontWeight: 800 }}
+                  >
+                    <Sparkles size={16} />
+                    <span>{isSeniorModeActive ? 'Big Text: ON' : 'Enlarge App Text'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Grid: 3 Quick Sections */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.5rem' }}>
+                {/* 1. National Helplines Quick Dial */}
+                <div
+                  style={{
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border-card)',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: '1.25rem'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0 }}>📞 National Emergency Lines</h3>
+                    <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Tap to call</span>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {[
+                      { num: '108', label: 'Ambulance Emergency (Free 24x7)', col: '#ef4444', icon: '🚑' },
+                      { num: '14567', label: 'Elder Line (Govt. Senior Helpline)', col: '#38bdf8', icon: '👴' },
+                      { num: '112', label: 'All-in-One National Emergency', col: '#f59e0b', icon: '🚨' },
+                      { num: '1075', label: 'Doctor Tele-Consultation', col: '#10b981', icon: '🩺' }
+                    ].map((item) => (
+                      <div
+                        key={item.num}
+                        onClick={() => {
+                          speak(`Dialing ${item.label}, number ${item.num}`);
+                          window.location.href = `tel:${item.num}`;
+                        }}
+                        style={{
+                          background: 'var(--bg-subtle)',
+                          border: `1.5px solid ${item.col}`,
+                          borderRadius: 'var(--radius-md)',
+                          padding: '0.85rem 1rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                          <span style={{ fontSize: '1.5rem' }}>{item.icon}</span>
+                          <div>
+                            <div style={{ fontSize: '1.15rem', fontWeight: 900, color: item.col }}>
+                              DIAL {item.num}
+                            </div>
+                            <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>{item.label}</div>
+                          </div>
+                        </div>
+
+                        <button
+                          className="btn btn-primary btn-sm"
+                          style={{ background: item.col, borderColor: item.col, fontWeight: 800 }}
+                        >
+                          CALL
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 2. Family & Caregiver Speed Dial */}
+                <div
+                  style={{
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border-card)',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: '1.25rem'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0 }}>👨‍👩‍👧 Family Speed Dial</h3>
+                    <button
+                      onClick={() => openSeniorModal('DIAL')}
+                      className="btn btn-secondary btn-sm"
+                      style={{ fontSize: '0.75rem' }}
+                    >
+                      + Manage
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {contacts.slice(0, 4).map((c) => (
+                      <div
+                        key={c.id}
+                        style={{
+                          background: 'var(--bg-subtle)',
+                          border: '1px solid var(--border-card)',
+                          borderRadius: 'var(--radius-md)',
+                          padding: '0.85rem 1rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between'
+                        }}
+                      >
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: '1rem' }}>{c.name}</div>
+                          <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>{c.relation}</div>
+                          <div style={{ fontSize: '0.85rem', color: '#38bdf8', fontWeight: 600 }}>{c.phone}</div>
+                        </div>
+
+                        <button
+                          onClick={() => {
+                            speak(`Calling ${c.name}`);
+                            window.location.href = `tel:${c.phone}`;
+                          }}
+                          className="btn btn-success btn-sm"
+                          style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                        >
+                          <PhoneCall size={14} />
+                          <span>CALL</span>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* 3. Daily Medicine Checklist */}
+                <div
+                  style={{
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border-card)',
+                    borderRadius: 'var(--radius-lg)',
+                    padding: '1.25rem'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                    <h3 style={{ fontSize: '1.15rem', fontWeight: 800, margin: 0 }}>💊 Today's Medicines</h3>
+                    <button
+                      onClick={() => openSeniorModal('MEDICINE')}
+                      className="btn btn-secondary btn-sm"
+                      style={{ fontSize: '0.75rem' }}
+                    >
+                      View All
+                    </button>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                    {reminders.map((r) => (
+                      <div
+                        key={r.id}
+                        onClick={() => toggleReminder(r.id)}
+                        style={{
+                          background: r.taken ? 'rgba(16, 185, 129, 0.12)' : 'var(--bg-subtle)',
+                          border: r.taken ? '1.5px solid rgba(16, 185, 129, 0.4)' : '1px solid var(--border-card)',
+                          borderRadius: 'var(--radius-md)',
+                          padding: '0.75rem 0.9rem',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+                          <div
+                            style={{
+                              width: '24px',
+                              height: '24px',
+                              borderRadius: '50%',
+                              background: r.taken ? '#10b981' : 'transparent',
+                              border: '2px solid ' + (r.taken ? '#10b981' : 'var(--border-card)'),
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontSize: '0.75rem',
+                              color: '#fff',
+                              fontWeight: 900
+                            }}
+                          >
+                            {r.taken ? '✓' : ''}
+                          </div>
+                          <div>
+                            <div
+                              style={{
+                                fontSize: '0.9rem',
+                                fontWeight: 700,
+                                textDecoration: r.taken ? 'line-through' : 'none',
+                                opacity: r.taken ? 0.8 : 1
+                              }}
+                            >
+                              {r.title}
+                            </div>
+                            <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>⏰ {r.time}</div>
+                          </div>
+                        </div>
+
+                        <span
+                          style={{
+                            fontSize: '0.72rem',
+                            fontWeight: 800,
+                            color: r.taken ? '#34d399' : 'var(--text-muted)'
+                          }}
+                        >
+                          {r.taken ? 'TAKEN' : 'PENDING'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
           )}
 

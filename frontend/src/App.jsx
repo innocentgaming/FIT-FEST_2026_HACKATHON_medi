@@ -3,9 +3,12 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import { EmergencyProvider } from './context/EmergencyContext';
+import { SeniorProvider } from './context/SeniorContext';
 import { SafetyBanner } from './components/SafetyBanner';
 import { Navbar } from './components/Navbar';
 import { EmergencyModal } from './components/EmergencyModal';
+import { SeniorAssistanceModal } from './components/SeniorAssistanceModal';
+import { SeniorFloatingWidget } from './components/SeniorFloatingWidget';
 import { ToastContainer } from './components/ToastContainer';
 
 const AuthView = lazy(() => import('./views/AuthView').then(m => ({ default: m.AuthView })));
@@ -69,8 +72,10 @@ const MainApp = () => {
         </Suspense>
       </main>
 
-      {/* Global Emergency Modal & Toasts */}
+      {/* Global Modals & Widgets */}
       <EmergencyModal />
+      <SeniorAssistanceModal />
+      <SeniorFloatingWidget />
       <ToastContainer />
 
       {/* Footer */}
@@ -87,10 +92,13 @@ export default function App() {
       <AuthProvider>
         <SocketProvider>
           <EmergencyProvider>
-            <MainApp />
+            <SeniorProvider>
+              <MainApp />
+            </SeniorProvider>
           </EmergencyProvider>
         </SocketProvider>
       </AuthProvider>
     </ThemeProvider>
   );
 }
+

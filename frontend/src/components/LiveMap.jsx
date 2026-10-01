@@ -19,9 +19,9 @@ export const LiveMap = ({
     if (!leafletMapRef.current) {
       leafletMapRef.current = L.map(mapRef.current).setView(center, zoom);
 
-      // Dark / modern carto tile layer
-      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-        attribution: '&copy; OpenStreetMap contributors &copy; CARTO',
+      // Free, open standard OpenStreetMap tiles (No API key required)
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors',
         maxZoom: 19
       }).addTo(leafletMapRef.current);
     }

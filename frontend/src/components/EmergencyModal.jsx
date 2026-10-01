@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useEmergency } from '../context/EmergencyContext';
+import { useSenior } from '../context/SeniorContext';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import { api } from '../services/api';
@@ -37,6 +38,9 @@ export const EmergencyModal = () => {
     setActiveEmergencyRequest,
     submitQuickAmbulance
   } = useEmergency();
+
+  const { openSeniorModal } = useSenior();
+
 
   const { user } = useAuth();
   const { liveRequestUpdate, liveLocationUpdate, notifications } = useSocket() || {};
@@ -453,6 +457,29 @@ export const EmergencyModal = () => {
           >
             <Navigation size={18} />
             <span>📋 TRACK REQUEST</span>
+          </button>
+
+          <button
+            onClick={() => {
+              closeEmergencyMode();
+              openSeniorModal('DIAL');
+            }}
+            className="btn btn-secondary"
+            style={{
+              padding: '0.75rem 1rem',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '0.5rem',
+              fontSize: '0.9rem',
+              fontWeight: 800,
+              background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.25) 0%, rgba(56, 189, 248, 0.25) 100%)',
+              border: '2px solid #38bdf8',
+              color: '#38bdf8'
+            }}
+          >
+            <span style={{ fontSize: '1.2rem' }}>👴</span>
+            <span>SENIOR SPEED DIAL</span>
           </button>
         </div>
 
