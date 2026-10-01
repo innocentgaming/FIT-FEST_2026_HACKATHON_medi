@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useEmergency } from '../context/EmergencyContext';
-import { useSenior } from '../context/SeniorContext';
 import { useAuth } from '../context/AuthContext';
 import { useSocket } from '../context/SocketContext';
 import { api } from '../services/api';
@@ -39,16 +38,7 @@ export const EmergencyModal = () => {
     submitQuickAmbulance
   } = useEmergency();
 
-  const { openSeniorModal, contacts = [], speak, requestFamilyContactAlert } = useSenior() || {};
-  const [autoNotifyFamily, setAutoNotifyFamily] = useState(true);
-  const [familyAlertSent, setFamilyAlertSent] = useState(true);
-
-  const primaryFamilyContact = contacts[0] || {
-    id: 'c1',
-    name: 'Daughter (Ananya)',
-    relation: 'Primary Caregiver',
-    phone: user?.emergencyContact || '+919822012345'
-  };
+  const { user } = useAuth();
   const { liveRequestUpdate, liveLocationUpdate, notifications } = useSocket() || {};
 
   const [hospitals, setHospitals] = useState([]);
@@ -225,12 +215,6 @@ export const EmergencyModal = () => {
       setActiveEmergencyRequest(req);
       setEmergencyTab('STATUS');
       loadRecentRequests();
-
-      if (autoNotifyFamily && primaryFamilyContact) {
-        if (speak) {
-          speak(`Ambulance dispatched. Emergency GPS alert sent to ${primaryFamilyContact.name}.`);
-        }
-      }
     } catch (err) {
       alert('Error dispatching ambulance: ' + (err.response?.data?.error || err.message));
     } finally {
@@ -390,105 +374,6 @@ export const EmergencyModal = () => {
           </button>
         </div>
 
-        {/* 👨‍👩‍👧 AUTOMATIC FAMILY MEMBER & CAREGIVER ALERT SYSTEM */}
-        <div
-          style={{
-            background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.25) 0%, rgba(56, 189, 248, 0.15) 100%)',
-            border: '2px solid rgba(56, 189, 248, 0.45)',
-            borderRadius: 'var(--radius-lg)',
-            padding: '1rem 1.25rem',
-            marginBottom: '1.25rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexWrap: 'wrap',
-            gap: '0.75rem',
-            boxShadow: '0 4px 20px rgba(2, 132, 199, 0.2)'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
-            <div
-              style={{
-                width: '44px',
-                height: '44px',
-                borderRadius: '50%',
-                background: 'linear-gradient(135deg, #0284c7 0%, #38bdf8 100%)',
-                color: '#fff',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '1.4rem',
-                flexShrink: 0
-              }}
-            >
-              👨‍👩‍👧
-            </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <strong style={{ fontSize: '1rem', color: '#f8fafc' }}>
-                  Family Member Notified: {primaryFamilyContact.name}
-                </strong>
-                <span
-                  style={{
-                    fontSize: '0.68rem',
-                    background: 'rgba(16, 185, 129, 0.2)',
-                    color: '#34d399',
-                    border: '1px solid #10b981',
-                    padding: '0.1rem 0.45rem',
-                    borderRadius: '4px',
-                    fontWeight: 800
-                  }}
-                >
-                  ✓ LIVE GPS SENT
-                </span>
-              </div>
-              <div style={{ fontSize: '0.82rem', color: '#cbd5e1', marginTop: '0.15rem' }}>
-                Phone: <strong style={{ color: '#38bdf8' }}>{primaryFamilyContact.phone}</strong> ({primaryFamilyContact.relation}) • Emergency dispatch coordinates shared.
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <button
-              type="button"
-              onClick={() => {
-                if (requestFamilyContactAlert) {
-                  requestFamilyContactAlert(primaryFamilyContact, 'CALL_AND_SMS');
-                } else {
-                  window.location.href = `tel:${primaryFamilyContact.phone}`;
-                }
-              }}
-              className="btn btn-success btn-sm"
-              style={{
-                fontWeight: 800,
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                padding: '0.5rem 0.9rem',
-                boxShadow: '0 0 15px rgba(16, 185, 129, 0.35)'
-              }}
-              title="Confirm & Call Family Member Directly"
-            >
-              <PhoneCall size={14} />
-              <span>Call Family Now</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                if (requestFamilyContactAlert) {
-                  requestFamilyContactAlert(primaryFamilyContact, 'SMS');
-                }
-              }}
-              className="btn btn-secondary btn-sm"
-              style={{ fontWeight: 700, padding: '0.5rem 0.75rem', fontSize: '0.8rem' }}
-              title="Resend Location SMS to Family"
-            >
-              <span>💬 Re-send SMS</span>
-            </button>
-          </div>
-        </div>
-
         {/* Four Major Action Buttons */}
         <div
           style={{
@@ -568,29 +453,6 @@ export const EmergencyModal = () => {
           >
             <Navigation size={18} />
             <span>📋 TRACK REQUEST</span>
-          </button>
-
-          <button
-            onClick={() => {
-              closeEmergencyMode();
-              openSeniorModal('DIAL');
-            }}
-            className="btn btn-secondary"
-            style={{
-              padding: '0.75rem 1rem',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '0.5rem',
-              fontSize: '0.9rem',
-              fontWeight: 800,
-              background: 'linear-gradient(135deg, rgba(2, 132, 199, 0.25) 0%, rgba(56, 189, 248, 0.25) 100%)',
-              border: '2px solid #38bdf8',
-              color: '#38bdf8'
-            }}
-          >
-            <span style={{ fontSize: '1.2rem' }}>👴</span>
-            <span>SENIOR SPEED DIAL</span>
           </button>
         </div>
 

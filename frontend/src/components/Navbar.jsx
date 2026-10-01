@@ -1,15 +1,13 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useEmergency } from '../context/EmergencyContext';
-import { useSenior } from '../context/SeniorContext';
 import { useTheme, THEMES } from '../context/ThemeContext';
-import { Shield, AlertCircle, LogOut, User, Activity, Truck, Building2, UserCheck, Stethoscope, Sun, Moon, Sparkles, PhoneCall } from 'lucide-react';
+import { Shield, AlertCircle, LogOut, User, Activity, Truck, Building2, UserCheck, Stethoscope, Sun, Moon, Sparkles } from 'lucide-react';
 import { NotificationDropdown } from './NotificationDropdown';
 
 export const Navbar = ({ activeView, setActiveView }) => {
   const { user, logout, quickSwitchRole, demoAccounts } = useAuth();
   const { openEmergencyMode } = useEmergency();
-  const { openSeniorModal, isSeniorModeActive } = useSenior();
   const { theme, toggleTheme } = useTheme();
 
   const getRoleIcon = (role) => {
@@ -49,35 +47,11 @@ export const Navbar = ({ activeView, setActiveView }) => {
         </div>
         <div className="nav-brand-text">
           <h1>MediLink CARE</h1>
-          <span>National Healthcare & Emergency Response Grid</span>
+          <span>FIT FEST 2026 Hackathon Engine</span>
         </div>
       </div>
 
       <div className="nav-controls">
-        {/* Senior Care Mode Master Trigger */}
-        <button
-          className="btn"
-          onClick={() => openSeniorModal('DIAL')}
-          aria-label="Open Senior Citizen Care & Speed Dial"
-          style={{
-            background: 'linear-gradient(135deg, #0284c7 0%, #0369a1 100%)',
-            color: '#ffffff',
-            border: '1.5px solid #38bdf8',
-            borderRadius: 'var(--radius-full)',
-            padding: '0.5rem 1rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.45rem',
-            fontSize: '0.85rem',
-            fontWeight: 800,
-            boxShadow: '0 0 15px rgba(56, 189, 248, 0.35)',
-            cursor: 'pointer'
-          }}
-        >
-          <span style={{ fontSize: '1.1rem' }}>👴</span>
-          <span>SENIOR CARE & DIAL</span>
-        </button>
-
         {/* Emergency Mode Master Trigger */}
         <button
           className="emergency-mode-btn"
