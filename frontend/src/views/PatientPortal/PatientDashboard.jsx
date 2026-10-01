@@ -6,6 +6,7 @@ import { useSocket } from '../../context/SocketContext';
 import { api } from '../../services/api';
 import { StatusBadge } from '../../components/StatusBadge';
 import { LiveMap } from '../../components/LiveMap';
+import { LiveVitalsWidget } from '../../components/LiveVitalsWidget';
 import { LoadingSpinner } from '../../components/LoadingSpinner';
 import { EmptyState } from '../../components/EmptyState';
 import { ErrorMessage } from '../../components/ErrorMessage';
@@ -399,6 +400,9 @@ export const PatientDashboard = () => {
                   </button>
                 </div>
               </div>
+
+              {/* Live Health Vitals & Cardiac Rhythm Telemetry */}
+              <LiveVitalsWidget />
 
               {/* 5-Pillar Feature Cards Grid */}
               <div

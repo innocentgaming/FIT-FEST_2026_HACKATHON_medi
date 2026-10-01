@@ -1155,3 +1155,29 @@ a:focus-visible {
   }
 }
 
+@keyframes dashEcg {
+  0% {
+    stroke-dashoffset: 300;
+  }
+  50% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -300;
+  }
+}
+
+.senior-voice-mic-btn:hover {
+  transform: translateY(-2px) scale(1.04);
+}
+
+.live-vitals-card {
+  transition: all 0.3s ease;
+}
+
+.live-vitals-card:hover {
+  border-color: rgba(56, 189, 248, 0.45) !important;
+  box-shadow: 0 14px 35px -5px rgba(0, 0, 0, 0.6), 0 0 35px rgba(56, 189, 248, 0.25) !important;
+}
+
+

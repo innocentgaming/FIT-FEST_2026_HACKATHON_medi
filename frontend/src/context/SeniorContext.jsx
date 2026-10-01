@@ -137,6 +137,111 @@ export const SeniorProvider = ({ children }) => {
     }
   }, [audioCtx]);
 
+  // Voice Recognition Assistant (Speech-to-Text)
+  const [isListening, setIsListening] = useState(false);
+  const [voiceTranscript, setVoiceTranscript] = useState('');
+  const [recognitionInstance, setRecognitionInstance] = useState(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (SpeechRecognition) {
+        const reco = new SpeechRecognition();
+        reco.continuous = false;
+        reco.interimResults = false;
+        reco.lang = 'en-IN'; // Optimized for Indian accents & English
+
+        reco.onstart = () => {
+          setIsListening(true);
+        };
+
+        reco.onresult = (event) => {
+          const transcript = event.results[0][0].transcript.toLowerCase();
+          setVoiceTranscript(transcript);
+          setIsListening(false);
+          handleVoiceCommand(transcript);
+        };
+
+        reco.onerror = (event) => {
+          console.warn('Speech recognition error:', event.error);
+          setIsListening(false);
+          if (event.error === 'not-allowed') {
+            speak('Microphone access was denied. Please allow microphone permissions.');
+          }
+        };
+
+        reco.onend = () => {
+          setIsListening(false);
+        };
+
+        setRecognitionInstance(reco);
+      }
+    }
+  }, []);
+
+  const handleVoiceCommand = (rawText) => {
+    const text = rawText.toLowerCase().trim();
+    speak(`Recognized command: ${text}`);
+
+    if (text.includes('ambulance') || text.includes('sos') || text.includes('emergency')) {
+      openSeniorModal('SOS');
+      speak('Opening Emergency SOS ambulance dispatch.');
+    } else if (text.includes('daughter') || text.includes('ananya')) {
+      const d = contacts.find((c) => c.name.toLowerCase().includes('daughter') || c.relation.toLowerCase().includes('daughter')) || contacts[0];
+      if (d) requestFamilyContactAlert(d, 'CALL_AND_SMS');
+    } else if (text.includes('son') || text.includes('rahul')) {
+      const s = contacts.find((c) => c.name.toLowerCase().includes('son') || c.relation.toLowerCase().includes('son')) || contacts[1];
+      if (s) requestFamilyContactAlert(s, 'CALL_AND_SMS');
+    } else if (text.includes('doctor') || text.includes('dr')) {
+      const doc = contacts.find((c) => c.name.toLowerCase().includes('doctor') || c.relation.toLowerCase().includes('doctor')) || contacts[2];
+      if (doc) requestFamilyContactAlert(doc, 'CALL_AND_SMS');
+    } else if (text.includes('medicine') || text.includes('pill') || text.includes('tablet')) {
+      openSeniorModal('MEDICINE');
+      speak("Opening today's medicine checklist.");
+    } else if (text.includes('108')) {
+      speak('Calling National Ambulance Helpline 108.');
+      window.location.href = 'tel:108';
+    } else if (text.includes('14567') || text.includes('elder')) {
+      speak('Calling Elder Line Senior Citizen Helpline 14567.');
+      window.location.href = 'tel:14567';
+    } else if (text.includes('dial') || text.includes('phone') || text.includes('keypad')) {
+      openSeniorModal('DIAL');
+      speak('Opening Phone Dialer and Emergency Speed Dial.');
+    } else if (text.includes('guide') || text.includes('help') || text.includes('how to')) {
+      openSeniorModal('GUIDE');
+      speak('Opening Senior Citizen Voice Guide.');
+    } else if (text.includes('big text') || text.includes('large text') || text.includes('enlarge')) {
+      toggleSeniorMode();
+    } else {
+      openSeniorModal('DIAL');
+      speak(`I heard ${text}. Displaying emergency speed dial.`);
+    }
+  };
+
+  const startListening = () => {
+    if (!recognitionInstance) {
+      speak('Speech recognition is not supported in this browser. Please use Google Chrome or Edge.');
+      return;
+    }
+    try {
+      setVoiceTranscript('');
+      recognitionInstance.start();
+      speak('Listening. Please speak your command, such as: Call ambulance, or Call daughter.');
+    } catch (e) {
+      console.warn('Recognition start error:', e);
+      setIsListening(false);
+    }
+  };
+
+  const stopListening = () => {
+    if (recognitionInstance) {
+      try {
+        recognitionInstance.stop();
+      } catch (e) {}
+    }
+    setIsListening(false);
+  };
+
   const toggleSeniorMode = () => {
     setIsSeniorModeActive((prev) => {
       const next = !prev;
@@ -327,7 +432,11 @@ export const SeniorProvider = ({ children }) => {
         pendingConfirmation,
         requestFamilyContactAlert,
         cancelFamilyContactAlert,
-        confirmAndExecuteFamilyAlert
+        confirmAndExecuteFamilyAlert,
+        isListening,
+        voiceTranscript,
+        startListening,
+        stopListening
       }}
     >
       {children}

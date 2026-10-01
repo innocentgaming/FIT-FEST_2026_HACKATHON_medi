@@ -5,6 +5,7 @@ import { SocketProvider } from './context/SocketContext';
 import { EmergencyProvider } from './context/EmergencyContext';
 import { SeniorProvider } from './context/SeniorContext';
 import { AccessibilityToolbar } from './components/AccessibilityToolbar';
+import { OfflineIndicator } from './components/OfflineIndicator';
 import { SafetyBanner } from './components/SafetyBanner';
 import { Navbar } from './components/Navbar';
 import { EmergencyModal } from './components/EmergencyModal';
@@ -65,6 +66,9 @@ const MainApp = () => {
 
   return (
     <div className="app-container">
+      {/* Offline Resilient Indicator */}
+      <OfflineIndicator />
+
       {/* Official Government & Accessibility Toolbar */}
       <AccessibilityToolbar />
       <SafetyBanner />

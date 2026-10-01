@@ -1,9 +1,9 @@
 import React from 'react';
 import { useSenior } from '../context/SeniorContext';
-import { PhoneCall, AlertTriangle, Sparkles, Volume2 } from 'lucide-react';
+import { PhoneCall, AlertTriangle, Sparkles, Volume2, Mic, MicOff } from 'lucide-react';
 
 export const SeniorFloatingWidget = () => {
-  const { openSeniorModal, isSeniorModeActive, isSeniorModalOpen, toggleSeniorMode } = useSenior();
+  const { openSeniorModal, isSeniorModeActive, isSeniorModalOpen, isListening, startListening, stopListening, voiceTranscript } = useSenior();
 
   if (isSeniorModalOpen) return null;
 
@@ -21,6 +21,33 @@ export const SeniorFloatingWidget = () => {
         gap: '0.6rem'
       }}
     >
+      {/* Real-time Voice Command Button */}
+      <button
+        onClick={isListening ? stopListening : startListening}
+        className="senior-voice-mic-btn"
+        aria-label="Speak voice command (Call ambulance, call daughter, check medicines)"
+        style={{
+          background: isListening ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+          color: '#ffffff',
+          border: isListening ? '3px solid #f87171' : '3px solid #34d399',
+          borderRadius: 'var(--radius-full)',
+          padding: '0.65rem 1.15rem',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem',
+          fontSize: '0.9rem',
+          fontWeight: 800,
+          cursor: 'pointer',
+          boxShadow: isListening ? '0 0 25px rgba(239, 68, 68, 0.7)' : '0 8px 20px -3px rgba(16, 185, 129, 0.5)',
+          transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)',
+          animation: isListening ? 'pulseEmergency 1.2s infinite' : 'none'
+        }}
+        title="Speak Voice Command (e.g., 'Call Ambulance', 'Call Daughter', 'Check Medicines')"
+      >
+        {isListening ? <MicOff size={18} /> : <Mic size={18} />}
+        <span>{isListening ? 'Listening... Speak Now' : '🎤 Voice Command'}</span>
+      </button>
+
       {/* Floating Senior Assist Button */}
       <button
         onClick={() => openSeniorModal('DIAL')}
