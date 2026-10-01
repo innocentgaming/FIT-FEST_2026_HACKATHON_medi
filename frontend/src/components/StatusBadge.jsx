@@ -83,11 +83,13 @@ export const StatusBadge = ({ status, tripStatus, showIcon = true, size = 12 }) 
       style={{
         display: 'inline-flex',
         alignItems: 'center',
-        gap: '5px',
+        gap: '6px',
         fontWeight: 600,
-        letterSpacing: '0.02em'
+        letterSpacing: '0.02em',
+        transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)'
       }}
     >
+      <span className="status-dot" aria-hidden="true" />
       {showIcon && <IconComponent size={size} aria-hidden="true" style={{ flexShrink: 0 }} />}
       <span>{displayText}</span>
     </span>

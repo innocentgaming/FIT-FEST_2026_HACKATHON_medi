@@ -31,7 +31,9 @@ export const EmergencyProvider = ({ children }) => {
           pickupCoords: ambulanceData.pickupCoords || { lat: 18.5204, lng: 73.8567 },
           dropLocation: ambulanceData.dropLocation || 'Ruby Hall Clinic Emergency Gate',
           emergencyType: ambulanceData.emergencyType || 'Critical Emergency Pickup',
-          requiresOxygen: !!ambulanceData.requiresOxygen
+          requiresOxygen: !!ambulanceData.requiresOxygen,
+          emergencyContact: ambulanceData.emergencyContact || 'Family Guardian',
+          notifyFamily: ambulanceData.notifyFamily !== false
         }
       });
 
@@ -44,6 +46,14 @@ export const EmergencyProvider = ({ children }) => {
           title: '🚨 Emergency Ambulance Dispatched',
           message: `Request #${res.request.id} broadcasted. Unit assigned.`
         });
+
+        if (ambulanceData.notifyFamily !== false) {
+          addToast({
+            type: 'SYSTEM_NOTIFICATION',
+            title: '👨‍👩‍👧 Family Guardian Alerted',
+            message: `Instant SMS & Live GPS tracking sent to ${ambulanceData.emergencyContact || 'Family Contact'}.`
+          });
+        }
       }
 
       return res.request;

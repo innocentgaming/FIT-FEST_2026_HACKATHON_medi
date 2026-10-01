@@ -123,20 +123,20 @@ export const AuthView = () => {
           MediLink — CARE
         </h2>
         <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginTop: '0.25rem' }}>
-          Coordinated Assistance & Record Engine • FIT-FEST 2026 Hackathon
+          Integrated National Healthcare Emergency Coordination & Resource Management System
         </p>
       </div>
 
-      {/* 1-Click Role Logins for Testing Individual Patients & Doctors */}
+      {/* Verified Role Portals & Instant Gateway */}
       <div className="card" style={{ marginBottom: '2rem', background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.7) 100%)', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
           <ShieldCheck size={20} color="var(--primary-light)" />
           <h3 style={{ fontSize: '1.1rem', color: 'var(--text-primary)' }}>
-            Select Account to Login (Individual Patients, Doctors & Providers)
+            Official Healthcare Role Portals (Instant Gateway)
           </h3>
         </div>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-          Each patient and doctor has their own isolated data and separate dashboard. Click below to login as that specific user:
+          Select your authorized access portal to enter your dedicated management console:
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
           {demoAccounts.map((acc, idx) => (

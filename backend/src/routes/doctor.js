@@ -9,19 +9,22 @@ const { notifyConflictResolution } = require('../services/notificationService');
 // All doctor routes require SYSTEM_DOCTOR or ADMIN role
 router.use(authenticateToken, requireRole('SYSTEM_DOCTOR', 'ADMIN'));
 
-// Get all requests assigned to the logged-in System Doctor
+// Get all requests assigned to the logged-in System Doctor or unassigned rejected conflicts
 router.get('/requests', (req, res) => {
   const requests = store.get('requests');
   let assigned = [];
 
   if (req.user.role === 'SYSTEM_DOCTOR') {
     assigned = requests.filter(
-      (r) => r.assignedDoctorId === req.user.id
+      (r) => r.assignedDoctorId === req.user.id || (r.status === 'REJECTED' && !r.assignedDoctorId)
     );
   } else {
-    // Admin can view all doctor escalations
-    assigned = requests.filter((r) => r.assignedDoctorId);
+    // Admin can view all doctor escalations & rejected
+    assigned = requests.filter((r) => r.assignedDoctorId || r.status === 'REJECTED');
   }
+
+  // Sort newest first
+  assigned.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   res.json({ requests: assigned, count: assigned.length });
 });
@@ -32,11 +35,14 @@ router.get('/assigned-requests', (req, res) => {
 
   if (req.user.role === 'SYSTEM_DOCTOR') {
     assigned = requests.filter(
-      (r) => r.assignedDoctorId === req.user.id
+      (r) => r.assignedDoctorId === req.user.id || (r.status === 'REJECTED' && !r.assignedDoctorId)
     );
   } else {
-    assigned = requests.filter((r) => r.assignedDoctorId);
+    assigned = requests.filter((r) => r.assignedDoctorId || r.status === 'REJECTED');
   }
+
+  // Sort newest first
+  assigned.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
   res.json({ requests: assigned, count: assigned.length });
 });
@@ -70,6 +76,8 @@ router.put('/requests/:requestId/resolve', (req, res) => {
 
   const updates = {
     status: 'RESOLVED',
+    assignedDoctorId: request.assignedDoctorId || req.user.id,
+    assignedDoctorName: request.assignedDoctorName || req.user.name,
     resolutionNotes: resolutionNotes.trim(),
     resolvedByDoctorId: req.user.id,
     resolvedByDoctorName: req.user.name,

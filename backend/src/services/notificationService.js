@@ -216,6 +216,22 @@ function notifyConflictResolution(request) {
   }
 }
 
+/**
+ * Generates notification and simulated SMS/WhatsApp dispatch to Family Guardians / Emergency Contacts
+ */
+function notifyFamilyEmergencyAlert({ patientName, patientPhone, emergencyContact, pickupLocation, emergencyType, assignedVehicle, targetHospitalName, liveTrackingUrl }) {
+  const alertRecord = {
+    id: `fam_alert_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+    patientName: patientName || 'Patient',
+    emergencyContact: emergencyContact || 'Designated Family Guardian',
+    timestamp: new Date().toISOString(),
+    channel: 'SMS_WHATSAPP_IVR',
+    status: 'DELIVERED',
+    message: `🚨 EMERGENCY ALERT: Critical emergency mode activated for ${patientName || 'Family Member'}. Location: ${pickupLocation || 'Live GPS'}. Unit: ${assignedVehicle || 'Rapid Response Ambulance'}. Hospital: ${targetHospitalName || 'Nearest Trauma Center'}. Live GPS Tracking is active.`
+  };
+  return alertRecord;
+}
+
 module.exports = {
   NOTIFICATION_TYPES,
   createNotification,
@@ -227,5 +243,6 @@ module.exports = {
   notifyBloodRequest,
   notifyResourceChange,
   notifyConflictAssignment,
-  notifyConflictResolution
+  notifyConflictResolution,
+  notifyFamilyEmergencyAlert
 };

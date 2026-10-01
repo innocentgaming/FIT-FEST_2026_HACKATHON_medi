@@ -1,14 +1,21 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useEmergency } from '../context/EmergencyContext';
 import { useTheme, THEMES } from '../context/ThemeContext';
-import { Shield, AlertCircle, LogOut, User, Activity, Truck, Building2, UserCheck, Stethoscope, Sun, Moon, Sparkles } from 'lucide-react';
+import { Shield, AlertCircle, LogOut, User, Activity, Truck, Building2, UserCheck, Stethoscope, Sun, Moon, Sparkles, ZoomIn, ZoomOut, Type } from 'lucide-react';
 import { NotificationDropdown } from './NotificationDropdown';
 
 export const Navbar = ({ activeView, setActiveView }) => {
-  const { user, logout, quickSwitchRole, demoAccounts } = useAuth();
+  const { user, logout, quickSwitchRole } = useAuth();
   const { openEmergencyMode } = useEmergency();
   const { theme, toggleTheme } = useTheme();
+  const [fontSizeLevel, setFontSizeLevel] = useState(100);
+
+  const handleAdjustFontSize = (delta) => {
+    const nextLevel = Math.max(90, Math.min(130, fontSizeLevel + delta));
+    setFontSizeLevel(nextLevel);
+    document.documentElement.style.fontSize = `${nextLevel}%`;
+  };
 
   const getRoleIcon = (role) => {
     switch (role) {
@@ -47,11 +54,48 @@ export const Navbar = ({ activeView, setActiveView }) => {
         </div>
         <div className="nav-brand-text">
           <h1>MediLink CARE</h1>
-          <span>FIT FEST 2026 Hackathon Engine</span>
+          <span>National Healthcare Coordination Network</span>
         </div>
       </div>
 
       <div className="nav-controls">
+        {/* Accessibility Font Size Controls */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '2px',
+            background: 'var(--bg-subtle)',
+            border: '1px solid var(--border-card)',
+            borderRadius: 'var(--radius-full)',
+            padding: '2px 6px'
+          }}
+          title="Adjust Text Size for Accessibility"
+          aria-label="Font Size Adjuster"
+        >
+          <button
+            onClick={() => handleAdjustFontSize(-10)}
+            className="btn-counter"
+            style={{ width: '26px', height: '26px', fontSize: '0.75rem' }}
+            aria-label="Decrease Font Size"
+            title="Smaller Text (A-)"
+          >
+            A-
+          </button>
+          <span style={{ fontSize: '0.75rem', fontWeight: 700, padding: '0 4px', color: 'var(--text-secondary)' }}>
+            {fontSizeLevel}%
+          </span>
+          <button
+            onClick={() => handleAdjustFontSize(10)}
+            className="btn-counter"
+            style={{ width: '26px', height: '26px', fontSize: '0.75rem' }}
+            aria-label="Increase Font Size"
+            title="Larger Text for Seniors / Visually Impaired (A+)"
+          >
+            A+
+          </button>
+        </div>
+
         {/* Emergency Mode Master Trigger */}
         <button
           className="emergency-mode-btn"
@@ -85,7 +129,7 @@ export const Navbar = ({ activeView, setActiveView }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
             <NotificationDropdown />
 
-            <div className="demo-role-badge">
+            <div className="demo-role-badge" style={{ border: '1px solid var(--border-card)' }}>
               <span className={`role-pill role-${user.role.toLowerCase()}`} style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                 {getRoleIcon(user.role)}
                 {user.role}

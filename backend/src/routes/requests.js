@@ -14,7 +14,8 @@ const {
   notifyTransferRequest,
   notifyAmbulanceEvent,
   notifyBloodRequest,
-  notifyConflictResolution
+  notifyConflictResolution,
+  notifyFamilyEmergencyAlert
 } = require('../services/notificationService');
 const {
   broadcastRequestCreated,
@@ -266,6 +267,30 @@ router.post('/', authenticateToken, emergencyLimiter, (req, res) => {
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
+
+  // Automated Senior Citizen & Family Emergency Alert Notification
+  const isEmergencyPriority = newRequest.priority === 'EMERGENCY' || reqType === REQUEST_TYPES.AMBULANCE_REQUEST;
+  if (isEmergencyPriority) {
+    const famContact = (details && details.emergencyContact) || req.user.emergencyContact || 'Family Member (+91 98765 43211)';
+    const famAlert = notifyFamilyEmergencyAlert({
+      patientName: newRequest.patientName,
+      patientPhone: newRequest.patientPhone,
+      emergencyContact: famContact,
+      pickupLocation: (details && (details.pickupLocation || details.location)) || 'Live GPS Location',
+      emergencyType: (details && (details.emergencyType || details.reason)) || 'Rapid Medical Evacuation',
+      assignedVehicle: newRequest.assignedAmbulanceVehicle || (assignedAmb ? assignedAmb.vehicleNumber : 'Auto-dispatching unit'),
+      targetHospitalName: newRequest.targetHospitalName || 'Nearest Emergency Center',
+      liveTrackingUrl: `https://medilink.care/live-track/${newRequest.id}`
+    });
+    newRequest.familyAlert = famAlert;
+    newRequest.timeline.push({
+      status: 'FAMILY_NOTIFIED',
+      timestamp: new Date().toISOString(),
+      actorRole: 'SYSTEM_AUTOPILOT',
+      actorName: 'Emergency Family Alert Relay',
+      note: `SMS & WhatsApp alert dispatched to family contact: ${famContact}. Live tracking link active.`
+    });
+  }
 
   store.insert('requests', newRequest);
 

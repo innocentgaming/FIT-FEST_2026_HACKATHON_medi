@@ -5,7 +5,7 @@
       "name": "Aarav Sharma",
       "email": "aarav@example.com",
       "phone": "9876543210",
-      "password": "$2a$10$pTp7dXhvYnMVM5srZ4gtceqrl6TQsAhJZVShBjIBzrTfRyRH4dClm",
+      "password": "$2a$10$vvif33JVXZZQlX7GnHbz2eWzCi5/Pgkh2K9lQZ5oj9KYwY5LR9lpe",
       "role": "PATIENT",
       "bloodGroup": "B+",
       "emergencyContact": "Pooja Sharma (9876543211)",
@@ -17,7 +17,7 @@
       "name": "Sneha Patil",
       "email": "sneha@example.com",
       "phone": "9876543222",
-      "password": "$2a$10$I6JiK40iq31r23htA3XVzOqK1xyH/5oCV6RAxuqkNFY9Gx3mUAlQu",
+      "password": "$2a$10$uToVSVPE0voEk817sLlZs.c0/sBN0IGeAv0VW.kDGQYFs08hYpz5a",
       "role": "PATIENT",
       "bloodGroup": "O-",
       "emergencyContact": "Ramesh Patil (9876543223)",
@@ -29,7 +29,7 @@
       "name": "Ruby Hall Clinic Admin",
       "email": "rubyhall@medilink.org",
       "phone": "02066455100",
-      "password": "$2a$10$ppYtocAhBJbVjwxDm9yYf.kSvyNyhf27NN7MArI3j.zoOtBBYnJDm",
+      "password": "$2a$10$1MnI1pq3rI/cqMrZSrNEOOiiU.pWThKDCmzmFlScSyzxEIsu.TC.a",
       "role": "HOSPITAL",
       "hospitalId": "hosp_ruby_hall",
       "address": "40 Sassoon Road, Sangamvadi, Pune 411001",
@@ -40,7 +40,7 @@
       "name": "KEM Hospital Admin",
       "email": "kem@medilink.org",
       "phone": "02066037300",
-      "password": "$2a$10$gd4/3EPqKSCu1Q6y5a.eVuExt4uga/q3plMPT4dt1nDD6sxqBmMcy",
+      "password": "$2a$10$9jsZsNrXE5hoKHESPMX2S.YNP4WWq4Q.w9t98ICsGmeVOFNJeaAue",
       "role": "HOSPITAL",
       "hospitalId": "hosp_kem_pune",
       "address": "489 Rasta Peth, Sardar Moodliar Road, Pune 411011",
@@ -51,7 +51,7 @@
       "name": "Sahyadri Super Speciality Admin",
       "email": "sahyadri@medilink.org",
       "phone": "02067213000",
-      "password": "$2a$10$9.Xb1XYP/XyqwKtw0yVyX.CL3qo23hP0PV9rsc.o0IimkbZiGwHam",
+      "password": "$2a$10$JnNs0nkfLbCfthD6HY6RSuf620e3gaomIelNCHdY8LHD.2gtr3ZHu",
       "role": "HOSPITAL",
       "hospitalId": "hosp_sahyadri",
       "address": "Deccan Gymkhana, Karve Road, Pune 411004",
@@ -62,7 +62,7 @@
       "name": "Santosh Shinde",
       "email": "driver1@medilink.org",
       "phone": "9822012345",
-      "password": "$2a$10$QVO49hhATh5cHU.6qe.WX.o7awCQfAvP/54b65htKMnGiUSptSoUa",
+      "password": "$2a$10$4dZTek50zLqLdAGLQKCaV.jMM7pnxi56MzMdBDh7.fndrOVmJIo2W",
       "role": "AMBULANCE",
       "ambulanceId": "amb_pune_101",
       "hospitalId": "hosp_ruby_hall",
@@ -74,7 +74,7 @@
       "name": "Vijay Gaikwad",
       "email": "driver2@medilink.org",
       "phone": "9822056789",
-      "password": "$2a$10$tvOP8OUXKfkqcvLneu5pHOU9u95Q/75WMbI7MSK4ctJlKCGhmNXYa",
+      "password": "$2a$10$qwMtBb3Ab29vjIjA/hT8KuaL5lMdN0h6l2nLG5BuYjY0wjhrJ00Pa",
       "role": "AMBULANCE",
       "ambulanceId": "amb_pune_102",
       "hospitalId": "hosp_kem_pune",
@@ -86,7 +86,7 @@
       "name": "State Health Command Admin",
       "email": "admin@medilink.gov.in",
       "phone": "02025550000",
-      "password": "$2a$10$Z7QRFwNq1ZL5nginHM7pP.TB7Sg/1QhNBAkC7DNQpqliPdsdPmPo2",
+      "password": "$2a$10$yvIchWWQ.Wb/AyHCF1jEIOIHVhzcm4hFT1CVN76NlG8zz4KiHgbWa",
       "role": "ADMIN",
       "createdAt": "2026-01-01T00:00:00.000Z"
     },
@@ -95,7 +95,7 @@
       "name": "Dr. Anand Joshi",
       "email": "dr.joshi@medilink.gov.in",
       "phone": "9422011223",
-      "password": "$2a$10$Yt706AaBak5ac/2tC8eWfO8BtQq1Gc8uAdBbxHoBwx0RbOV4yN6IG",
+      "password": "$2a$10$uEaDIHGj8ZT0Wdhr12eAguTOxsjf9hIUs3q2QrqXkrGWKngZqVSPu",
       "role": "SYSTEM_DOCTOR",
       "specialty": "Emergency Medicine & Triage Specialist",
       "hospitalId": "hosp_ruby_hall",
@@ -106,7 +106,7 @@
       "name": "Dr. Meera Kulkarni",
       "email": "dr.kulkarni@medilink.gov.in",
       "phone": "9422044556",
-      "password": "$2a$10$PlZQ212gXRsv6dWmUZq5uOgGDeMbtQpGW/toyPF.d0YVhrd751YYe",
+      "password": "$2a$10$yOSWtiR7Yff9WDd2I7ISQup0dNvTvzvp0XeW.eA6slqEwZKq5wASS",
       "role": "SYSTEM_DOCTOR",
       "specialty": "Critical Care & Resource Coordinator",
       "hospitalId": "hosp_sahyadri",
@@ -149,7 +149,7 @@
       "bloodBank": {
         "A+": 18,
         "A-": 5,
-        "B+": 0,
+        "B+": 24,
         "B-": 6,
         "AB+": 9,
         "AB-": 3,
@@ -182,8 +182,7 @@
       "ambulances": [
         "amb_pune_101",
         "amb_pune_103"
-      ],
-      "updatedAt": "2026-09-27T12:10:46.255Z"
+      ]
     },
     {
       "id": "hosp_kem_pune",
@@ -543,6 +542,42 @@
   ],
   "requests": [
     {
+      "id": "req_h2h_904",
+      "type": "H2H_TRANSFER",
+      "patientId": "usr_patient_2",
+      "patientName": "Sneha Patil",
+      "patientPhone": "9876543222",
+      "sourceHospitalId": "hosp_kem_pune",
+      "sourceHospitalName": "KEM Hospital & Research Centre",
+      "targetHospitalId": "hosp_sahyadri",
+      "targetHospitalName": "Sahyadri Super Speciality Hospital",
+      "assignedAmbulanceId": null,
+      "assignedAmbulanceVehicle": null,
+      "assignedDoctorId": null,
+      "assignedDoctorName": null,
+      "status": "PENDING",
+      "ambulanceTripStatus": null,
+      "priority": "URGENT",
+      "details": {
+        "reason": "Specialized Nephrology & Dialysis transfer request",
+        "bedType": "ICU",
+        "transferNotes": "Patient stabilized. Dialysis unit required."
+      },
+      "responseNotes": "",
+      "resolutionNotes": "",
+      "timeline": [
+        {
+          "status": "PENDING",
+          "timestamp": "2026-09-27T13:10:00.000Z",
+          "actorRole": "HOSPITAL",
+          "actorName": "KEM Hospital Admin",
+          "note": "Initiated Hospital-to-Hospital transfer request to Sahyadri Super Speciality."
+        }
+      ],
+      "createdAt": "2026-09-27T13:10:00.000Z",
+      "updatedAt": "2026-09-27T13:10:00.000Z"
+    },
+    {
       "id": "req_amb_901",
       "type": "AMBULANCE",
       "patientId": "usr_patient_1",
@@ -603,49 +638,6 @@
       "updatedAt": "2026-09-27T13:02:15.000Z"
     },
     {
-      "id": "req_adm_902",
-      "type": "ADMISSION",
-      "patientId": "usr_patient_2",
-      "patientName": "Sneha Patil",
-      "patientPhone": "9876543222",
-      "sourceHospitalId": null,
-      "sourceHospitalName": null,
-      "targetHospitalId": "hosp_kem_pune",
-      "targetHospitalName": "KEM Hospital & Research Centre",
-      "assignedAmbulanceId": null,
-      "assignedAmbulanceVehicle": null,
-      "assignedDoctorId": null,
-      "assignedDoctorName": null,
-      "status": "REJECTED",
-      "ambulanceTripStatus": null,
-      "priority": "EMERGENCY",
-      "details": {
-        "bedType": "ICU",
-        "reason": "Trauma ICU bed requirement post road accident",
-        "urgency": "Immediate"
-      },
-      "responseNotes": "ICU capacity fully booked at time of request. Only general beds available.",
-      "resolutionNotes": "",
-      "timeline": [
-        {
-          "status": "PENDING",
-          "timestamp": "2026-09-27T11:00:00.000Z",
-          "actorRole": "PATIENT",
-          "actorName": "Sneha Patil",
-          "note": "Urgent ICU admission requested at KEM Hospital."
-        },
-        {
-          "status": "REJECTED",
-          "timestamp": "2026-09-27T11:15:00.000Z",
-          "actorRole": "HOSPITAL",
-          "actorName": "KEM Hospital Admin",
-          "note": "ICU capacity fully booked at time of request. Only general beds available."
-        }
-      ],
-      "createdAt": "2026-09-27T11:00:00.000Z",
-      "updatedAt": "2026-09-27T11:15:00.000Z"
-    },
-    {
       "id": "req_bld_903",
       "type": "BLOOD",
       "patientId": "usr_patient_1",
@@ -684,40 +676,67 @@
       "updatedAt": "2026-09-27T12:30:00.000Z"
     },
     {
-      "id": "req_h2h_904",
-      "type": "H2H_TRANSFER",
+      "id": "req_adm_902",
+      "type": "ADMISSION",
       "patientId": "usr_patient_2",
       "patientName": "Sneha Patil",
       "patientPhone": "9876543222",
-      "sourceHospitalId": "hosp_kem_pune",
-      "sourceHospitalName": "KEM Hospital & Research Centre",
-      "targetHospitalId": "hosp_sahyadri",
-      "targetHospitalName": "Sahyadri Super Speciality Hospital",
+      "sourceHospitalId": null,
+      "sourceHospitalName": null,
+      "targetHospitalId": "hosp_kem_pune",
+      "targetHospitalName": "KEM Hospital & Research Centre",
       "assignedAmbulanceId": null,
       "assignedAmbulanceVehicle": null,
-      "assignedDoctorId": null,
-      "assignedDoctorName": null,
-      "status": "PENDING",
+      "assignedDoctorId": "usr_doc_1",
+      "assignedDoctorName": "Dr. Anand Joshi",
+      "status": "RESOLVED",
       "ambulanceTripStatus": null,
-      "priority": "URGENT",
+      "priority": "EMERGENCY",
       "details": {
-        "reason": "Specialized Nephrology & Dialysis transfer request",
         "bedType": "ICU",
-        "transferNotes": "Patient stabilized. Dialysis unit required."
+        "reason": "Trauma ICU bed requirement post road accident",
+        "urgency": "Immediate"
       },
-      "responseNotes": "",
-      "resolutionNotes": "",
+      "responseNotes": "ICU capacity fully booked at time of request. Only general beds available.",
+      "resolutionNotes": "Verified bed inventory at KEM Hospital Pune. Allocated Bed ICU-04 under Dr. Kulkarni.",
       "timeline": [
         {
           "status": "PENDING",
-          "timestamp": "2026-09-27T13:10:00.000Z",
+          "timestamp": "2026-09-27T11:00:00.000Z",
+          "actorRole": "PATIENT",
+          "actorName": "Sneha Patil",
+          "note": "Urgent ICU admission requested at KEM Hospital."
+        },
+        {
+          "status": "REJECTED",
+          "timestamp": "2026-09-27T11:15:00.000Z",
           "actorRole": "HOSPITAL",
           "actorName": "KEM Hospital Admin",
-          "note": "Initiated Hospital-to-Hospital transfer request to Sahyadri Super Speciality."
+          "note": "ICU capacity fully booked at time of request. Only general beds available."
+        },
+        {
+          "status": "ASSIGNED",
+          "timestamp": "2026-10-01T08:37:48.245Z",
+          "actorRole": "ADMIN",
+          "actorName": "State Health Command Admin",
+          "note": "Admin escalated rejected request to System Doctor Dr. Anand Joshi. Notes: Urgent ICU bed re-routing required for critical post-cardiac patient."
+        },
+        {
+          "status": "RESOLVED",
+          "timestamp": "2026-10-01T08:37:48.296Z",
+          "actorRole": "SYSTEM_DOCTOR",
+          "actorName": "Dr. Anand Joshi",
+          "note": "Resolved by System Doctor Dr. Anand Joshi: Re-routed to KEM Hospital & Research Centre. Notes: Verified bed inventory at KEM Hospital Pune. Allocated Bed ICU-04 under Dr. Kulkarni."
         }
       ],
-      "createdAt": "2026-09-27T13:10:00.000Z",
-      "updatedAt": "2026-09-27T13:10:00.000Z"
+      "createdAt": "2026-09-27T11:00:00.000Z",
+      "updatedAt": "2026-10-01T08:37:48.296Z",
+      "assignedAt": "2026-10-01T08:37:48.245Z",
+      "triageNotes": "Urgent ICU bed re-routing required for critical post-cardiac patient.",
+      "resolvedByDoctorId": "usr_doc_1",
+      "resolvedByDoctorName": "Dr. Anand Joshi",
+      "resolvedAt": "2026-10-01T08:37:48.296Z",
+      "reallocatedFacility": "KEM Hospital & Research Centre"
     }
   ],
   "auditLogs": [
@@ -755,34 +774,47 @@
       "details": "Driver accepted trip. Set trip status to ON_THE_WAY"
     },
     {
-      "id": "log_1790511046248_xg4h",
-      "timestamp": "2026-09-27T12:10:46.248Z",
+      "id": "log_1790843867229_gqaq",
+      "timestamp": "2026-10-01T08:37:47.229Z",
       "actorId": "usr_admin",
       "actorName": "State Health Command Admin",
       "actorRole": "ADMIN",
-      "action": "RESET_SYSTEM_DATA",
-      "resourceType": "SYSTEM",
-      "resourceId": "ALL",
-      "details": "System restored to initial hackathon demonstration seeds.",
-      "createdAt": "2026-09-27T12:10:46.248Z",
-      "updatedAt": "2026-09-27T12:10:46.248Z"
+      "action": "USER_LOGIN",
+      "resourceType": "AUTH",
+      "resourceId": "usr_admin",
+      "details": "User State Health Command Admin logged in successfully as ADMIN",
+      "createdAt": "2026-10-01T08:37:47.233Z",
+      "updatedAt": "2026-10-01T08:37:47.233Z"
     },
     {
-      "id": "log_1790511046257_zt4o",
-      "timestamp": "2026-09-27T12:10:46.257Z",
-      "actorId": "usr_hosp_1",
-      "actorName": "Ruby Hall Clinic Admin",
-      "actorRole": "HOSPITAL",
-      "action": "UPDATE_BLOOD_BANK",
-      "resourceType": "HOSPITAL_BLOOD_BANK",
-      "resourceId": "hosp_ruby_hall",
-      "details": "{\"A+\":18,\"A-\":5,\"B+\":0,\"B-\":6,\"AB+\":9,\"AB-\":3,\"O+\":32,\"O-\":8}",
-      "createdAt": "2026-09-27T12:10:46.257Z",
-      "updatedAt": "2026-09-27T12:10:46.257Z"
+      "id": "log_1790843867463_57o1",
+      "timestamp": "2026-10-01T08:37:47.463Z",
+      "actorId": "usr_doc_1",
+      "actorName": "Dr. Anand Joshi",
+      "actorRole": "SYSTEM_DOCTOR",
+      "action": "USER_LOGIN",
+      "resourceType": "AUTH",
+      "resourceId": "usr_doc_1",
+      "details": "User Dr. Anand Joshi logged in successfully as SYSTEM_DOCTOR",
+      "createdAt": "2026-10-01T08:37:47.463Z",
+      "updatedAt": "2026-10-01T08:37:47.463Z"
     },
     {
-      "id": "log_1790511046402_ratl",
-      "timestamp": "2026-09-27T12:10:46.402Z",
+      "id": "log_1790843867683_ysvt",
+      "timestamp": "2026-10-01T08:37:47.683Z",
+      "actorId": "usr_doc_2",
+      "actorName": "Dr. Meera Kulkarni",
+      "actorRole": "SYSTEM_DOCTOR",
+      "action": "USER_LOGIN",
+      "resourceType": "AUTH",
+      "resourceId": "usr_doc_2",
+      "details": "User Dr. Meera Kulkarni logged in successfully as SYSTEM_DOCTOR",
+      "createdAt": "2026-10-01T08:37:47.683Z",
+      "updatedAt": "2026-10-01T08:37:47.683Z"
+    },
+    {
+      "id": "log_1790843867898_tw1t",
+      "timestamp": "2026-10-01T08:37:47.898Z",
       "actorId": "usr_patient_1",
       "actorName": "Aarav Sharma",
       "actorRole": "PATIENT",
@@ -790,8 +822,102 @@
       "resourceType": "AUTH",
       "resourceId": "usr_patient_1",
       "details": "User Aarav Sharma logged in successfully as PATIENT",
-      "createdAt": "2026-09-27T12:10:46.402Z",
-      "updatedAt": "2026-09-27T12:10:46.402Z"
+      "createdAt": "2026-10-01T08:37:47.898Z",
+      "updatedAt": "2026-10-01T08:37:47.898Z"
+    },
+    {
+      "id": "log_1790843868180_qk2q",
+      "timestamp": "2026-10-01T08:37:48.180Z",
+      "actorId": "usr_hosp_1",
+      "actorName": "Ruby Hall Clinic Admin",
+      "actorRole": "HOSPITAL",
+      "action": "USER_LOGIN",
+      "resourceType": "AUTH",
+      "resourceId": "usr_hosp_1",
+      "details": "User Ruby Hall Clinic Admin logged in successfully as HOSPITAL",
+      "createdAt": "2026-10-01T08:37:48.180Z",
+      "updatedAt": "2026-10-01T08:37:48.180Z"
+    },
+    {
+      "id": "log_1790843868255_15es",
+      "timestamp": "2026-10-01T08:37:48.255Z",
+      "actorId": "usr_admin",
+      "actorName": "State Health Command Admin",
+      "actorRole": "ADMIN",
+      "action": "ESCALATE_TO_SYSTEM_DOCTOR",
+      "resourceType": "ADMISSION",
+      "resourceId": "req_adm_902",
+      "details": "{\"oldStatus\":\"REJECTED\",\"newStatus\":\"ASSIGNED\",\"assignedDoctorId\":\"usr_doc_1\",\"doctorName\":\"Dr. Anand Joshi\",\"assignedAt\":\"2026-10-01T08:37:48.245Z\",\"triageNotes\":\"Urgent ICU bed re-routing required for critical post-cardiac patient.\"}",
+      "createdAt": "2026-10-01T08:37:48.255Z",
+      "updatedAt": "2026-10-01T08:37:48.255Z"
+    },
+    {
+      "id": "log_1790843868279_rjzr",
+      "timestamp": "2026-10-01T08:37:48.279Z",
+      "actorId": "usr_hosp_1",
+      "actorName": "Ruby Hall Clinic Admin",
+      "actorRole": "HOSPITAL",
+      "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+      "resourceType": "API_ENDPOINT",
+      "resourceId": "/api/doctor/requests/req_adm_902/resolve",
+      "details": "Role HOSPITAL attempted to access restricted endpoint requiring [SYSTEM_DOCTOR, ADMIN]",
+      "createdAt": "2026-10-01T08:37:48.279Z",
+      "updatedAt": "2026-10-01T08:37:48.279Z"
+    },
+    {
+      "id": "log_1790843868286_r4y8",
+      "timestamp": "2026-10-01T08:37:48.286Z",
+      "actorId": "usr_patient_1",
+      "actorName": "Aarav Sharma",
+      "actorRole": "PATIENT",
+      "action": "UNAUTHORIZED_ACCESS_ATTEMPT",
+      "resourceType": "API_ENDPOINT",
+      "resourceId": "/api/doctor/requests",
+      "details": "Role PATIENT attempted to access restricted endpoint requiring [SYSTEM_DOCTOR, ADMIN]",
+      "createdAt": "2026-10-01T08:37:48.286Z",
+      "updatedAt": "2026-10-01T08:37:48.286Z"
+    },
+    {
+      "id": "log_1790843868301_axt6",
+      "timestamp": "2026-10-01T08:37:48.301Z",
+      "actorId": "usr_doc_1",
+      "actorName": "Dr. Anand Joshi",
+      "actorRole": "SYSTEM_DOCTOR",
+      "action": "RESOLVE_CONFLICT_REQUEST",
+      "resourceType": "ADMISSION",
+      "resourceId": "req_adm_902",
+      "details": "{\"oldStatus\":\"ASSIGNED\",\"newStatus\":\"RESOLVED\",\"alternativeHospital\":\"KEM Hospital & Research Centre\",\"resolutionNotes\":\"Verified bed inventory at KEM Hospital Pune. Allocated Bed ICU-04 under Dr. Kulkarni.\",\"resolvedAt\":\"2026-10-01T08:37:48.296Z\"}",
+      "createdAt": "2026-10-01T08:37:48.301Z",
+      "updatedAt": "2026-10-01T08:37:48.301Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif_1790843868252_etphc",
+      "userId": "usr_doc_1",
+      "type": "CONFLICT_ASSIGNMENT",
+      "title": "⚖️ Conflict Resolution Assigned",
+      "message": "Admin assigned rejected request #req_adm_902 for patient Sneha Patil to you for alternative facility coordination.",
+      "read": false,
+      "metadata": {
+        "requestId": "req_adm_902"
+      },
+      "createdAt": "2026-10-01T08:37:48.252Z",
+      "updatedAt": "2026-10-01T08:37:48.252Z"
+    },
+    {
+      "id": "notif_1790843868299_p30pw",
+      "userId": "usr_patient_2",
+      "type": "CONFLICT_RESOLUTION",
+      "title": "Healthcare Request Resolved",
+      "message": "Your healthcare coordination request has been resolved. Please review the updated facility information.",
+      "read": false,
+      "metadata": {
+        "requestId": "req_adm_902",
+        "targetHospitalName": "KEM Hospital & Research Centre"
+      },
+      "createdAt": "2026-10-01T08:37:48.299Z",
+      "updatedAt": "2026-10-01T08:37:48.299Z"
     }
   ]
 }

@@ -24,7 +24,12 @@ import {
   ArrowRight,
   Check,
   Radio,
-  ExternalLink
+  ExternalLink,
+  Users,
+  Phone,
+  MessageSquare,
+  Share2,
+  HeartPulse
 } from 'lucide-react';
 
 export const EmergencyModal = () => {
@@ -39,7 +44,7 @@ export const EmergencyModal = () => {
   } = useEmergency();
 
   const { user } = useAuth();
-  const { liveRequestUpdate, liveLocationUpdate, notifications } = useSocket() || {};
+  const { liveRequestUpdate, liveLocationUpdate, notifications, addToast } = useSocket() || {};
 
   const [hospitals, setHospitals] = useState([]);
   const [ambulances, setAmbulances] = useState([]);
@@ -55,6 +60,9 @@ export const EmergencyModal = () => {
   const [urgencyLevel, setUrgencyLevel] = useState('CRITICAL');
   const [emergencyNote, setEmergencyNote] = useState('Emergency medical evacuation & rapid transit required');
   const [requiresOxygen, setRequiresOxygen] = useState(true);
+  const [notifyFamily, setNotifyFamily] = useState(true);
+  const [emergencyContact, setEmergencyContact] = useState(user?.emergencyContact || '+91 98765 43211 (Son: Rahul)');
+  const [seniorSOSActive, setSeniorSOSActive] = useState(false);
 
   // Blood Search State
   const [bloodGroup, setBloodGroup] = useState(user?.bloodGroup || 'B+');
@@ -200,7 +208,7 @@ export const EmergencyModal = () => {
   };
 
   const handleDispatchAmbulance = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     setSubmitting(true);
     try {
       const req = await submitQuickAmbulance({
@@ -210,13 +218,59 @@ export const EmergencyModal = () => {
         ambulanceId: selectedAmbulanceId || undefined,
         urgency: urgencyLevel,
         emergencyType: emergencyNote,
-        requiresOxygen
+        requiresOxygen,
+        emergencyContact,
+        notifyFamily
       });
       setActiveEmergencyRequest(req);
       setEmergencyTab('STATUS');
       loadRecentRequests();
     } catch (err) {
       alert('Error dispatching ambulance: ' + (err.response?.data?.error || err.message));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleSeniorQuickSOS = async () => {
+    setSeniorSOSActive(true);
+    setSubmitting(true);
+    try {
+      // Audio / Voice Feedback for Elderly Accessibility
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        try {
+          const utterance = new SpeechSynthesisUtterance('Emergency activated. Nearest ambulance dispatched. Family notified.');
+          utterance.rate = 0.95;
+          window.speechSynthesis.speak(utterance);
+        } catch (e) {
+          // speech synthesis error ignored
+        }
+      }
+
+      const req = await submitQuickAmbulance({
+        pickupLocation: user?.address || 'Current Patient Home Location, Pune',
+        pickupCoords: { lat: 18.5074, lng: 73.8077 },
+        hospitalId: targetHospitalId || 'hosp_ruby_hall',
+        urgency: 'EMERGENCY',
+        emergencyType: '🚨 SENIOR CITIZEN 1-TAP SOS: Rapid medical evacuation with oxygen support requested.',
+        requiresOxygen: true,
+        emergencyContact,
+        notifyFamily: true
+      });
+
+      setActiveEmergencyRequest(req);
+      setEmergencyTab('STATUS');
+      loadRecentRequests();
+
+      if (addToast) {
+        addToast({
+          type: 'EMERGENCY_DISPATCH',
+          title: '🚨 SENIOR 1-TOUCH SOS ACTIVATED',
+          message: `Ambulance assigned & SMS with Live GPS tracking sent to family contact: ${emergencyContact}`
+        });
+      }
+    } catch (err) {
+      alert('Error in Senior SOS dispatch: ' + (err.response?.data?.error || err.message));
     } finally {
       setSubmitting(false);
     }
@@ -371,6 +425,93 @@ export const EmergencyModal = () => {
             style={{ border: '1px solid rgba(255,255,255,0.2)' }}
           >
             <X size={22} />
+          </button>
+        </div>
+
+        {/* ============================================================= */}
+        {/* SENIOR CITIZEN & ELDERLY 1-TOUCH SOS & FAMILY AUTOPILOT BANNER */}
+        {/* ============================================================= */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(239, 68, 68, 0.18) 100%)',
+            border: '2px solid #f59e0b',
+            borderRadius: '12px',
+            padding: '0.9rem 1.15rem',
+            marginBottom: '1.25rem',
+            boxShadow: '0 4px 20px rgba(245, 158, 11, 0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: '1rem'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+            <div
+              style={{
+                width: '46px',
+                height: '46px',
+                borderRadius: '50%',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '1.4rem',
+                boxShadow: '0 0 16px rgba(245, 158, 11, 0.5)',
+                flexShrink: 0
+              }}
+            >
+              👴
+            </div>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <strong style={{ fontSize: '1.05rem', color: '#fbbf24', letterSpacing: '0.02em' }}>
+                  Elderly & Senior Citizen 1-Touch Family SOS
+                </strong>
+                <span
+                  style={{
+                    background: 'rgba(245, 158, 11, 0.25)',
+                    color: '#fef08a',
+                    padding: '0.15rem 0.5rem',
+                    borderRadius: '9999px',
+                    fontSize: '0.7rem',
+                    fontWeight: 700,
+                    border: '1px solid rgba(245, 158, 11, 0.4)'
+                  }}
+                >
+                  AUTOPILOT
+                </span>
+              </div>
+              <div style={{ fontSize: '0.82rem', color: '#e2e8f0', marginTop: '2px' }}>
+                Single-tap rapid dispatch: sends nearest oxygen ambulance + automated SMS & WhatsApp with <strong>live GPS tracking link</strong> to Family Guardian (<strong>{emergencyContact}</strong>).
+              </div>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleSeniorQuickSOS}
+            disabled={submitting}
+            className="btn btn-warning"
+            style={{
+              padding: '0.8rem 1.4rem',
+              fontWeight: 900,
+              fontSize: '0.98rem',
+              letterSpacing: '0.02em',
+              borderRadius: '10px',
+              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+              color: '#000',
+              boxShadow: '0 0 22px rgba(245, 158, 11, 0.6)',
+              border: '2px solid #fef08a',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.6rem'
+            }}
+          >
+            <HeartPulse size={20} color="#000" />
+            <span>{submitting ? 'DISPATCHING SOS...' : '🚨 1-TOUCH SENIOR SOS (ALERT FAMILY)'}</span>
           </button>
         </div>
 
@@ -543,6 +684,46 @@ export const EmergencyModal = () => {
                     </div>
                   </div>
 
+                  {/* Family Notification Controls */}
+                  <div
+                    style={{
+                      background: 'rgba(16, 185, 129, 0.08)',
+                      border: '1px solid rgba(16, 185, 129, 0.3)',
+                      borderRadius: '8px',
+                      padding: '0.75rem 0.85rem',
+                      marginBottom: '0.85rem'
+                    }}
+                  >
+                    <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer', marginBottom: '0.4rem' }}>
+                      <input
+                        type="checkbox"
+                        checked={notifyFamily}
+                        onChange={(e) => setNotifyFamily(e.target.checked)}
+                        style={{ width: '16px', height: '16px', accentColor: '#10b981' }}
+                      />
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#34d399', fontWeight: 700, fontSize: '0.85rem' }}>
+                        <Users size={16} />
+                        <span>Inform Family Member / Guardian (Recommended for Elderly)</span>
+                      </div>
+                    </label>
+
+                    {notifyFamily && (
+                      <div style={{ marginTop: '0.35rem' }}>
+                        <input
+                          type="text"
+                          className="form-control"
+                          value={emergencyContact}
+                          onChange={(e) => setEmergencyContact(e.target.value)}
+                          placeholder="Family Contact (e.g. Son: +91 98765 43210)"
+                          style={{ fontSize: '0.82rem', padding: '0.45rem 0.75rem' }}
+                        />
+                        <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '3px' }}>
+                          📲 Automated SMS & WhatsApp with live GPS tracking link will be sent upon dispatch.
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="form-group" style={{ marginBottom: '1rem' }}>
                     <label className="form-label" style={{ fontWeight: 700 }}>
                       📝 Emergency Reason / Administrative Note:
@@ -552,7 +733,7 @@ export const EmergencyModal = () => {
                       className="form-control"
                       value={emergencyNote}
                       onChange={(e) => setEmergencyNote(e.target.value)}
-                      placeholder="e.g. Acute chest distress, road trauma, severe desaturation..."
+                      placeholder="e.g. Acute chest distress, elderly collapse, desaturation..."
                     />
                   </div>
                 </div>
@@ -1014,6 +1195,83 @@ export const EmergencyModal = () => {
                     activeRequest={activeEmergencyRequest}
                     height="280px"
                   />
+                </div>
+
+                {/* Family Guardian Live Notification & Telemetry Card */}
+                <div
+                  style={{
+                    background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.12) 0%, rgba(15, 23, 42, 0.8) 100%)',
+                    border: '1px solid rgba(16, 185, 129, 0.45)',
+                    borderRadius: '8px',
+                    padding: '0.9rem 1rem',
+                    marginBottom: '1rem',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: '0.85rem'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div
+                      style={{
+                        width: '38px',
+                        height: '38px',
+                        borderRadius: '50%',
+                        background: 'rgba(16, 185, 129, 0.2)',
+                        border: '1px solid rgba(16, 185, 129, 0.5)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: '#34d399',
+                        flexShrink: 0
+                      }}
+                    >
+                      <Users size={18} />
+                    </div>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                        <strong style={{ fontSize: '0.95rem', color: '#f8fafc' }}>Family Guardian Alerted</strong>
+                        <span
+                          style={{
+                            background: 'rgba(16, 185, 129, 0.2)',
+                            color: '#34d399',
+                            fontSize: '0.7rem',
+                            fontWeight: 800,
+                            padding: '0.1rem 0.45rem',
+                            borderRadius: '4px',
+                            border: '1px solid rgba(16, 185, 129, 0.4)'
+                          }}
+                        >
+                          SMS & WHATSAPP ACTIVE
+                        </span>
+                      </div>
+                      <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '2px' }}>
+                        Emergency Contact: <strong style={{ color: '#cbd5e1' }}>{activeEmergencyRequest.details?.emergencyContact || emergencyContact}</strong> • Live GPS Telemetry Shared
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <a
+                      href={`tel:${(activeEmergencyRequest.details?.emergencyContact || emergencyContact).replace(/[^0-9+]/g, '') || '9876543211'}`}
+                      className="btn btn-sm btn-success"
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700 }}
+                    >
+                      <Phone size={14} /> Call Family
+                    </a>
+                    <a
+                      href={`https://api.whatsapp.com/send?text=${encodeURIComponent(
+                        `🚨 MediLink CARE Emergency Alert: Emergency ambulance #${activeEmergencyRequest.id} dispatched for ${activeEmergencyRequest.patientName}. Hospital: ${activeEmergencyRequest.targetHospitalName || 'Emergency Trauma Center'}. Live Tracking: https://medilink.care/live-track/${activeEmergencyRequest.id}`
+                      )}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="btn btn-sm btn-secondary"
+                      style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 700, borderColor: '#25D366', color: '#25D366' }}
+                    >
+                      <MessageSquare size={14} /> WhatsApp Tracking
+                    </a>
+                  </div>
                 </div>
               </div>
             ) : (

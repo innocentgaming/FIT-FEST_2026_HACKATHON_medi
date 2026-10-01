@@ -23,13 +23,20 @@ export const AdminDashboard = () => {
   const { user } = useAuth();
   const { liveRequestUpdate, liveResourceUpdate } = useSocket();
 
-  const [activeTab, setActiveTab] = useState('TRIAGE'); // TRIAGE, HOSPITALS, AMBULANCES, AUDIT
+  const [activeTab, setActiveTab] = useState('DASHBOARD'); // DASHBOARD, CONFLICTS, HOSPITALS, AMBULANCES, REQUESTS, AUDIT
   const [hospitals, setHospitals] = useState([]);
   const [ambulances, setAmbulances] = useState([]);
   const [systemDoctors, setSystemDoctors] = useState([]);
   const [adminRequests, setAdminRequests] = useState(null);
   const [auditLogs, setAuditLogs] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Request Filters State
+  const [filterStatus, setFilterStatus] = useState('ALL');
+  const [filterPriority, setFilterPriority] = useState('ALL');
+  const [filterType, setFilterType] = useState('ALL');
+  const [filterHospital, setFilterHospital] = useState('ALL');
+  const [filterDate, setFilterDate] = useState('');
 
   // Escalation Modal
   const [escalateModalOpen, setEscalateModalOpen] = useState(false);
@@ -99,20 +106,44 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleQuickAutoEscalate = async (reqId) => {
+    const doc = systemDoctors[0];
+    if (!doc) {
+      alert('No System Doctor registered in network.');
+      return;
+    }
+    try {
+      await api.assignRequestToDoctor(reqId, doc.id, `Priority Admin Auto-Triage: Assigned to ${doc.name} for immediate alternative facility coordination.`);
+      alert(`Request #${reqId} successfully assigned to ${doc.name}!`);
+      loadAdminData();
+    } catch (err) {
+      alert('Error escalating request: ' + err.message);
+    }
+  };
+
   const handleResetDemoState = async () => {
-    if (window.confirm('Reset all databases, requests, and counters back to initial hackathon seeds?')) {
+    if (window.confirm('Synchronize and reset all emergency queues, databases, and resource counters to verified baseline state?')) {
       try {
         await api.resetDemoData();
-        alert('System state successfully restored to initial seed!');
+        alert('System baseline state successfully synchronized!');
         loadAdminData();
       } catch (err) {
-        alert('Error resetting demo: ' + err.message);
+        alert('Error synchronizing registry: ' + err.message);
       }
     }
   };
 
   const rejectedQueue = adminRequests?.unresolvedQueue || [];
   const allRequests = adminRequests?.allRequests || [];
+
+  const filteredAllRequests = allRequests.filter((r) => {
+    if (filterStatus !== 'ALL' && r.status !== filterStatus) return false;
+    if (filterPriority !== 'ALL' && (r.priority || '').toUpperCase() !== filterPriority) return false;
+    if (filterType !== 'ALL' && (r.type || '').toUpperCase() !== filterType) return false;
+    if (filterHospital !== 'ALL' && r.targetHospitalId !== filterHospital && r.sourceHospitalId !== filterHospital) return false;
+    if (filterDate && !(r.createdAt || '').startsWith(filterDate)) return false;
+    return true;
+  });
 
   return (
     <div>
@@ -133,9 +164,9 @@ export const AdminDashboard = () => {
           onClick={handleResetDemoState}
           className="btn btn-secondary btn-sm"
           style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
-          title="Reset database back to initial clean state"
+          title="Synchronize database with verified state registry"
         >
-          <RotateCcw size={15} /> Reset Hackathon Demo Seed
+          <RotateCcw size={15} /> Sync & Reset Registry Baseline
         </button>
       </div>
 
@@ -382,13 +413,24 @@ export const AdminDashboard = () => {
                         <StatusBadge status={req.status} />
                       </td>
                       <td>
-                        <button
-                          onClick={() => handleOpenEscalateModal(req.id)}
-                          className="btn btn-primary btn-sm"
-                          style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)' }}
-                        >
-                          <Stethoscope size={14} /> Assign to System Doctor
-                        </button>
+                        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                          <button
+                            onClick={() => handleQuickAutoEscalate(req.id)}
+                            className="btn btn-primary btn-sm"
+                            style={{ background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)', display: 'flex', alignItems: 'center', gap: '4px' }}
+                            title="Auto-assigns to on-duty System Doctor"
+                          >
+                            <Stethoscope size={13} /> ⚡ 1-Click Auto-Triage
+                          </button>
+                          <button
+                            onClick={() => handleOpenEscalateModal(req.id)}
+                            className="btn btn-secondary btn-sm"
+                            style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem' }}
+                            title="Assign to specific doctor with custom notes"
+                          >
+                            Custom...
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -397,170 +439,178 @@ export const AdminDashboard = () => {
             </div>
           )}
 
-          {/* All Network Requests Overview with Filters */}
-          <div style={{ marginTop: '2rem' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
-              <h4 style={{ fontSize: '1.1rem', margin: 0 }}>All Network Requests Archive</h4>
-              <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
-                Showing {filteredAllRequests.length} of {allRequests.length} requests
-              </span>
+        </div>
+      )}
+
+      {/* TAB 3: ALL NETWORK REQUESTS ARCHIVE */}
+      {activeTab === 'REQUESTS' && (
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+            <div>
+              <h3 style={{ fontSize: '1.2rem', margin: 0, color: 'var(--text-primary)' }}>All Network Requests Archive</h3>
+              <p style={{ color: '#94a3b8', fontSize: '0.85rem', marginTop: '0.2rem' }}>
+                Complete live registry of all admissions, transfers, ambulance trips, and blood requests.
+              </p>
+            </div>
+            <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>
+              Showing {filteredAllRequests.length} of {allRequests.length} requests
+            </span>
+          </div>
+
+          {/* Network Table Filters */}
+          <div
+            style={{
+              background: 'var(--bg-input)',
+              padding: '0.75rem',
+              borderRadius: '8px',
+              border: '1px solid var(--border-card)',
+              marginBottom: '1rem',
+              display: 'flex',
+              gap: '0.65rem',
+              flexWrap: 'wrap',
+              alignItems: 'center'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Status:</span>
+              <select
+                className="form-select"
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value)}
+                style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', width: 'auto' }}
+              >
+                <option value="ALL">All Statuses</option>
+                <option value="PENDING">PENDING</option>
+                <option value="ASSIGNED">ASSIGNED</option>
+                <option value="ACCEPTED">ACCEPTED</option>
+                <option value="COMPLETED">COMPLETED</option>
+                <option value="REJECTED">REJECTED</option>
+                <option value="RESOLVED">RESOLVED</option>
+              </select>
             </div>
 
-            {/* Network Table Filters */}
-            <div
-              style={{
-                background: 'var(--bg-input)',
-                padding: '0.75rem',
-                borderRadius: '8px',
-                border: '1px solid var(--border-card)',
-                marginBottom: '1rem',
-                display: 'flex',
-                gap: '0.65rem',
-                flexWrap: 'wrap',
-                alignItems: 'center'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Status:</span>
-                <select
-                  className="form-select"
-                  value={filterStatus}
-                  onChange={(e) => setFilterStatus(e.target.value)}
-                  style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', width: 'auto' }}
-                >
-                  <option value="ALL">All Statuses</option>
-                  <option value="PENDING">PENDING</option>
-                  <option value="ASSIGNED">ASSIGNED</option>
-                  <option value="ACCEPTED">ACCEPTED</option>
-                  <option value="COMPLETED">COMPLETED</option>
-                  <option value="REJECTED">REJECTED</option>
-                  <option value="RESOLVED">RESOLVED</option>
-                </select>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Priority:</span>
-                <select
-                  className="form-select"
-                  value={filterPriority}
-                  onChange={(e) => setFilterPriority(e.target.value)}
-                  style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', width: 'auto' }}
-                >
-                  <option value="ALL">All Priorities</option>
-                  <option value="NORMAL">NORMAL</option>
-                  <option value="URGENT">URGENT</option>
-                  <option value="CRITICAL">CRITICAL</option>
-                  <option value="EMERGENCY">EMERGENCY</option>
-                </select>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Type:</span>
-                <select
-                  className="form-select"
-                  value={filterType}
-                  onChange={(e) => setFilterType(e.target.value)}
-                  style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', width: 'auto' }}
-                >
-                  <option value="ALL">All Types</option>
-                  <option value="AMBULANCE">AMBULANCE</option>
-                  <option value="ADMISSION">ADMISSION</option>
-                  <option value="H2H_TRANSFER">H2H TRANSFER</option>
-                  <option value="BLOOD">BLOOD</option>
-                  <option value="EQUIPMENT">EQUIPMENT</option>
-                </select>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Hospital:</span>
-                <select
-                  className="form-select"
-                  value={filterHospital}
-                  onChange={(e) => setFilterHospital(e.target.value)}
-                  style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', width: 'auto' }}
-                >
-                  <option value="ALL">All Hospitals</option>
-                  {hospitals.map((h) => (
-                    <option key={h.id} value={h.id}>
-                      {h.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Date:</span>
-                <input
-                  type="date"
-                  className="form-control"
-                  value={filterDate}
-                  onChange={(e) => setFilterDate(e.target.value)}
-                  style={{ fontSize: '0.75rem', padding: '0.2rem 0.4rem', width: 'auto' }}
-                />
-              </div>
-
-              {(filterStatus !== 'ALL' || filterPriority !== 'ALL' || filterType !== 'ALL' || filterHospital !== 'ALL' || filterDate) && (
-                <button
-                  onClick={() => {
-                    setFilterStatus('ALL');
-                    setFilterPriority('ALL');
-                    setFilterType('ALL');
-                    setFilterHospital('ALL');
-                    setFilterDate('');
-                  }}
-                  className="btn btn-secondary btn-sm"
-                  style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem' }}
-                >
-                  Clear Filters
-                </button>
-              )}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Priority:</span>
+              <select
+                className="form-select"
+                value={filterPriority}
+                onChange={(e) => setFilterPriority(e.target.value)}
+                style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', width: 'auto' }}
+              >
+                <option value="ALL">All Priorities</option>
+                <option value="NORMAL">NORMAL</option>
+                <option value="URGENT">URGENT</option>
+                <option value="CRITICAL">CRITICAL</option>
+                <option value="EMERGENCY">EMERGENCY</option>
+              </select>
             </div>
 
-            <div className="table-responsive card" style={{ padding: 0 }}>
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Type</th>
-                    <th>Patient</th>
-                    <th>Target Facility</th>
-                    <th>Priority</th>
-                    <th>Assigned Doctor/Ambulance</th>
-                    <th>Status</th>
-                    <th>Created</th>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Type:</span>
+              <select
+                className="form-select"
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', width: 'auto' }}
+              >
+                <option value="ALL">All Types</option>
+                <option value="AMBULANCE">AMBULANCE</option>
+                <option value="ADMISSION">ADMISSION</option>
+                <option value="H2H_TRANSFER">H2H TRANSFER</option>
+                <option value="BLOOD">BLOOD</option>
+                <option value="EQUIPMENT">EQUIPMENT</option>
+              </select>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Hospital:</span>
+              <select
+                className="form-select"
+                value={filterHospital}
+                onChange={(e) => setFilterHospital(e.target.value)}
+                style={{ fontSize: '0.75rem', padding: '0.25rem 0.5rem', width: 'auto' }}
+              >
+                <option value="ALL">All Hospitals</option>
+                {hospitals.map((h) => (
+                  <option key={h.id} value={h.id}>
+                    {h.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>Date:</span>
+              <input
+                type="date"
+                className="form-control"
+                value={filterDate}
+                onChange={(e) => setFilterDate(e.target.value)}
+                style={{ fontSize: '0.75rem', padding: '0.2rem 0.4rem', width: 'auto' }}
+              />
+            </div>
+
+            {(filterStatus !== 'ALL' || filterPriority !== 'ALL' || filterType !== 'ALL' || filterHospital !== 'ALL' || filterDate) && (
+              <button
+                onClick={() => {
+                  setFilterStatus('ALL');
+                  setFilterPriority('ALL');
+                  setFilterType('ALL');
+                  setFilterHospital('ALL');
+                  setFilterDate('');
+                }}
+                className="btn btn-secondary btn-sm"
+                style={{ fontSize: '0.72rem', padding: '0.2rem 0.5rem' }}
+              >
+                Clear Filters
+              </button>
+            )}
+          </div>
+
+          <div className="table-responsive card" style={{ padding: 0 }}>
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Type</th>
+                  <th>Patient</th>
+                  <th>Target Facility</th>
+                  <th>Priority</th>
+                  <th>Assigned Doctor/Ambulance</th>
+                  <th>Status</th>
+                  <th>Created</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredAllRequests.map((r) => (
+                  <tr key={r.id}>
+                    <td>#{r.id}</td>
+                    <td>
+                      <strong>{r.type}</strong>
+                    </td>
+                    <td>
+                      <div>{r.patientName}</div>
+                      <small style={{ color: '#94a3b8' }}>{r.patientPhone}</small>
+                    </td>
+                    <td>{r.targetHospitalName || 'N/A'}</td>
+                    <td>
+                      <span style={{ fontWeight: 700, fontSize: '0.75rem', color: r.priority === 'EMERGENCY' || r.priority === 'CRITICAL' ? '#ef4444' : '#f59e0b' }}>
+                        {r.priority}
+                      </span>
+                    </td>
+                    <td style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>
+                      {r.assignedDoctorName || r.assignedAmbulanceVehicle || 'Unassigned'}
+                    </td>
+                    <td>
+                      <StatusBadge status={r.status} tripStatus={r.ambulanceTripStatus} />
+                    </td>
+                    <td style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
+                      {new Date(r.createdAt).toLocaleTimeString()}
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {filteredAllRequests.map((r) => (
-                    <tr key={r.id}>
-                      <td>#{r.id}</td>
-                      <td>
-                        <strong>{r.type}</strong>
-                      </td>
-                      <td>
-                        <div>{r.patientName}</div>
-                        <small style={{ color: '#94a3b8' }}>{r.patientPhone}</small>
-                      </td>
-                      <td>{r.targetHospitalName || 'N/A'}</td>
-                      <td>
-                        <span style={{ fontWeight: 700, fontSize: '0.75rem', color: r.priority === 'EMERGENCY' || r.priority === 'CRITICAL' ? '#ef4444' : '#f59e0b' }}>
-                          {r.priority}
-                        </span>
-                      </td>
-                      <td style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>
-                        {r.assignedDoctorName || r.assignedAmbulanceVehicle || 'Unassigned'}
-                      </td>
-                      <td>
-                        <StatusBadge status={r.status} tripStatus={r.ambulanceTripStatus} />
-                      </td>
-                      <td style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-                        {new Date(r.createdAt).toLocaleTimeString()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       )}
