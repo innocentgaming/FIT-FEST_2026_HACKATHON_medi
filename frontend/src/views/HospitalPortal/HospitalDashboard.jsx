@@ -1618,8 +1618,8 @@ export const HospitalDashboard = () => {
             <form onSubmit={handleVerifyPin}>
               <div className="form-group" style={{ textAlign: 'left', marginBottom: '1rem' }}>
                 <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>Enter 4-Digit Staff PIN / Passcode</span>
-                  <span style={{ fontSize: '0.75rem', color: 'var(--primary-light)' }}>Demo PIN: 1234</span>
+                  <span>Enter 4-Digit Staff Security PIN</span>
+                  <span style={{ fontSize: '0.75rem', color: 'var(--primary-light)' }}>Staff Security Code: 1234</span>
                 </label>
                 <input
                   type="password"

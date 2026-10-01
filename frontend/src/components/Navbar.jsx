@@ -49,7 +49,7 @@ export const Navbar = ({ activeView, setActiveView }) => {
         </div>
         <div className="nav-brand-text">
           <h1>MediLink CARE</h1>
-          <span>FIT FEST 2026 Hackathon Engine</span>
+          <span>National Healthcare & Emergency Response Grid</span>
         </div>
       </div>
 

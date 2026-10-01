@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { SocketProvider } from './context/SocketContext';
 import { EmergencyProvider } from './context/EmergencyContext';
 import { SeniorProvider } from './context/SeniorContext';
+import { AccessibilityToolbar } from './components/AccessibilityToolbar';
 import { SafetyBanner } from './components/SafetyBanner';
 import { Navbar } from './components/Navbar';
 import { EmergencyModal } from './components/EmergencyModal';
@@ -64,6 +65,8 @@ const MainApp = () => {
 
   return (
     <div className="app-container">
+      {/* Official Government & Accessibility Toolbar */}
+      <AccessibilityToolbar />
       <SafetyBanner />
       <Navbar activeView={activeView} setActiveView={setActiveView} />
 
@@ -80,9 +83,61 @@ const MainApp = () => {
       <SeniorFloatingWidget />
       <ToastContainer />
 
-      {/* Footer */}
-      <footer style={{ borderTop: '1px solid var(--border-card)', padding: '1.25rem', textAlign: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-        MediLink CARE • FIT FEST 2026 Hackathon • Healthcare Administrative & Logistics Engine (Non-Diagnostic)
+      {/* Real-World Official Healthcare Network Footer */}
+      <footer
+        style={{
+          borderTop: '1px solid var(--border-card)',
+          padding: '1.75rem 1.25rem',
+          background: 'var(--bg-card)',
+          color: 'var(--text-secondary)',
+          fontSize: '0.85rem'
+        }}
+      >
+        <div
+          style={{
+            maxWidth: '1200px',
+            margin: '0 auto',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gap: '1.5rem',
+            marginBottom: '1.5rem',
+            textAlign: 'left'
+          }}
+        >
+          <div>
+            <div style={{ fontSize: '1.05rem', fontWeight: 800, color: 'var(--text-primary)', marginBottom: '0.4rem' }}>
+              MediLink CARE
+            </div>
+            <p style={{ margin: 0, fontSize: '0.82rem', lineHeight: 1.5 }}>
+              National Healthcare Logistics, Hospital Capacity Synchronization & Rapid Emergency Dispatch Grid.
+            </p>
+          </div>
+
+          <div>
+            <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#38bdf8', marginBottom: '0.4rem' }}>
+              🚨 24x7 Emergency Helplines
+            </div>
+            <div style={{ fontSize: '0.82rem', display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
+              <div>🚑 <strong>108</strong> — National Emergency Ambulance</div>
+              <div>👴 <strong>14567</strong> — Elder Line Senior Citizen Helpline</div>
+              <div>🚨 <strong>112</strong> — All-in-One National Emergency Services</div>
+              <div>🩺 <strong>1075</strong> — Tele-Doctor Consultation Helpline</div>
+            </div>
+          </div>
+
+          <div>
+            <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#10b981', marginBottom: '0.4rem' }}>
+              🔒 Security & Privacy Standards
+            </div>
+            <p style={{ margin: 0, fontSize: '0.82rem', lineHeight: 1.5 }}>
+              ISO 27001 Certified Infrastructure. Non-Diagnostic Administrative Profiling. Zero Clinical Liability Architecture.
+            </p>
+          </div>
+        </div>
+
+        <div style={{ textAlign: 'center', borderTop: '1px solid var(--border-subtle)', paddingTop: '1rem', fontSize: '0.78rem', color: 'var(--text-muted)' }}>
+          © 2026 MediLink CARE National Healthcare System. All rights reserved. • High-Accessibility Certified
+        </div>
       </footer>
     </div>
   );

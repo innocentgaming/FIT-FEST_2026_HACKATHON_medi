@@ -100,13 +100,13 @@ export const AdminDashboard = () => {
   };
 
   const handleResetDemoState = async () => {
-    if (window.confirm('Reset all databases, requests, and counters back to initial hackathon seeds?')) {
+    if (window.confirm('Reset all network databases, requests, and telemetry counters back to baseline catalog?')) {
       try {
         await api.resetDemoData();
-        alert('System state successfully restored to initial seed!');
+        alert('System database state successfully synchronized to baseline!');
         loadAdminData();
       } catch (err) {
-        alert('Error resetting demo: ' + err.message);
+        alert('Error synchronizing database: ' + err.message);
       }
     }
   };
@@ -133,9 +133,9 @@ export const AdminDashboard = () => {
           onClick={handleResetDemoState}
           className="btn btn-secondary btn-sm"
           style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}
-          title="Reset database back to initial clean state"
+          title="Reset database back to baseline clean state"
         >
-          <RotateCcw size={15} /> Reset Hackathon Demo Seed
+          <RotateCcw size={15} /> Reset System State
         </button>
       </div>
 

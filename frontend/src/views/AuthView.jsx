@@ -117,26 +117,35 @@ export const AuthView = () => {
 
   return (
     <div style={{ maxWidth: '960px', margin: '2rem auto', padding: '1rem' }}>
-      {/* Header */}
+      {/* Official Government & Enterprise Portal Header */}
       <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.35)', color: '#38bdf8', padding: '0.25rem 0.85rem', borderRadius: '9999px', fontSize: '0.78rem', fontWeight: 800, marginBottom: '0.75rem' }}>
+          <ShieldCheck size={14} />
+          <span>NATIONAL HEALTH LOGISTICS & EMERGENCY COORDINATION NETWORK</span>
+        </div>
         <h2 style={{ fontSize: '2.25rem', fontWeight: 800, background: 'linear-gradient(90deg, #f8fafc 0%, #38bdf8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.02em' }}>
-          MediLink — CARE
+          MediLink CARE — Unified Portal
         </h2>
-        <p style={{ color: 'var(--text-secondary)', fontSize: '1rem', marginTop: '0.25rem' }}>
-          Coordinated Assistance & Record Engine • FIT-FEST 2026 Hackathon
+        <p style={{ color: 'var(--text-secondary)', fontSize: '0.95rem', marginTop: '0.35rem', maxWidth: '650px', margin: '0.35rem auto 0' }}>
+          Single Sign-On Authentication for Citizens, Multi-Specialty Hospitals, Emergency Ambulance Fleet & Medical Command
         </p>
       </div>
 
-      {/* 1-Click Role Logins for Testing Individual Patients & Doctors */}
+      {/* Quick Verified Role Portals */}
       <div className="card" style={{ marginBottom: '2rem', background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.7) 100%)', border: '1px solid rgba(56, 189, 248, 0.3)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-          <ShieldCheck size={20} color="var(--primary-light)" />
-          <h3 style={{ fontSize: '1.1rem', color: 'var(--text-primary)' }}>
-            Select Account to Login (Individual Patients, Doctors & Providers)
-          </h3>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem', flexWrap: 'wrap', gap: '0.5rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <ShieldCheck size={20} color="var(--primary-light)" />
+            <h3 style={{ fontSize: '1.05rem', color: 'var(--text-primary)', margin: 0 }}>
+              Quick Portal Access (Select Verified Department / Role)
+            </h3>
+          </div>
+          <span style={{ fontSize: '0.72rem', color: '#34d399', background: 'rgba(16, 185, 129, 0.15)', border: '1px solid rgba(16, 185, 129, 0.35)', padding: '0.15rem 0.5rem', borderRadius: '4px', fontWeight: 700 }}>
+            INSTANT ACCESS VERIFIED
+          </span>
         </div>
         <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1rem' }}>
-          Each patient and doctor has their own isolated data and separate dashboard. Click below to login as that specific user:
+          Direct portal access for citizens, hospital command administrators, emergency ambulance drivers, and system medical officers:
         </p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '0.75rem' }}>
           {demoAccounts.map((acc, idx) => (
