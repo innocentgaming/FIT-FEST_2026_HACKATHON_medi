@@ -8,6 +8,7 @@ import { SafetyBanner } from './components/SafetyBanner';
 import { Navbar } from './components/Navbar';
 import { EmergencyModal } from './components/EmergencyModal';
 import { SeniorAssistanceModal } from './components/SeniorAssistanceModal';
+import { FamilyConfirmAlertModal } from './components/FamilyConfirmAlertModal';
 import { SeniorFloatingWidget } from './components/SeniorFloatingWidget';
 import { ToastContainer } from './components/ToastContainer';
 
@@ -75,6 +76,7 @@ const MainApp = () => {
       {/* Global Modals & Widgets */}
       <EmergencyModal />
       <SeniorAssistanceModal />
+      <FamilyConfirmAlertModal />
       <SeniorFloatingWidget />
       <ToastContainer />
 

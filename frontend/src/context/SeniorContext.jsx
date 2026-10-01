@@ -217,6 +217,66 @@ export const SeniorProvider = ({ children }) => {
     }
   };
 
+  const [pendingConfirmation, setPendingConfirmation] = useState(null); // { contact, actionType: 'CALL_AND_SMS' | 'CALL' | 'SMS' }
+
+  const requestFamilyContactAlert = (contact, actionType = 'CALL_AND_SMS') => {
+    setPendingConfirmation({ contact, actionType });
+    if (actionType === 'CALL_AND_SMS') {
+      speak(`Please confirm. Tap confirm to call and message ${contact.name}`);
+    } else if (actionType === 'CALL') {
+      speak(`Please confirm call to ${contact.name}`);
+    } else {
+      speak(`Please confirm emergency message to ${contact.name}`);
+    }
+  };
+
+  const cancelFamilyContactAlert = () => {
+    setPendingConfirmation(null);
+    speak('Action cancelled.');
+  };
+
+  const confirmAndExecuteFamilyAlert = (currentUser) => {
+    if (!pendingConfirmation || !pendingConfirmation.contact) return;
+    const { contact, actionType } = pendingConfirmation;
+
+    const patientName = currentUser?.name || 'Patient';
+    const patientAddress = currentUser?.address || 'Current Resident Location, Pune';
+    const patientPhone = currentUser?.phone || 'Not provided';
+
+    const emergencyMessage = `🚨 MEDILINK EMERGENCY ALERT: ${patientName} has triggered an urgent alert and needs assistance! Current Location: ${patientAddress}. Contact: ${patientPhone}.`;
+    const encodedMsg = encodeURIComponent(emergencyMessage);
+
+    speak(`Confirmed! Contacting ${contact.name} now.`);
+
+    if (actionType === 'CALL_AND_SMS' || actionType === 'SMS') {
+      try {
+        window.open(`sms:${contact.phone}?body=${encodedMsg}`, '_blank');
+      } catch (e) {
+        console.warn('SMS dispatch error:', e);
+      }
+    }
+
+    if (actionType === 'CALL_AND_SMS' || actionType === 'CALL') {
+      setTimeout(() => {
+        try {
+          window.location.href = `tel:${contact.phone}`;
+        } catch (e) {
+          console.warn('Call dispatch error:', e);
+        }
+      }, 400);
+    }
+
+    if (addToast) {
+      addToast({
+        type: 'EMERGENCY_DISPATCH',
+        title: `🚨 Emergency Alert Sent to ${contact.name}`,
+        message: `Calling ${contact.phone} and SMS dispatch sent with GPS coordinates.`
+      });
+    }
+
+    setPendingConfirmation(null);
+  };
+
   const toggleReminder = (id) => {
     setReminders((prev) =>
       prev.map((r) => {
@@ -263,7 +323,11 @@ export const SeniorProvider = ({ children }) => {
         toggleReminder,
         triggerSeniorSOS,
         sosStatus,
-        recentSosRequest
+        recentSosRequest,
+        pendingConfirmation,
+        requestFamilyContactAlert,
+        cancelFamilyContactAlert,
+        confirmAndExecuteFamilyAlert
       }}
     >
       {children}

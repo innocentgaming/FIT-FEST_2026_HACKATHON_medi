@@ -49,7 +49,8 @@ export const PatientDashboard = () => {
     toggleReminder,
     triggerSeniorSOS,
     sosStatus,
-    speak
+    speak,
+    requestFamilyContactAlert
   } = useSenior();
   const { liveResourceUpdate, liveBloodBankUpdate, liveRequestUpdate, liveLocationUpdate } = useSocket();
 
@@ -1212,15 +1213,19 @@ export const PatientDashboard = () => {
                         </div>
 
                         <button
-                          onClick={() => {
-                            speak(`Calling ${c.name}`);
-                            window.location.href = `tel:${c.phone}`;
-                          }}
+                          onClick={() => requestFamilyContactAlert(c, 'CALL_AND_SMS')}
                           className="btn btn-success btn-sm"
-                          style={{ fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                          style={{
+                            fontWeight: 800,
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                            boxShadow: '0 0 10px rgba(16, 185, 129, 0.3)'
+                          }}
+                          title="Click to Alert & Call Family (Requires 2nd confirmation click)"
                         >
                           <PhoneCall size={14} />
-                          <span>CALL</span>
+                          <span>CALL & ALERT</span>
                         </button>
                       </div>
                     ))}

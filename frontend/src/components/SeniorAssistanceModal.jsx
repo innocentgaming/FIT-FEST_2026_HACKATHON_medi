@@ -112,7 +112,8 @@ export const SeniorAssistanceModal = () => {
     toggleReminder,
     triggerSeniorSOS,
     sosStatus,
-    recentSosRequest
+    recentSosRequest,
+    requestFamilyContactAlert
   } = useSenior();
 
   const { user } = useAuth();
@@ -737,32 +738,34 @@ export const SeniorAssistanceModal = () => {
                       </div>
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                        {/* Call Button */}
+                        {/* 1-Click to trigger confirmation step */}
                         <button
-                          onClick={() => startCall(c.phone, c.name)}
+                          onClick={() => requestFamilyContactAlert(c, 'CALL_AND_SMS')}
                           className="btn btn-success"
                           style={{
-                            padding: '0.55rem 0.9rem',
+                            padding: '0.55rem 0.95rem',
                             fontSize: '0.88rem',
-                            fontWeight: 700,
+                            fontWeight: 800,
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.3rem'
+                            gap: '0.35rem',
+                            boxShadow: '0 0 15px rgba(16, 185, 129, 0.3)'
                           }}
+                          title="Click to Alert & Call Family Member (Requires 2nd confirmation click)"
                         >
                           <PhoneCall size={15} />
-                          <span>CALL</span>
+                          <span>CALL & ALERT</span>
                         </button>
 
                         {/* SOS SMS Button */}
                         <button
-                          onClick={() => sendSosSms(c)}
+                          onClick={() => requestFamilyContactAlert(c, 'SMS')}
                           className="btn btn-secondary"
                           style={{
                             padding: '0.55rem 0.75rem',
                             fontSize: '0.85rem'
                           }}
-                          title="Send SOS SMS with Current GPS Location"
+                          title="Send Emergency Location SMS"
                         >
                           <MessageSquare size={15} />
                         </button>
